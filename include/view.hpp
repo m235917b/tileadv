@@ -23,12 +23,16 @@ class View
         bool init();
         void destroy();
         bool loadTextures();
-        bool render(Chunk& chunk, const std::vector<Character*>& characters);
+        bool render(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
 
     private:
         int topMargin;
         int leftMargin;
         int tileSize;
+        int cameraX;
+        int cameraY;
+        int cameraMarginX;
+        int cameraMarginY;
 
         SDL_Window* window;
         SDL_Renderer* renderer;

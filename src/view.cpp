@@ -13,7 +13,7 @@
 #include "tiletypes.hpp"
 
 View::View()
-    : tileSize(25), window(nullptr), renderer(nullptr), playerTexture(), worldTiles()
+    : tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), window(nullptr), renderer(nullptr), playerTexture(), worldTiles()
 {
     topMargin = (screenHeight - tileSize * static_cast<int>(screenHeight / tileSize)) / 2;
     leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
@@ -92,20 +92,40 @@ void View::destroy()
     SDL_Quit();
 }
 
-bool View::render(Chunk& chunk, const std::vector<Character*>& characters)
+bool View::render(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
 {
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(renderer);
 
-    for(int y = 0; y < chunk.getHeight() && y < screenHeight / tileSize; ++y)
+    if (player->getPosX() < cameraX + cameraMarginX)
     {
-        for(int x = 0; x < chunk.getWidth() && x < screenWidth / tileSize; ++x)
+        cameraX = std::max(0, cameraX - 1);
+    }
+
+    if (player->getPosX() > cameraX + screenWidth / tileSize - cameraMarginX)
+    {
+        cameraX = std::min(chunk.getWidth() - screenWidth / tileSize, cameraX + 1);
+    }
+
+    if (player->getPosY() < cameraY + cameraMarginY)
+    {
+        cameraY = std::max(0, cameraY - 1);
+    }
+
+    if (player->getPosY() > cameraY + screenHeight / tileSize - cameraMarginY)
+    {
+        cameraY = std::min(chunk.getHeight() - screenHeight / tileSize, cameraY + 1);
+    }
+
+    for (int y = cameraY; y < chunk.getHeight() && y < screenHeight / tileSize + cameraY; ++y)
+    {
+        for (int x = cameraX; x < chunk.getWidth() && x < screenWidth / tileSize + cameraX; ++x)
         {
             const Tile& tile = chunk.getTile(x, y);
             SDL_FRect spriteCoords = TileAtlas::getSpriteCoords(tile.type);
 
-            float posX = leftMargin + static_cast<float>(x) * tileSize;
-            float posY = topMargin + static_cast<float>(y) * tileSize;
+            float posX = leftMargin + static_cast<float>(x) * tileSize - cameraX * tileSize;
+            float posY = topMargin + static_cast<float>(y) * tileSize - cameraY * tileSize;
 
             worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize, renderer);
         }
@@ -113,8 +133,8 @@ bool View::render(Chunk& chunk, const std::vector<Character*>& characters)
 
     for (const Character* character : characters)
     {
-        float posX = leftMargin + static_cast<float>(character->getPosX()) * tileSize;
-        float posY = topMargin + static_cast<float>(character->getPosY()) * tileSize;
+        float posX = leftMargin + static_cast<float>(character->getPosX()) * tileSize - cameraX * tileSize;
+        float posY = topMargin + static_cast<float>(character->getPosY()) * tileSize - cameraY * tileSize;
 
         if
         (

@@ -9,7 +9,7 @@
 Controller::Controller()
     : view(), chunk(csvToChunk("world/chunk1.wrld")), characters()
 {
-    std::unique_ptr<Character> player = std::make_unique<Character>(10, 10);
+    std::unique_ptr<Character> player = std::make_unique<Character>(50, 30);
     this->player = player.get();
     characters.push_back(this->player);
     actors.push_back(std::move(player));
@@ -73,7 +73,7 @@ bool Controller::run()
                     }
                 }
 
-                view.render(chunk, characters);
+                view.render(chunk, characters, player);
 
                 Uint64 elapsedTime{ SDL_GetTicks() - startTime };
                 Uint64 waitTime{ static_cast<Uint64>(1000 / framerate) - elapsedTime };
