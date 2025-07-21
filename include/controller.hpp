@@ -3,10 +3,10 @@
 #include <vector>
 #include <memory>
 
-#include "view.hpp"
-#include "chunk.hpp"
-#include "actor.hpp"
-#include "character.hpp"
+#include "view/view.hpp"
+#include "model/chunk.hpp"
+#include "model/actor.hpp"
+#include "model/character.hpp"
 
 class Controller
 {

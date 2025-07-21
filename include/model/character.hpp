@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tileactor.hpp"
+#include "model/tileactor.hpp"
 
 class Character : public TileActor
 {

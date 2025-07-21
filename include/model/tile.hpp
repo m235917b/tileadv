@@ -11,3 +11,11 @@ enum class TileType
     WOODWALL = 101,
     STONEWALL = 102
 };
+
+struct Tile
+{
+    TileType type;
+    bool solid{ false };
+};
+
+Tile tileFromInt(int type);

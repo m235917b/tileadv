@@ -1,5 +1,5 @@
-#include "tileactor.hpp"
-#include "chunk.hpp"
+#include "model/tileactor.hpp"
+#include "model/chunk.hpp"
 
 TileActor::TileActor(int posx, int posy)
     : Actor(), posx(posx), posy(posy)

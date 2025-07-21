@@ -5,12 +5,10 @@
 
 #include <SDL3/SDL.h>
 
-#include "view.hpp"
-#include "gui/ltexture.hpp"
-#include "tileatlas.hpp"
-#include "chunk.hpp"
-#include "tile.hpp"
-#include "tiletypes.hpp"
+#include "view/view.hpp"
+#include "view/ltexture.hpp"
+#include "view/tileatlas.hpp"
+#include "model/chunk.hpp"
 
 View::View()
     : tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), window(nullptr), renderer(nullptr), playerTexture(), worldTiles()

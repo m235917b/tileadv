@@ -4,7 +4,7 @@
 
 #include "controller.hpp"
 #include "utils/csvreader.hpp"
-#include "character.hpp"
+#include "model/character.hpp"
 
 Controller::Controller()
     : view(), chunk(csvToChunk("world/chunk1.wrld")), characters()

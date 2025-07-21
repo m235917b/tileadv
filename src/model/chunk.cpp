@@ -1,5 +1,5 @@
-#include "chunk.hpp"
-#include "tile.hpp"
+#include "model/chunk.hpp"
+#include "model/tile.hpp"
 
 Chunk::Chunk(int sizex, int sizey):
 sizex{sizex},

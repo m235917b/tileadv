@@ -1,6 +1,6 @@
 #pragma once
 
-#include "actor.hpp"
+#include "model/actor.hpp"
 
 class Chunk;
 

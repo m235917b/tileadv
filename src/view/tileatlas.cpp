@@ -1,22 +1,7 @@
 #include <SDL3/SDL.h>
 
-#include "tileatlas.hpp"
-#include "tiletypes.hpp"
-#include "tile.hpp"
-
-Tile TileAtlas::fromInt(int type)
-{
-    Tile tile;
-
-    tile.type = static_cast<TileType>(type);
-
-    if(type >= 100)
-    {
-        tile.solid = true;
-    }
-
-    return tile;
-}
+#include "model/tile.hpp"
+#include "view/tileatlas.hpp"
 
 SDL_FRect TileAtlas::getSpriteCoords(TileType type)
 {

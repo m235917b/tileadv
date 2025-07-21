@@ -2,7 +2,7 @@
 
 #include <vector>
 
-#include "tile.hpp"
+#include "model/tile.hpp"
 
 class Chunk
 {

@@ -4,9 +4,8 @@
 #include <vector>
 #include <iostream>
 
-#include "tile.hpp"
-#include "tileatlas.hpp"
-#include "chunk.hpp"
+#include "model/tile.hpp"
+#include "model/chunk.hpp"
 #include "utils/csvreader.hpp"
 
 Chunk csvToChunk(std::string filename)
@@ -36,7 +35,7 @@ Chunk csvToChunk(std::string filename)
         std::stringstream ss(line);
         std::string value;
         while (std::getline(ss, value, ',')) {
-            Tile tile{ TileAtlas::fromInt(std::stoi(value)) };
+            Tile tile{ tileFromInt(std::stoi(value)) };
             chunk.setTile(posx, posy, tile);
             posx++;
         }

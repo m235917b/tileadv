@@ -3,8 +3,8 @@
 #include <vector>
 #include <memory>
 
-#include "gui/ltexture.hpp"
-#include "character.hpp"
+#include "view/ltexture.hpp"
+#include "model/character.hpp"
 
 struct SDL_Window;
 struct SDL_Renderer;
