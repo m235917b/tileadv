@@ -1,0 +1,125 @@
+#include <iostream>
+#include <string>
+#include <cmath>
+#include <memory>
+
+#include <SDL3/SDL.h>
+
+#include "view.hpp"
+#include "gui/ltexture.hpp"
+#include "tileatlas.hpp"
+#include "chunk.hpp"
+#include "tile.hpp"
+#include "tiletypes.hpp"
+
+View::View()
+    : tileSize(25), window(nullptr), renderer(nullptr), playerTexture(), worldTiles()
+{
+    topMargin = (screenHeight - tileSize * static_cast<int>(screenHeight / tileSize)) / 2;
+    leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
+}
+
+bool View::loadTextures()
+{
+    bool success{ true };
+
+    if(playerTexture.loadFromFile("assets/tiles_char.png", renderer) == false)
+    {
+        SDL_Log("Unable to load png image!\n");
+        success = false;
+    }
+
+    if(worldTiles.loadFromFile("assets/tiles_world.png", renderer) == false)
+    {
+        SDL_Log("Unable to load png image!\n");
+        success = false;
+    }
+
+    return success;
+}
+
+bool View::init()
+{
+    bool success{ true };
+
+    if (SDL_Init(SDL_INIT_VIDEO) == false)
+    {
+        SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
+        success = false;
+    }
+    else
+    {
+        if (SDL_CreateWindowAndRenderer("TileADV", screenWidth, screenHeight, 0, &window, &renderer) == false)
+        {
+            SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
+            success = false;
+        }
+
+        if (SDL_SetWindowFullscreen(window, true) == false)
+        {
+            SDL_Log("Could not set fullscreen mode! SDL error: %s\n", SDL_GetError());
+            success = false;
+        }
+
+        if (SDL_HideCursor() == false)
+        {
+            SDL_Log("Could not hide cursor! SDL error: %s\n", SDL_GetError());
+            success = false;
+        }
+
+        /*
+        if(SDL_SetRenderVSync(renderer, 1) == false)
+        {
+            SDL_Log("Could not enable VSync! SDL error: %s\n", SDL_GetError());
+            success = false;
+        }
+        */
+    }
+
+    return success;
+}
+
+void View::destroy()
+{
+    playerTexture.destroy();
+    worldTiles.destroy();
+
+    SDL_DestroyRenderer(renderer);
+    renderer = nullptr;
+    SDL_DestroyWindow(window);
+    window = nullptr;
+
+    SDL_Quit();
+}
+
+bool View::render(Chunk& chunk, const std::vector<Character*>& characters)
+{
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(renderer);
+
+    for(int y = 0; y < chunk.getHeight() && y < screenHeight / tileSize; ++y)
+    {
+        for(int x = 0; x < chunk.getWidth() && x < screenWidth / tileSize; ++x)
+        {
+            const Tile& tile = chunk.getTile(x, y);
+            SDL_FRect spriteCoords = TileAtlas::getSpriteCoords(tile.type);
+
+            float posX = leftMargin + static_cast<float>(x) * tileSize;
+            float posY = topMargin + static_cast<float>(y) * tileSize;
+
+            worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize, renderer);
+        }
+    }
+
+    for (const Character* character : characters)
+    {
+        float posX = leftMargin + static_cast<float>(character->getPosX()) * tileSize;
+        float posY = topMargin + static_cast<float>(character->getPosY()) * tileSize;
+
+        playerTexture.render(posX, posY, nullptr, tileSize, tileSize, renderer);
+    }
+
+    SDL_RenderPresent(renderer);
+
+    return true;
+}
