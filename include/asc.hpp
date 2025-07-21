@@ -2,6 +2,7 @@
 
 #include "gamecontroller.hpp"
 #include "view/view.hpp"
+#include "gui/guicontroller.hpp"
 
 enum class ApplicationState
 {
@@ -16,11 +17,12 @@ class ApplicationStateController : public StateRunner
         ApplicationStateController(const ApplicationStateController&) = delete;
         ApplicationStateController& operator=(const ApplicationStateController&) = delete;
 
-        int run();
+        int run() override;
 
     private:
         ApplicationState currentState;
 
         GameController gameController;
         View view;
+        GUIController guiController;
 };

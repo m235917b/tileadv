@@ -6,13 +6,20 @@
 #include "utils/csvreader.hpp"
 #include "model/character.hpp"
 
-GameController::GameController(View* view)
-    : currentState(GameState::GAMEPLAY), view(view), chunk(csvToChunk("world/chunk1.wrld")), actors(), characters()
+GameController::GameController(View* view, GUIController* guiController) :
+    currentState(GameState::GAMEPLAY),
+    view(view),
+    chunk(csvToChunk("world/chunk1.wrld")),
+    guiController(guiController),
+    actors(),
+    characters()
 {
     std::unique_ptr<Character> player = std::make_unique<Character>(50, 30);
     this->player = player.get();
     characters.push_back(this->player);
     actors.push_back(std::move(player));
+
+    guiController->initGameMenus();
 }
 
 int GameController::run()
@@ -20,7 +27,7 @@ int GameController::run()
     switch (currentState)
     {
         case GameState::CHARACTER_MENU:
-            view->renderCharacterMenu(chunk, characters, player);
+            guiController->showCharacterMenu(chunk, characters, player);
             break;
 
         case GameState::GAMEPLAY:

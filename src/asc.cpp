@@ -2,10 +2,13 @@
 
 #include "asc.hpp"
 
-ApplicationStateController::ApplicationStateController()
-    : currentState{ApplicationState::MAIN_MENU}, view(), gameController(&view)
+ApplicationStateController::ApplicationStateController() :
+    currentState{ApplicationState::MAIN_MENU},
+    view(),
+    guiController(&view),
+    gameController(&view, &guiController)
 {
-
+    guiController.initMainMenus();
 }
 
 int ApplicationStateController::run()
@@ -87,7 +90,7 @@ int ApplicationStateController::run()
         switch (currentState)
         {
             case ApplicationState::MAIN_MENU:
-                view.renderMainMenu();
+                guiController.showMainMenu();
                 break;
 
             case ApplicationState::GAMEPLAY:

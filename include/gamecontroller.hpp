@@ -8,6 +8,7 @@
 #include "staterunner.hpp"
 #include "view/view.hpp"
 #include "model/chunk.hpp"
+#include "gui/guicontroller.hpp"
 #include "model/actor.hpp"
 #include "model/character.hpp"
 
@@ -20,13 +21,13 @@ enum class GameState
 class GameController : public StateRunner
 {
     public:
-        GameController(View* view);
+        GameController(View* view, GUIController* guiController);
         GameController(const GameController&) = delete;
         GameController& operator=(const GameController&) = delete;
         GameController(GameController&&) = default;
         GameController& operator=(GameController&&) = default;
 
-        int run();
+        int run() override;
         int runCharacterMenu();
         void keyDownListener(SDL_Keycode& key);
 
@@ -35,6 +36,7 @@ class GameController : public StateRunner
 
         View* view;
         Chunk chunk;
+        GUIController* guiController;
 
         Character* player;
         std::vector<std::unique_ptr<Actor>> actors;
