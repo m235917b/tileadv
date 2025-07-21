@@ -25,7 +25,7 @@ class View
 
         bool renderGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
         bool renderMainMenu();
-        bool renderCharacterMenu(const Character* player);
+        bool renderCharacterMenu(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
 
         bool init();
         int destroy();
@@ -46,4 +46,7 @@ class View
         LTexture worldTiles;
 
         bool loadTextures();
+
+        bool drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
+        bool drawCharacterMenu(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
 };

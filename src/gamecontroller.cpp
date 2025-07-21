@@ -20,7 +20,7 @@ int GameController::run()
     switch (currentState)
     {
         case GameState::CHARACTER_MENU:
-            view->renderCharacterMenu(player);
+            view->renderCharacterMenu(chunk, characters, player);
             break;
 
         case GameState::GAMEPLAY:
@@ -33,28 +33,6 @@ int GameController::run()
 
 void GameController::keyDownListener(SDL_Keycode& key)
 {
-    switch (key)
-    {
-        case SDLK_UP:
-            player->move(0, -1, chunk);
-            break;
-
-        case SDLK_DOWN:
-            player->move(0, 1, chunk);
-            break;
-
-        case SDLK_LEFT:
-            player->move(-1, 0, chunk);
-            break;
-
-        case SDLK_RIGHT:
-            player->move(1, 0, chunk);
-            break;
-        
-        default:
-            break;
-    }
-
     switch (currentState)
     {
         case GameState::CHARACTER_MENU:
@@ -74,6 +52,22 @@ void GameController::keyDownListener(SDL_Keycode& key)
             {
                 case SDLK_C:
                     currentState = GameState::CHARACTER_MENU;
+                    break;
+
+                case SDLK_UP:
+                    player->move(0, -1, chunk);
+                    break;
+
+                case SDLK_DOWN:
+                    player->move(0, 1, chunk);
+                    break;
+
+                case SDLK_LEFT:
+                    player->move(-1, 0, chunk);
+                    break;
+
+                case SDLK_RIGHT:
+                    player->move(1, 0, chunk);
                     break;
 
                 default:

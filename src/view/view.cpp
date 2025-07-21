@@ -98,6 +98,40 @@ bool View::renderGame(Chunk& chunk, const std::vector<Character*>& characters, c
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(renderer);
 
+    auto exitCode = drawGame(chunk, characters, player);
+
+    SDL_RenderPresent(renderer);
+
+    return exitCode;
+}
+
+bool View::renderMainMenu()
+{
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(renderer);
+
+    // Render main menu elements here (e.g., title, buttons)
+
+    SDL_RenderPresent(renderer);
+    
+    return true;
+}
+
+bool View::renderCharacterMenu(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
+{
+    SDL_SetRenderDrawColor(renderer, 0x20, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(renderer);
+
+    auto exitCode1 = drawGame(chunk, characters, player);
+    auto exitCode2 = drawCharacterMenu(chunk, characters, player);
+
+    SDL_RenderPresent(renderer);
+
+    return exitCode1 && exitCode2;
+}
+
+bool View::drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
+{
     if (player->getPosX() < cameraX + cameraMarginX)
     {
         cameraX = std::max(0, cameraX - 1);
@@ -149,29 +183,10 @@ bool View::renderGame(Chunk& chunk, const std::vector<Character*>& characters, c
         }
     }
 
-    SDL_RenderPresent(renderer);
-
     return true;
 }
 
-bool View::renderMainMenu()
+bool View::drawCharacterMenu(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
 {
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-    SDL_RenderClear(renderer);
-
-    // Render main menu elements here (e.g., title, buttons)
-
-    SDL_RenderPresent(renderer);
-    return true;
-}
-
-bool View::renderCharacterMenu(const Character* player)
-{
-    SDL_SetRenderDrawColor(renderer, 0x20, 0x00, 0x00, 0xFF);
-    SDL_RenderClear(renderer);
-
-    // Render character menu elements here (e.g., character stats, inventory)
-
-    SDL_RenderPresent(renderer);
     return true;
 }
