@@ -5,12 +5,19 @@
 
 #include <SDL3/SDL.h>
 
+#include "staterunner.hpp"
 #include "view/view.hpp"
 #include "model/chunk.hpp"
 #include "model/actor.hpp"
 #include "model/character.hpp"
 
-class GameController
+enum class GameState
+{
+    CHARACTER_MENU,
+    GAMEPLAY
+};
+
+class GameController : public StateRunner
 {
     public:
         GameController(View* view);
@@ -20,9 +27,12 @@ class GameController
         GameController& operator=(GameController&&) = default;
 
         int run();
+        int runCharacterMenu();
         void keyDownListener(SDL_Keycode& key);
 
     private:
+        GameState currentState;
+
         View* view;
         Chunk chunk;
 

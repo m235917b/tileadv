@@ -24,6 +24,8 @@ class View
         ~View() = default;
 
         bool renderGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
+        bool renderMainMenu();
+        bool renderCharacterMenu(const Character* player);
 
         bool init();
         int destroy();

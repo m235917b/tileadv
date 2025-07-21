@@ -29,82 +29,70 @@ int ApplicationStateController::run()
 
         while(SDL_PollEvent(&e) == true)
         {
-            if(e.type == SDL_EVENT_QUIT)
+            switch (e.type)
             {
-                run = false;
-            }
-            else if(e.type == SDL_EVENT_KEY_DOWN)
-            {
-                switch (e.key.key)
-                {
-                    case SDLK_ESCAPE:
-                        run = false;
-                        break;
+                case SDL_EVENT_QUIT:
+                    run = false;
+                    break;
 
-                    default:
-                        break;
-                }
+                case SDL_EVENT_KEY_DOWN:
+                    switch (e.key.key)
+                    {
+                        case SDLK_ESCAPE:
+                            run = false;
+                            break;
 
-                switch (currentState)
-                {
-                    case ApplicationState::MAIN_MENU:
-                        switch (e.key.key)
-                        {
-                            case SDLK_P:
-                                currentState = ApplicationState::GAMEPLAY;
-                                break;
+                        default:
+                            break;
+                    }
 
-                            default:
-                                break;
-                        }
-                        break;
+                    switch (currentState)
+                    {
+                        case ApplicationState::MAIN_MENU:
+                            switch (e.key.key)
+                            {
+                                case SDLK_P:
+                                    currentState = ApplicationState::GAMEPLAY;
+                                    break;
 
-                    case ApplicationState::CHARACTER_MENU:
-                        switch (e.key.key)
-                        {
-                            case SDLK_C:
-                                currentState = ApplicationState::GAMEPLAY;
-                                break;
+                                default:
+                                    break;
+                            }
+                            break;
 
-                            default:
-                                break;
-                        }
-                        break;
+                        case ApplicationState::GAMEPLAY:
+                            switch (e.key.key)
+                            {
+                                case SDLK_P:
+                                    currentState = ApplicationState::MAIN_MENU;
+                                    break;
 
-                    case ApplicationState::GAMEPLAY:
-                        switch (e.key.key)
-                        {
-                            case SDLK_P:
-                                currentState = ApplicationState::MAIN_MENU;
-                                break;
+                                default:
+                                    break;
+                            }
 
-                            case SDLK_C:
-                                currentState = ApplicationState::CHARACTER_MENU;
-                                break;
+                            gameController.keyDownListener(e.key.key);
+                            break;
 
-                            default:
-                                break;
-                        }
+                        default:
+                            break;
+                    }
+                    break;
 
-                        gameController.keyDownListener(e.key.key);
-                        break;
-
-                    default:
-                        break;
-                }
+                default:
+                    break;
             }
         }
 
         switch (currentState)
         {
             case ApplicationState::MAIN_MENU:
-                break;
-
-            case ApplicationState::CHARACTER_MENU:
+                view.renderMainMenu();
                 break;
 
             case ApplicationState::GAMEPLAY:
                 gameController.run();
+                break;
 
             default:
                 break;

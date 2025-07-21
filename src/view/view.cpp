@@ -153,3 +153,25 @@ bool View::renderGame(Chunk& chunk, const std::vector<Character*>& characters, c
 
     return true;
 }
+
+bool View::renderMainMenu()
+{
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(renderer);
+
+    // Render main menu elements here (e.g., title, buttons)
+
+    SDL_RenderPresent(renderer);
+    return true;
+}
+
+bool View::renderCharacterMenu(const Character* player)
+{
+    SDL_SetRenderDrawColor(renderer, 0x20, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(renderer);
+
+    // Render character menu elements here (e.g., character stats, inventory)
+
+    SDL_RenderPresent(renderer);
+    return true;
+}

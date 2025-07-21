@@ -6,11 +6,10 @@
 enum class ApplicationState
 {
     MAIN_MENU,
-    CHARACTER_MENU,
     GAMEPLAY
 };
 
-class ApplicationStateController
+class ApplicationStateController : public StateRunner
 {
     public:
         ApplicationStateController();
