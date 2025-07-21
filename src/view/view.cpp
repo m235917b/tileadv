@@ -1,4 +1,3 @@
-#include <iostream>
 #include <string>
 #include <cmath>
 #include <memory>
@@ -128,11 +127,6 @@ bool View::renderGame(Chunk& chunk, const std::vector<Character*>& characters, c
 
             float posX = leftMargin + static_cast<float>(x) * tileSize - cameraX * tileSize;
             float posY = topMargin + static_cast<float>(y) * tileSize - cameraY * tileSize;
-
-            if (x == 1 && y == 1)
-            {
-                SDL_Log("%d, %d, %d, %d, %d", spriteCoords.x, spriteCoords.y, spriteCoords.w, spriteCoords.h, tileSpriteSize);
-            }
 
             worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize, renderer);
         }

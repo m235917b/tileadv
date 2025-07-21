@@ -14,6 +14,8 @@ class ApplicationStateController
 {
     public:
         ApplicationStateController();
+        ApplicationStateController(const ApplicationStateController&) = delete;
+        ApplicationStateController& operator=(const ApplicationStateController&) = delete;
 
         int run();
 

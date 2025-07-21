@@ -19,6 +19,8 @@ class View
 {
     public:
         View();
+        View(const View&) = delete;
+        View& operator=(const View&) = delete;
         ~View() = default;
 
         bool renderGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);

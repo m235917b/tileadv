@@ -11,6 +11,24 @@ LTexture::LTexture():
 
 }
 
+LTexture::LTexture(LTexture&& other) noexcept
+    : mTexture(other.mTexture), mWidth(other.mWidth), mHeight(other.mHeight)
+{
+    other.destroy();
+}
+
+LTexture& LTexture::operator=(LTexture&& other) noexcept
+{
+    if (this != &other) {
+        destroy();
+        mTexture = other.mTexture;
+        mWidth = other.mWidth;
+        mHeight = other.mHeight;
+        other.destroy();
+    }
+    return *this;
+}
+
 LTexture::~LTexture()
 {
     destroy();

@@ -14,6 +14,10 @@ class GameController
 {
     public:
         GameController(View* view);
+        GameController(const GameController&) = delete;
+        GameController& operator=(const GameController&) = delete;
+        GameController(GameController&&) = default;
+        GameController& operator=(GameController&&) = default;
 
         int run();
         void keyDownListener(SDL_Keycode& key);
