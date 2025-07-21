@@ -116,7 +116,16 @@ bool View::render(Chunk& chunk, const std::vector<Character*>& characters)
         float posX = leftMargin + static_cast<float>(character->getPosX()) * tileSize;
         float posY = topMargin + static_cast<float>(character->getPosY()) * tileSize;
 
-        playerTexture.render(posX, posY, nullptr, tileSize, tileSize, renderer);
+        if
+        (
+            posX >= leftMargin &&
+            posX + tileSize + leftMargin <= screenWidth &&
+            posY >= topMargin &&
+            posY + tileSize + topMargin <= screenHeight
+        )
+        {
+            playerTexture.render(posX, posY, nullptr, tileSize, tileSize, renderer);
+        }
     }
 
     SDL_RenderPresent(renderer);
