@@ -35,7 +35,7 @@ Chunk csvToChunk(std::string filename)
         std::stringstream ss(line);
         std::string value;
         while (std::getline(ss, value, ',')) {
-            Tile tile{ tileFromInt(std::stoi(value)) };
+            Tile tile{ TileFactory::fromInt(std::stoi(value)) };
             chunk.setTile(posx, posy, tile);
             posx++;
         }

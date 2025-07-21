@@ -19,11 +19,12 @@ class View
 {
     public:
         View();
+        ~View() = default;
+
+        bool renderGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
 
         bool init();
-        void destroy();
-        bool loadTextures();
-        bool render(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
+        int destroy();
 
     private:
         int topMargin;
@@ -39,4 +40,6 @@ class View
 
         LTexture playerTexture;
         LTexture worldTiles;
+
+        bool loadTextures();
 };

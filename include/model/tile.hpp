@@ -18,4 +18,8 @@ struct Tile
     bool solid{ false };
 };
 
-Tile tileFromInt(int type);
+class TileFactory
+{
+    public:
+        static Tile fromInt(int type);
+};

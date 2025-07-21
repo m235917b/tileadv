@@ -3,19 +3,23 @@
 #include <vector>
 #include <memory>
 
+#include <SDL3/SDL.h>
+
 #include "view/view.hpp"
 #include "model/chunk.hpp"
 #include "model/actor.hpp"
 #include "model/character.hpp"
 
-class Controller
+class GameController
 {
     public:
-        Controller();
+        GameController(View* view);
 
-        bool run();
+        int run();
+        void keyDownListener(SDL_Keycode& key);
+
     private:
-        View view;
+        View* view;
         Chunk chunk;
 
         Character* player;

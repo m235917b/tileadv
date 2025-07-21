@@ -17,6 +17,64 @@ View::View()
     leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
 }
 
+bool View::init()
+{
+    if (SDL_Init(SDL_INIT_VIDEO) == false)
+    {
+        SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
+        return false;
+    }
+
+    if (SDL_CreateWindowAndRenderer("TileADV", screenWidth, screenHeight, 0, &window, &renderer) == false)
+    {
+        SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
+        return false;
+    }
+
+    if (SDL_SetWindowFullscreen(window, true) == false)
+    {
+        SDL_Log("Could not set fullscreen mode! SDL error: %s\n", SDL_GetError());
+        return false;
+    }
+
+    if (SDL_HideCursor() == false)
+    {
+        SDL_Log("Could not hide cursor! SDL error: %s\n", SDL_GetError());
+        return false;
+    }
+
+    /*
+    if(SDL_SetRenderVSync(renderer, 1) == false)
+    {
+        SDL_Log("Could not enable VSync! SDL error: %s\n", SDL_GetError());
+        success = false;
+    }
+    */
+
+    if(loadTextures() == false)
+    {
+        SDL_Log("Unable to load media!\n");
+        return false;
+    }
+
+    return true;
+}
+
+int View::destroy()
+{
+    playerTexture.destroy();
+    worldTiles.destroy();
+
+    SDL_DestroyRenderer(renderer);
+    renderer = nullptr;
+    SDL_DestroyWindow(window);
+    window = nullptr;
+
+    SDL_Quit();
+
+    return 0;
+}
+
 bool View::loadTextures()
 {
     bool success{ true };
@@ -36,61 +94,7 @@ bool View::loadTextures()
     return success;
 }
 
-bool View::init()
-{
-    bool success{ true };
-
-    if (SDL_Init(SDL_INIT_VIDEO) == false)
-    {
-        SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
-        success = false;
-    }
-    else
-    {
-        if (SDL_CreateWindowAndRenderer("TileADV", screenWidth, screenHeight, 0, &window, &renderer) == false)
-        {
-            SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
-            success = false;
-        }
-
-        if (SDL_SetWindowFullscreen(window, true) == false)
-        {
-            SDL_Log("Could not set fullscreen mode! SDL error: %s\n", SDL_GetError());
-            success = false;
-        }
-
-        if (SDL_HideCursor() == false)
-        {
-            SDL_Log("Could not hide cursor! SDL error: %s\n", SDL_GetError());
-            success = false;
-        }
-
-        /*
-        if(SDL_SetRenderVSync(renderer, 1) == false)
-        {
-            SDL_Log("Could not enable VSync! SDL error: %s\n", SDL_GetError());
-            success = false;
-        }
-        */
-    }
-
-    return success;
-}
-
-void View::destroy()
-{
-    playerTexture.destroy();
-    worldTiles.destroy();
-
-    SDL_DestroyRenderer(renderer);
-    renderer = nullptr;
-    SDL_DestroyWindow(window);
-    window = nullptr;
-
-    SDL_Quit();
-}
-
-bool View::render(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
+bool View::renderGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
 {
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(renderer);
@@ -124,6 +128,11 @@ bool View::render(Chunk& chunk, const std::vector<Character*>& characters, const
 
             float posX = leftMargin + static_cast<float>(x) * tileSize - cameraX * tileSize;
             float posY = topMargin + static_cast<float>(y) * tileSize - cameraY * tileSize;
+
+            if (x == 1 && y == 1)
+            {
+                SDL_Log("%d, %d, %d, %d, %d", spriteCoords.x, spriteCoords.y, spriteCoords.w, spriteCoords.h, tileSpriteSize);
+            }
 
             worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize, renderer);
         }
