@@ -10,11 +10,11 @@
 #include "view/tileatlas.hpp"
 #include "model/chunk.hpp"
 
-View::View(RenderContext* renderContext)
+View::View(const RenderContext& renderContext)
     : renderContext(renderContext), tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), playerTexture(), worldTiles()
 {
-    auto screenWidth = this->renderContext->getScreenWidth();
-    auto screenHeight{ this->renderContext->getScreenHeight() };
+    auto screenWidth = this->renderContext.getScreenWidth();
+    auto screenHeight{ this->renderContext.getScreenHeight() };
 
     this->topMargin = (screenHeight - tileSize * static_cast<int>(screenHeight / tileSize)) / 2;
     this->leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
@@ -22,7 +22,7 @@ View::View(RenderContext* renderContext)
 
 bool View::init()
 {
-    SDL_Renderer* renderer{ this->renderContext->getRenderer() };
+    SDL_Renderer* renderer{ this->renderContext.getRenderer() };
 
     if(this->playerTexture.loadFromFile("assets/tiles_char.png", renderer) == false)
     {
@@ -41,17 +41,11 @@ bool View::init()
     return true;
 }
 
-void View::destroy()
+const bool View::drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
 {
-    this->playerTexture.destroy();
-    this->worldTiles.destroy();
-}
-
-bool View::drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
-{
-    auto screenWidth{ this->renderContext->getScreenWidth() };
-    auto screenHeight{ this->renderContext->getScreenHeight() };
-    SDL_Renderer* renderer{ this->renderContext->getRenderer() };
+    auto screenWidth{ this->renderContext.getScreenWidth() };
+    auto screenHeight{ this->renderContext.getScreenHeight() };
+    SDL_Renderer* renderer{ this->renderContext.getRenderer() };
 
     if (player->getPosX() < cameraX + cameraMarginX)
     {

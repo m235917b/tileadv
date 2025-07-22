@@ -5,9 +5,9 @@
 ApplicationStateController::ApplicationStateController() :
     currentState(ApplicationState::MAIN_MENU),
     graphicsManager(),
-    view(&graphicsManager),
-    guiController(&graphicsManager),
-    gameController(&view, &guiController)
+    view(graphicsManager),
+    guiController(graphicsManager),
+    gameController(view, guiController)
 {
 
 }
@@ -134,8 +134,6 @@ int ApplicationStateController::run()
         }
     }
 
-    guiController.destroy();
-    view.destroy();
     graphicsManager.destroy();
 
     return exitCode;

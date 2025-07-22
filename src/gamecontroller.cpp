@@ -6,7 +6,7 @@
 #include "utils/csvreader.hpp"
 #include "model/character.hpp"
 
-GameController::GameController(View* view, GUIController* guiController) :
+GameController::GameController(View& view, GUIController& guiController) :
     currentState(GameState::GAMEPLAY),
     view(view),
     chunk(csvToChunk("world/chunk1.wrld")),
@@ -19,7 +19,7 @@ GameController::GameController(View* view, GUIController* guiController) :
     characters.push_back(this->player);
     actors.push_back(std::move(player));
 
-    guiController->initGameMenus();
+    guiController.initGameMenus();
 }
 
 int GameController::run()
@@ -27,11 +27,11 @@ int GameController::run()
     switch (currentState)
     {
         case GameState::CHARACTER_MENU:
-            view->drawGame(chunk, characters, player);
+            view.drawGame(chunk, characters, player);
             break;
 
         case GameState::GAMEPLAY:
-            view->drawGame(chunk, characters, player);
+            view.drawGame(chunk, characters, player);
             break;
     }
 
@@ -47,7 +47,7 @@ void GameController::keyDownListener(SDL_Keycode& key)
             {
                 case SDLK_C:
                     currentState = GameState::GAMEPLAY;
-                    guiController->setCharacterMenuVisible(false);
+                    guiController.setCharacterMenuVisible(false);
                     break;
 
                 default:
@@ -60,7 +60,7 @@ void GameController::keyDownListener(SDL_Keycode& key)
             {
                 case SDLK_C:
                     currentState = GameState::CHARACTER_MENU;
-                    guiController->setCharacterMenuVisible(true);
+                    guiController.setCharacterMenuVisible(true);
                     break;
 
                 case SDLK_UP:

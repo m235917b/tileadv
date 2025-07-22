@@ -7,7 +7,7 @@
 #include "gui/guielement.hpp"
 #include "gui/asciiatlas.hpp"
 
-GUIView::GUIView(RenderContext* renderContext)
+GUIView::GUIView(const RenderContext& renderContext)
     : renderContext(renderContext), asciiGrey()
 {
     
@@ -15,7 +15,7 @@ GUIView::GUIView(RenderContext* renderContext)
 
 bool GUIView::init()
 {
-    SDL_Renderer* renderer{ this->renderContext->getRenderer() };
+    SDL_Renderer* renderer{ this->renderContext.getRenderer() };
 
     if(this->asciiGrey.loadFromFile("assets/ascii_grey.png", renderer) == false)
     {
@@ -25,11 +25,6 @@ bool GUIView::init()
     }
 
     return true;
-}
-
-void GUIView::destroy()
-{
-    this->asciiGrey.destroy();
 }
 
 void GUIView::drawGUIMenu(const GUIMenu& menu)
@@ -81,8 +76,8 @@ void GUIView::drawTextElement(const int posX, const int posY, const GUIElement& 
 
 void GUIView::drawText(const int posX, const int posY, const float size, const std::string& text)
 {
-    SDL_Renderer* renderer{ this->renderContext->getRenderer() };
-    
+    SDL_Renderer* renderer{ this->renderContext.getRenderer() };
+
     for (size_t i = 0; i < text.length(); ++i)
     {
         SDL_FRect spriteCoords = AsciiAtlas::getSpriteCoords(text[i]);

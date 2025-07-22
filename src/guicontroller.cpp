@@ -6,7 +6,7 @@
 #include "gui/guicontainer.hpp"
 #include "gui/guielement.hpp"
 
-GUIController::GUIController(RenderContext* renderContext)
+GUIController::GUIController(const RenderContext& renderContext)
     : guiContext(renderContext)
 {
     // Initialize main menu elements
@@ -30,11 +30,6 @@ GUIController::GUIController(RenderContext* renderContext)
 bool GUIController::init()
 {
     return this->guiContext.init();
-}
-
-void GUIController::destroy()
-{
-    this->guiContext.destroy();
 }
 
 void GUIController::initGameMenus()

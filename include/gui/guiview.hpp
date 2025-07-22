@@ -12,10 +12,9 @@ class GUIElement;
 class GUIView
 {
     public:
-        GUIView(RenderContext* renderContext);
+        GUIView(const RenderContext& renderContext);
 
         bool init();
-        void destroy();
 
         void drawGUIMenu(const GUIMenu& menu);
         void drawVerticalLayout(const int posX, const int posY, const GUIContainer& container);
@@ -23,7 +22,7 @@ class GUIView
         void drawText(const int posX, const int posY, const float size, const std::string& text);
 
     private:
-        RenderContext* renderContext;
+        const RenderContext& renderContext;
 
         LTexture asciiGrey;
 };

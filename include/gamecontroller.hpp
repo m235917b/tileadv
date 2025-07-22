@@ -21,11 +21,12 @@ enum class GameState
 class GameController : public StateRunner
 {
     public:
-        GameController(View* view, GUIController* guiController);
+        GameController(View& view, GUIController& guiController);
         GameController(const GameController&) = delete;
         GameController& operator=(const GameController&) = delete;
         GameController(GameController&&) = default;
         GameController& operator=(GameController&&) = default;
+        ~GameController() = default;
 
         int run() override;
         int runCharacterMenu();
@@ -34,11 +35,11 @@ class GameController : public StateRunner
     private:
         GameState currentState;
 
-        View* view;
-        Chunk chunk;
-        GUIController* guiController;
+        View& view;
+        GUIController& guiController;
 
-        Character* player;
+        Chunk chunk;
         std::vector<std::unique_ptr<Actor>> actors;
         std::vector<Character*> characters;
+        Character* player;
 };

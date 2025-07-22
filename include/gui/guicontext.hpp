@@ -15,10 +15,9 @@ class RenderContext;
 class GUIContext
 {
     public:
-        GUIContext(RenderContext* renderContext);
+        GUIContext(const RenderContext& renderContext);
 
         bool init();
-        void destroy();
 
         void keyDownListener(const SDL_Keycode& key);
 

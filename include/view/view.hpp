@@ -12,18 +12,17 @@ class Chunk;
 class View
 {
     public:
-        View(RenderContext* renderContext);
+        View(const RenderContext& renderContext);
         View(const View&) = delete;
         View& operator=(const View&) = delete;
         ~View() = default;
 
-        bool drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
+        const bool drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
 
         bool init();
-        void destroy();
 
     private:
-        RenderContext* renderContext;
+        const RenderContext& renderContext;
 
         int topMargin;
         int leftMargin;

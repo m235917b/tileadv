@@ -4,7 +4,7 @@
 #include "utils/rendercontext.hpp"
 #include "gui/asciiatlas.hpp"
 
-GUIContext::GUIContext(RenderContext* renderContext)
+GUIContext::GUIContext(const RenderContext& renderContext)
     : guiView(renderContext), menus(), activeMenus()
 {
     
@@ -13,11 +13,6 @@ GUIContext::GUIContext(RenderContext* renderContext)
 bool GUIContext::init()
 {
     return this->guiView.init();
-}
-
-void GUIContext::destroy()
-{
-    this->guiView.destroy();
 }
 
 void GUIContext::keyDownListener(const SDL_Keycode& key)

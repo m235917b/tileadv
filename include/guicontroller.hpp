@@ -10,10 +10,9 @@ struct SDL_Renderer;
 class GUIController : public StateRunner
 {
     public:
-        GUIController(RenderContext* renderContext);
+        GUIController(const RenderContext& renderContext);
 
         bool init();
-        void destroy();
 
         void initGameMenus();
 
