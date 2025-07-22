@@ -61,6 +61,7 @@ bool View::init()
 
 int View::destroy()
 {
+    // asciiGrey.destroy();
     playerTexture.destroy();
     worldTiles.destroy();
 
@@ -77,6 +78,12 @@ int View::destroy()
 bool View::loadTextures()
 {
     bool success{ true };
+
+    /*if(asciiGrey.loadFromFile("assets/ascii_grey.png", renderer) == false)
+    {
+        SDL_Log("Unable to load png image!\n");
+        success = false;
+    }*/
 
     if(playerTexture.loadFromFile("assets/tiles_char.png", renderer) == false)
     {
@@ -113,7 +120,7 @@ bool View::renderMainMenu()
     // Render main menu elements here (e.g., title, buttons)
 
     SDL_RenderPresent(renderer);
-    
+
     return true;
 }
 

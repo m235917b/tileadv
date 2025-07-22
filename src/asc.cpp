@@ -3,12 +3,12 @@
 #include "asc.hpp"
 
 ApplicationStateController::ApplicationStateController() :
-    currentState{ApplicationState::MAIN_MENU},
+    currentState(ApplicationState::MAIN_MENU),
     view(),
     guiController(&view),
     gameController(&view, &guiController)
 {
-    
+
 }
 
 int ApplicationStateController::run()

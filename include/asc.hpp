@@ -22,7 +22,7 @@ class ApplicationStateController : public StateRunner
     private:
         ApplicationState currentState;
 
-        GameController gameController;
         View view;
         GUIController guiController;
+        GameController gameController;
 };

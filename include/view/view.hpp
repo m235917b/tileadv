@@ -42,6 +42,7 @@ class View
         SDL_Window* window;
         SDL_Renderer* renderer;
 
+        //LTexture asciiGrey;
         LTexture playerTexture;
         LTexture worldTiles;
 
