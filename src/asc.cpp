@@ -6,7 +6,7 @@ ApplicationStateController::ApplicationStateController() :
     currentState(ApplicationState::MAIN_MENU),
     graphicsManager(),
     view(&graphicsManager),
-    guiController(),
+    guiController(&graphicsManager),
     gameController(&view, &guiController)
 {
 
@@ -30,7 +30,7 @@ int ApplicationStateController::run()
         return 2;
     }
 
-    if (this->guiController.init(renderer) == false)
+    if (this->guiController.init() == false)
     {
         SDL_Log("Failed to initialize view!\n");
         return 1;
@@ -121,7 +121,7 @@ int ApplicationStateController::run()
                 break;
         }
 
-        this->guiController.drawMenus(renderer);
+        this->guiController.drawMenus();
 
         this->graphicsManager.endFrame();
 

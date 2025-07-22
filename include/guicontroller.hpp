@@ -3,14 +3,15 @@
 #include "gui/guicontext.hpp"
 #include "gui/guimenu.hpp"
 
+class RenderContext;
 struct SDL_Renderer;
 
 class GUIController
 {
     public:
-        GUIController();
+        GUIController(RenderContext* renderContext);
 
-        bool init(SDL_Renderer* renderer);
+        bool init();
         void destroy();
 
         void initGameMenus();
@@ -20,7 +21,7 @@ class GUIController
         void setMainMenuVisible(const bool visible);
         void setCharacterMenuVisible(const bool visible);
 
-        void drawMenus(SDL_Renderer* renderer);
+        void drawMenus();
 
     private:
         GUIContext guiContext;

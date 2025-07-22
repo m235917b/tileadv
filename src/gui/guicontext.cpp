@@ -1,15 +1,18 @@
+#include <SDL3/SDL.h>
+
 #include "gui/guicontext.hpp"
+#include "utils/rendercontext.hpp"
 #include "gui/asciiatlas.hpp"
 
-GUIContext::GUIContext()
-    : guiView(), menus(), activeMenus()
+GUIContext::GUIContext(RenderContext* renderContext)
+    : guiView(renderContext), menus(), activeMenus()
 {
     
 }
 
-bool GUIContext::init(SDL_Renderer* renderer)
+bool GUIContext::init()
 {
-    return this->guiView.init(renderer);
+    return this->guiView.init();
 }
 
 void GUIContext::destroy()
@@ -44,7 +47,7 @@ bool GUIContext::setMenuVisible(const std::string& id, const bool visible)
     }
 }
 
-bool GUIContext::drawGUI(SDL_Renderer* renderer)
+bool GUIContext::drawGUI()
 {
     for (const auto& id : activeMenus)
     {
@@ -54,7 +57,7 @@ bool GUIContext::drawGUI(SDL_Renderer* renderer)
         }
 
         menus[id]->update();
-        guiView.drawGUIMenu(renderer, *menus[id].get());
+        guiView.drawGUIMenu(*menus[id].get());
     }
 
     return true;

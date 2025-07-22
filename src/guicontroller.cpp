@@ -1,12 +1,13 @@
 #include <SDL3/SDL.h>
 
 #include "guicontroller.hpp"
+#include "utils/rendercontext.hpp"
 #include "gui/guimenu.hpp"
 #include "gui/guicontainer.hpp"
 #include "gui/guielement.hpp"
 
-GUIController::GUIController()
-    : guiContext()
+GUIController::GUIController(RenderContext* renderContext)
+    : guiContext(renderContext)
 {
     // Initialize main menu elements
     auto mainMenu = std::make_unique<GUIMenu>();
@@ -26,9 +27,9 @@ GUIController::GUIController()
     this->guiContext.addMenu("mainmenu", std::move(mainMenu));
 }
 
-bool GUIController::init(SDL_Renderer* renderer)
+bool GUIController::init()
 {
-    return this->guiContext.init(renderer);
+    return this->guiContext.init();
 }
 
 void GUIController::destroy()
@@ -66,7 +67,7 @@ void GUIController::setCharacterMenuVisible(const bool visible)
     this->guiContext.setMenuVisible("charactermenu", visible);
 }
 
-void GUIController::drawMenus(SDL_Renderer* renderer)
+void GUIController::drawMenus()
 {
-    this->guiContext.drawGUI(renderer);
+    this->guiContext.drawGUI();
 }

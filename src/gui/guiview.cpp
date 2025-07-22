@@ -1,17 +1,22 @@
+#include <SDL3/SDL.h>
+
 #include "gui/guiview.hpp"
+#include "utils/rendercontext.hpp"
 #include "gui/guimenu.hpp"
 #include "gui/guicontainer.hpp"
 #include "gui/guielement.hpp"
 #include "gui/asciiatlas.hpp"
 
-GUIView::GUIView()
-    : asciiGrey()
+GUIView::GUIView(RenderContext* renderContext)
+    : renderContext(renderContext), asciiGrey()
 {
     
 }
 
-bool GUIView::init(SDL_Renderer* renderer)
+bool GUIView::init()
 {
+    SDL_Renderer* renderer{ this->renderContext->getRenderer() };
+
     if(this->asciiGrey.loadFromFile("assets/ascii_grey.png", renderer) == false)
     {
         SDL_Log("Unable to load png image!\n");
@@ -27,14 +32,14 @@ void GUIView::destroy()
     this->asciiGrey.destroy();
 }
 
-void GUIView::drawGUIMenu(SDL_Renderer* renderer, const GUIMenu& menu)
+void GUIView::drawGUIMenu(const GUIMenu& menu)
 {
     for (const auto& container : menu.getMenuItems())
     {
         switch (container->getLayout())
         {
             case Layout::VERTICAL:
-                drawVerticalLayout(renderer, container->getPosX(), container->getPosY(), *container.get());
+                drawVerticalLayout(container->getPosX(), container->getPosY(), *container.get());
                 break;
 
             case Layout::HORIZONTAL:
@@ -49,7 +54,7 @@ void GUIView::drawGUIMenu(SDL_Renderer* renderer, const GUIMenu& menu)
     }
 }
 
-void GUIView::drawVerticalLayout(SDL_Renderer* renderer, const int posX, const int posY, const GUIContainer& container)
+void GUIView::drawVerticalLayout(const int posX, const int posY, const GUIContainer& container)
 {
     int offset = 0;
 
@@ -58,7 +63,7 @@ void GUIView::drawVerticalLayout(SDL_Renderer* renderer, const int posX, const i
         switch (element->getType())
         {
             case ElementType::TEXT:
-                drawTextElement(renderer, posX, posY + offset, *element.get());
+                drawTextElement(posX, posY + offset, *element.get());
                 break;
 
             default:
@@ -69,13 +74,15 @@ void GUIView::drawVerticalLayout(SDL_Renderer* renderer, const int posX, const i
     }
 }
 
-void GUIView::drawTextElement(SDL_Renderer* renderer, const int posX, const int posY, const GUIElement& element)
+void GUIView::drawTextElement(const int posX, const int posY, const GUIElement& element)
 {
-    drawText(renderer, posX, posY, 1.f, element.getText());
+    drawText(posX, posY, 1.f, element.getText());
 }
 
-void GUIView::drawText(SDL_Renderer* renderer, const int posX, const int posY, const float size, const std::string& text)
+void GUIView::drawText(const int posX, const int posY, const float size, const std::string& text)
 {
+    SDL_Renderer* renderer{ this->renderContext->getRenderer() };
+    
     for (size_t i = 0; i < text.length(); ++i)
     {
         SDL_FRect spriteCoords = AsciiAtlas::getSpriteCoords(text[i]);

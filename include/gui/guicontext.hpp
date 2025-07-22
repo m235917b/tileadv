@@ -10,12 +10,14 @@
 #include "gui/guiview.hpp"
 #include "gui/guimenu.hpp"
 
+class RenderContext;
+
 class GUIContext
 {
     public:
-        GUIContext();
+        GUIContext(RenderContext* renderContext);
 
-        bool init(SDL_Renderer* renderer);
+        bool init();
         void destroy();
 
         void keyDownListener(const SDL_Keycode& key);
@@ -25,7 +27,7 @@ class GUIContext
 
         bool setMenuVisible(const std::string& id, const bool visible);
 
-        bool drawGUI(SDL_Renderer* renderer);
+        bool drawGUI();
 
     private:
         GUIView guiView;

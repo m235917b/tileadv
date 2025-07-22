@@ -73,7 +73,7 @@ const int GraphicsManmager::getScreenWidth() const
     return this->screenWidth;
 }
 
-const int GraphicsManmager::getScreenHight() const
+const int GraphicsManmager::getScreenHeight() const
 {
     return this->screenHeight;
 }

@@ -1,9 +1,11 @@
 #pragma once
 
+#include "utils/rendercontext.hpp"
+
 struct SDL_Window;
 struct SDL_Renderer;
 
-class GraphicsManmager
+class GraphicsManmager : public RenderContext
 {
     public:
         GraphicsManmager();
@@ -18,9 +20,9 @@ class GraphicsManmager
         void beginFrame();
         void endFrame();
 
-        const int getScreenWidth() const;
-        const int getScreenHight() const;
-        SDL_Renderer* getRenderer() const;
+        const int getScreenWidth() const override;
+        const int getScreenHeight() const override;
+        SDL_Renderer* getRenderer() const override;
 
     private:
         int screenWidth;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/rendercontext.hpp"
 #include "utils/ltexture.hpp"
 
 struct SDL_Renderer;
@@ -11,16 +12,18 @@ class GUIElement;
 class GUIView
 {
     public:
-        GUIView();
+        GUIView(RenderContext* renderContext);
 
-        bool init(SDL_Renderer* renderer);
+        bool init();
         void destroy();
 
-        void drawGUIMenu(SDL_Renderer* renderer, const GUIMenu& menu);
-        void drawVerticalLayout(SDL_Renderer* renderer, const int posX, const int posY, const GUIContainer& container);
-        void drawTextElement(SDL_Renderer* renderer, const int posX, const int posY, const GUIElement& element);
-        void drawText(SDL_Renderer* renderer, const int posX, const int posY, const float size, const std::string& text);
+        void drawGUIMenu(const GUIMenu& menu);
+        void drawVerticalLayout(const int posX, const int posY, const GUIContainer& container);
+        void drawTextElement(const int posX, const int posY, const GUIElement& element);
+        void drawText(const int posX, const int posY, const float size, const std::string& text);
 
     private:
+        RenderContext* renderContext;
+
         LTexture asciiGrey;
 };

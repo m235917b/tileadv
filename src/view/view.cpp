@@ -5,16 +5,16 @@
 #include <SDL3/SDL.h>
 
 #include "view/view.hpp"
-#include "graphicsmanager.hpp"
+#include "utils/rendercontext.hpp"
 #include "utils/ltexture.hpp"
 #include "view/tileatlas.hpp"
 #include "model/chunk.hpp"
 
-View::View(GraphicsManmager* graphicsManager)
-    : graphicsManager(graphicsManager), tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), playerTexture(), worldTiles()
+View::View(RenderContext* renderContext)
+    : renderContext(renderContext), tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), playerTexture(), worldTiles()
 {
-    auto screenWidth = this->graphicsManager->getScreenWidth();
-    auto screenHeight = this->graphicsManager->getScreenHight();
+    auto screenWidth = this->renderContext->getScreenWidth();
+    auto screenHeight{ this->renderContext->getScreenHeight() };
 
     this->topMargin = (screenHeight - tileSize * static_cast<int>(screenHeight / tileSize)) / 2;
     this->leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
@@ -22,7 +22,7 @@ View::View(GraphicsManmager* graphicsManager)
 
 bool View::init()
 {
-    SDL_Renderer* renderer = this->graphicsManager->getRenderer();
+    SDL_Renderer* renderer{ this->renderContext->getRenderer() };
 
     if(this->playerTexture.loadFromFile("assets/tiles_char.png", renderer) == false)
     {
@@ -49,9 +49,9 @@ void View::destroy()
 
 bool View::drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
 {
-    auto screenWidth = this->graphicsManager->getScreenWidth();
-    auto screenHeight = this->graphicsManager->getScreenHight();
-    SDL_Renderer* renderer = this->graphicsManager->getRenderer();
+    auto screenWidth{ this->renderContext->getScreenWidth() };
+    auto screenHeight{ this->renderContext->getScreenHeight() };
+    SDL_Renderer* renderer{ this->renderContext->getRenderer() };
 
     if (player->getPosX() < cameraX + cameraMarginX)
     {

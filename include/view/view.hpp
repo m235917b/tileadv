@@ -3,7 +3,7 @@
 #include <vector>
 #include <memory>
 
-#include "graphicsmanager.hpp"
+#include "utils/rendercontext.hpp"
 #include "utils/ltexture.hpp"
 #include "model/character.hpp"
 
@@ -12,7 +12,7 @@ class Chunk;
 class View
 {
     public:
-        View(GraphicsManmager* graphicsManager);
+        View(RenderContext* renderContext);
         View(const View&) = delete;
         View& operator=(const View&) = delete;
         ~View() = default;
@@ -23,7 +23,7 @@ class View
         void destroy();
 
     private:
-        GraphicsManmager* graphicsManager;
+        RenderContext* renderContext;
 
         int topMargin;
         int leftMargin;
