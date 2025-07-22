@@ -7,10 +7,14 @@
 #include "view/view.hpp"
 #include "view/ltexture.hpp"
 #include "view/tileatlas.hpp"
+#include "view/asciiatlas.hpp"
 #include "model/chunk.hpp"
+#include "gui/guimenu.hpp"
+#include "gui/guicontainer.hpp"
+#include "gui/guielement.hpp"
 
 View::View()
-    : tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), window(nullptr), renderer(nullptr), playerTexture(), worldTiles()
+    : tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), window(nullptr), renderer(nullptr), asciiGrey(), playerTexture(), worldTiles()
 {
     topMargin = (screenHeight - tileSize * static_cast<int>(screenHeight / tileSize)) / 2;
     leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
@@ -61,7 +65,7 @@ bool View::init()
 
 int View::destroy()
 {
-    // asciiGrey.destroy();
+    asciiGrey.destroy();
     playerTexture.destroy();
     worldTiles.destroy();
 
@@ -79,11 +83,11 @@ bool View::loadTextures()
 {
     bool success{ true };
 
-    /*if(asciiGrey.loadFromFile("assets/ascii_grey.png", renderer) == false)
+    if(asciiGrey.loadFromFile("assets/ascii_grey.png", renderer) == false)
     {
         SDL_Log("Unable to load png image!\n");
         success = false;
-    }*/
+    }
 
     if(playerTexture.loadFromFile("assets/tiles_char.png", renderer) == false)
     {
@@ -112,25 +116,25 @@ bool View::renderGame(Chunk& chunk, const std::vector<Character*>& characters, c
     return exitCode;
 }
 
-bool View::renderMainMenu()
+bool View::renderMainMenu(const GUIMenu& mainMenu)
 {
     SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
     SDL_RenderClear(renderer);
 
-    // Render main menu elements here (e.g., title, buttons)
+    drawMenu(mainMenu);
 
     SDL_RenderPresent(renderer);
 
     return true;
 }
 
-bool View::renderCharacterMenu(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
+bool View::renderCharacterMenu(const GUIMenu& characterMenu, Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
 {
     SDL_SetRenderDrawColor(renderer, 0x20, 0x00, 0x00, 0xFF);
     SDL_RenderClear(renderer);
 
     auto exitCode1 = drawGame(chunk, characters, player);
-    auto exitCode2 = drawCharacterMenu(chunk, characters, player);
+    auto exitCode2 = drawMenu(characterMenu);
 
     SDL_RenderPresent(renderer);
 
@@ -193,7 +197,68 @@ bool View::drawGame(Chunk& chunk, const std::vector<Character*>& characters, con
     return true;
 }
 
-bool View::drawCharacterMenu(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
+bool View::drawText(int posX, int posY, float size, const std::string& text)
 {
+    for (size_t i = 0; i < text.length(); ++i)
+    {
+        SDL_FRect spriteCoords = AsciiAtlas::getSpriteCoords(text[i]);
+        float textPosX = posX + static_cast<float>(i) * asciiWidth * size;
+        float textPosY = posY;
+
+        asciiGrey.render(textPosX, textPosY, &spriteCoords, asciiWidth * size, asciiHeight * size, renderer);
+    }
+
+    return true;
+}
+
+bool View::drawMenu(const GUIMenu& menu)
+{
+    for (const std::unique_ptr<GUIContainer>& container : menu.getMenuItems())
+    {
+        switch (container->getLayout())
+        {
+            case Layout::VERTICAL:
+                drawVerticalLayout(container->getPosX(), container->getPosY(), *container.get());
+                break;
+
+            case Layout::HORIZONTAL:
+                break;
+
+            case Layout::GRID:
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    return true;
+}
+
+bool View::drawVerticalLayout(int posX, int posY, const GUIContainer& container)
+{
+    int offset = 0;
+
+    for (const std::unique_ptr<GUIElement>& element : container.getElements())
+    {
+        switch (element->getType())
+        {
+            case ElementType::TEXT:
+                drawTextElement(posX, posY + offset, *element.get());
+                break;
+
+            default:
+                break;
+        }
+
+        offset += element->getHeight();
+    }
+
+    return true;
+}
+
+bool View::drawTextElement(int posX, int posY, const GUIElement& element) {
+    drawText(posX, posY, 1.f, element.getText());
+
     return true;
 }

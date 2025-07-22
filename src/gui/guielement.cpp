@@ -1,7 +1,13 @@
 #include "gui/guielement.hpp"
 
-GUIElement::GUIElement(int width, int height)
-    : width(width), height(height)
+GUIElement::GUIElement(ElementType type, int width, int height)
+    : type(type), width(width), height(height), text("")
+{
+    
+}
+
+GUIElement::GUIElement(ElementType type, int width, int height, std::string text)
+    : type(type), width(width), height(height), text(text)
 {
     
 }
@@ -31,4 +37,29 @@ void GUIElement::keyDownListener(const SDL_Keycode& key)
     {
         it->second();
     }
+}
+
+void GUIElement::setText(const std::string& text)
+{
+    this->text = text;
+}
+
+const std::string& GUIElement::getText() const
+{
+    return text;
+}
+
+const ElementType GUIElement::getType() const
+{
+    return type;
+}
+
+const int GUIElement::getWidth() const
+{
+    return width;
+}
+
+const int GUIElement::getHeight() const
+{
+    return height;
 }

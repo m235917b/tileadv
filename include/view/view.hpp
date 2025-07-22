@@ -10,6 +10,9 @@ struct SDL_Window;
 struct SDL_Renderer;
 
 class Chunk;
+class GUIMenu;
+class GUIContainer;
+class GUIElement;
 
 constexpr int screenWidth{ 2560 };
 constexpr int screenHeight{ 1440 };
@@ -24,8 +27,8 @@ class View
         ~View() = default;
 
         bool renderGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
-        bool renderMainMenu();
-        bool renderCharacterMenu(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
+        bool renderMainMenu(const GUIMenu& mainMenu);
+        bool renderCharacterMenu(const GUIMenu& characterMenu, Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
 
         bool init();
         int destroy();
@@ -42,7 +45,7 @@ class View
         SDL_Window* window;
         SDL_Renderer* renderer;
 
-        //LTexture asciiGrey;
+        LTexture asciiGrey;
         LTexture playerTexture;
         LTexture worldTiles;
 
@@ -50,4 +53,9 @@ class View
 
         bool drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
         bool drawCharacterMenu(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
+
+        bool drawText(int posX, int posY, float size, const std::string& text);
+        bool drawMenu(const GUIMenu& menu);
+        bool drawVerticalLayout(int posX, int posY, const GUIContainer& container);
+        bool drawTextElement(int posX, int posY, const GUIElement& element);
 };

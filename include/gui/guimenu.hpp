@@ -16,6 +16,8 @@ class GUIMenu
         void update();
         void keyDownListener(const SDL_Keycode& key);
 
+        const std::vector<std::unique_ptr<GUIContainer>>& getMenuItems() const;
+
     private:
         std::vector<std::unique_ptr<GUIContainer>> menuItems;
 };

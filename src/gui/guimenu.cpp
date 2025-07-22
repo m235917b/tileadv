@@ -29,3 +29,8 @@ void GUIMenu::keyDownListener(const SDL_Keycode& key)
         item->keyDownListener(key);
     }
 }
+
+const std::vector<std::unique_ptr<GUIContainer>>& GUIMenu::getMenuItems() const
+{
+    return menuItems;
+}
