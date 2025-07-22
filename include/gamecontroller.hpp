@@ -8,7 +8,7 @@
 #include "staterunner.hpp"
 #include "view/view.hpp"
 #include "model/chunk.hpp"
-#include "gui/guicontroller.hpp"
+#include "guicontroller.hpp"
 #include "model/actor.hpp"
 #include "model/character.hpp"
 

@@ -1,8 +1,11 @@
 #pragma once
 
+#include "graphicsmanager.hpp"
 #include "gamecontroller.hpp"
 #include "view/view.hpp"
-#include "gui/guicontroller.hpp"
+#include "guicontroller.hpp"
+
+constexpr int framerate{ 60 };
 
 enum class ApplicationState
 {
@@ -22,6 +25,7 @@ class ApplicationStateController : public StateRunner
     private:
         ApplicationState currentState;
 
+        GraphicsManmager graphicsManager;
         View view;
         GUIController guiController;
         GameController gameController;

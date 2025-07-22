@@ -27,11 +27,10 @@ int GameController::run()
     switch (currentState)
     {
         case GameState::CHARACTER_MENU:
-            guiController->showCharacterMenu(chunk, characters, player);
             break;
 
         case GameState::GAMEPLAY:
-            view->renderGame(chunk, characters, player);
+            view->drawGame(chunk, characters, player);
             break;
     }
 
@@ -47,6 +46,7 @@ void GameController::keyDownListener(SDL_Keycode& key)
             {
                 case SDLK_C:
                     currentState = GameState::GAMEPLAY;
+                    guiController->setCharacterMenuVisible(false);
                     break;
 
                 default:
@@ -59,6 +59,7 @@ void GameController::keyDownListener(SDL_Keycode& key)
             {
                 case SDLK_C:
                     currentState = GameState::CHARACTER_MENU;
+                    guiController->setCharacterMenuVisible(true);
                     break;
 
                 case SDLK_UP:

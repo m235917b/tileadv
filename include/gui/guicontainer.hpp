@@ -36,5 +36,7 @@ class GUIContainer
         int width;
         int height;
 
+        bool border;
+
         std::vector<std::unique_ptr<GUIElement>> elements;
 };

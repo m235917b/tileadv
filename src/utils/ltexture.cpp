@@ -1,4 +1,4 @@
-#include "view/ltexture.hpp"
+#include "utils/ltexture.hpp"
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>

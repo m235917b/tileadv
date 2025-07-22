@@ -1,6 +1,6 @@
 #include <SDL3/SDL.h>
 
-#include "view/asciiatlas.hpp"
+#include "gui/asciiatlas.hpp"
 
 SDL_FRect AsciiAtlas::getSpriteCoords(char asciiChar)
 {

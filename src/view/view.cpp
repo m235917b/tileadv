@@ -5,144 +5,54 @@
 #include <SDL3/SDL.h>
 
 #include "view/view.hpp"
-#include "view/ltexture.hpp"
+#include "graphicsmanager.hpp"
+#include "utils/ltexture.hpp"
 #include "view/tileatlas.hpp"
-#include "view/asciiatlas.hpp"
 #include "model/chunk.hpp"
-#include "gui/guimenu.hpp"
-#include "gui/guicontainer.hpp"
-#include "gui/guielement.hpp"
 
-View::View()
-    : tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), window(nullptr), renderer(nullptr), asciiGrey(), playerTexture(), worldTiles()
+View::View(GraphicsManmager* graphicsManager)
+    : graphicsManager(graphicsManager), tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), playerTexture(), worldTiles()
 {
-    topMargin = (screenHeight - tileSize * static_cast<int>(screenHeight / tileSize)) / 2;
-    leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
+    auto screenWidth = this->graphicsManager->getScreenWidth();
+    auto screenHeight = this->graphicsManager->getScreenHight();
+
+    this->topMargin = (screenHeight - tileSize * static_cast<int>(screenHeight / tileSize)) / 2;
+    this->leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
 }
 
 bool View::init()
 {
-    if (SDL_Init(SDL_INIT_VIDEO) == false)
+    SDL_Renderer* renderer = this->graphicsManager->getRenderer();
+
+    if(this->playerTexture.loadFromFile("assets/tiles_char.png", renderer) == false)
     {
-        SDL_Log("SDL could not initialize! SDL error: %s\n", SDL_GetError());
+        SDL_Log("Unable to load png image!\n");
+
         return false;
     }
 
-    if (SDL_CreateWindowAndRenderer("TileADV", screenWidth, screenHeight, 0, &window, &renderer) == false)
+    if(this->worldTiles.loadFromFile("assets/tiles_world.png", renderer) == false)
     {
-        SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
-        return false;
-    }
+        SDL_Log("Unable to load png image!\n");
 
-    if (SDL_SetWindowFullscreen(window, true) == false)
-    {
-        SDL_Log("Could not set fullscreen mode! SDL error: %s\n", SDL_GetError());
-        return false;
-    }
-
-    if (SDL_HideCursor() == false)
-    {
-        SDL_Log("Could not hide cursor! SDL error: %s\n", SDL_GetError());
-        return false;
-    }
-
-    /*
-    if(SDL_SetRenderVSync(renderer, 1) == false)
-    {
-        SDL_Log("Could not enable VSync! SDL error: %s\n", SDL_GetError());
-        success = false;
-    }
-    */
-
-    if(loadTextures() == false)
-    {
-        SDL_Log("Unable to load media!\n");
         return false;
     }
 
     return true;
 }
 
-int View::destroy()
+void View::destroy()
 {
-    asciiGrey.destroy();
-    playerTexture.destroy();
-    worldTiles.destroy();
-
-    SDL_DestroyRenderer(renderer);
-    renderer = nullptr;
-    SDL_DestroyWindow(window);
-    window = nullptr;
-
-    SDL_Quit();
-
-    return 0;
-}
-
-bool View::loadTextures()
-{
-    bool success{ true };
-
-    if(asciiGrey.loadFromFile("assets/ascii_grey.png", renderer) == false)
-    {
-        SDL_Log("Unable to load png image!\n");
-        success = false;
-    }
-
-    if(playerTexture.loadFromFile("assets/tiles_char.png", renderer) == false)
-    {
-        SDL_Log("Unable to load png image!\n");
-        success = false;
-    }
-
-    if(worldTiles.loadFromFile("assets/tiles_world.png", renderer) == false)
-    {
-        SDL_Log("Unable to load png image!\n");
-        success = false;
-    }
-
-    return success;
-}
-
-bool View::renderGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
-{
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-    SDL_RenderClear(renderer);
-
-    auto exitCode = drawGame(chunk, characters, player);
-
-    SDL_RenderPresent(renderer);
-
-    return exitCode;
-}
-
-bool View::renderMainMenu(const GUIMenu& mainMenu)
-{
-    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-    SDL_RenderClear(renderer);
-
-    drawMenu(mainMenu);
-
-    SDL_RenderPresent(renderer);
-
-    return true;
-}
-
-bool View::renderCharacterMenu(const GUIMenu& characterMenu, Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
-{
-    SDL_SetRenderDrawColor(renderer, 0x20, 0x00, 0x00, 0xFF);
-    SDL_RenderClear(renderer);
-
-    auto exitCode1 = drawGame(chunk, characters, player);
-    auto exitCode2 = drawMenu(characterMenu);
-
-    SDL_RenderPresent(renderer);
-
-    return exitCode1 && exitCode2;
+    this->playerTexture.destroy();
+    this->worldTiles.destroy();
 }
 
 bool View::drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
 {
+    auto screenWidth = this->graphicsManager->getScreenWidth();
+    auto screenHeight = this->graphicsManager->getScreenHight();
+    SDL_Renderer* renderer = this->graphicsManager->getRenderer();
+
     if (player->getPosX() < cameraX + cameraMarginX)
     {
         cameraX = std::max(0, cameraX - 1);
@@ -193,72 +103,6 @@ bool View::drawGame(Chunk& chunk, const std::vector<Character*>& characters, con
             playerTexture.render(posX, posY, nullptr, tileSize, tileSize, renderer);
         }
     }
-
-    return true;
-}
-
-bool View::drawText(int posX, int posY, float size, const std::string& text)
-{
-    for (size_t i = 0; i < text.length(); ++i)
-    {
-        SDL_FRect spriteCoords = AsciiAtlas::getSpriteCoords(text[i]);
-        float textPosX = posX + static_cast<float>(i) * asciiWidth * size;
-        float textPosY = posY;
-
-        asciiGrey.render(textPosX, textPosY, &spriteCoords, asciiWidth * size, asciiHeight * size, renderer);
-    }
-
-    return true;
-}
-
-bool View::drawMenu(const GUIMenu& menu)
-{
-    for (const std::unique_ptr<GUIContainer>& container : menu.getMenuItems())
-    {
-        switch (container->getLayout())
-        {
-            case Layout::VERTICAL:
-                drawVerticalLayout(container->getPosX(), container->getPosY(), *container.get());
-                break;
-
-            case Layout::HORIZONTAL:
-                break;
-
-            case Layout::GRID:
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    return true;
-}
-
-bool View::drawVerticalLayout(int posX, int posY, const GUIContainer& container)
-{
-    int offset = 0;
-
-    for (const std::unique_ptr<GUIElement>& element : container.getElements())
-    {
-        switch (element->getType())
-        {
-            case ElementType::TEXT:
-                drawTextElement(posX, posY + offset, *element.get());
-                break;
-
-            default:
-                break;
-        }
-
-        offset += element->getHeight();
-    }
-
-    return true;
-}
-
-bool View::drawTextElement(int posX, int posY, const GUIElement& element) {
-    drawText(posX, posY, 1.f, element.getText());
 
     return true;
 }
