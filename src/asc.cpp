@@ -8,7 +8,7 @@ ApplicationStateController::ApplicationStateController() :
     guiController(&view),
     gameController(&view, &guiController)
 {
-    guiController.initMainMenus();
+    
 }
 
 int ApplicationStateController::run()

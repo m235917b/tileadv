@@ -17,7 +17,6 @@ class GUIController
     public:
         GUIController(View* view);
 
-        void initMainMenus();
         void initGameMenus();
 
         void keyDownListener(const SDL_Keycode& key);

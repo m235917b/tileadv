@@ -9,7 +9,7 @@
 class ListContainer : public GUIContainer
 {
     public:
-        ListContainer() = default;
+        ListContainer(int posX, int posY, int width, int height);
 
         void addElement(std::unique_ptr<GUIElement> element);
         void removeElement(GUIElement* element);

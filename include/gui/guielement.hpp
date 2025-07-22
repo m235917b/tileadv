@@ -8,7 +8,7 @@
 class GUIElement
 {
     public:
-        GUIElement() = default;
+        GUIElement(int width, int height);
 
         void setUpdateListener(std::function<void()> listener);
         void addKeyListener(const SDL_Keycode& key, std::function<void()> listener);
@@ -16,6 +16,9 @@ class GUIElement
         void keyDownListener(const SDL_Keycode& key);
 
     private:
+        int width;
+        int height;
+
         std::function<void()> updateListener;
         std::unordered_map<SDL_Keycode, std::function<void()>> keyListeners;
 };

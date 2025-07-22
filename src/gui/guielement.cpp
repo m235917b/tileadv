@@ -1,5 +1,11 @@
 #include "gui/guielement.hpp"
 
+GUIElement::GUIElement(int width, int height)
+    : width(width), height(height)
+{
+    
+}
+
 void GUIElement::setUpdateListener(std::function<void()> listener)
 {
     updateListener = listener;

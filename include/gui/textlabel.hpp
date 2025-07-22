@@ -10,8 +10,8 @@
 class TextLabel : public GUIElement
 {
     public:
-        TextLabel();
-        TextLabel(const std::string& text);
+        TextLabel(int width, int height);
+        TextLabel(int width, int height, const std::string& text);
 
         void setText(const std::string& text);
         const std::string& getText() const;
