@@ -2,7 +2,7 @@
 
 #include "gui/asciiatlas.hpp"
 
-SDL_FRect AsciiAtlas::getSpriteCoords(char asciiChar)
+const SDL_FRect AsciiAtlas::getSpriteCoords(const char asciiChar)
 {
     SDL_FRect rect;
 

@@ -1,6 +1,5 @@
 #include <SDL3/SDL.h>
 
-#include "model/tile.hpp"
 #include "view/tileatlas.hpp"
 
 SDL_FRect TileAtlas::getSpriteCoords(TileType type)

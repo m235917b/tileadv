@@ -16,13 +16,13 @@ bool GraphicsManmager::init()
         return false;
     }
 
-    if (SDL_CreateWindowAndRenderer("TileADV", this->screenWidth, this->screenHeight, 0, &this->window, &this->renderer) == false)
+    if (SDL_CreateWindowAndRenderer("TileADV", screenWidth, screenHeight, 0, &window, &renderer) == false)
     {
         SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
         return false;
     }
 
-    if (SDL_SetWindowFullscreen(this->window, true) == false)
+    if (SDL_SetWindowFullscreen(window, true) == false)
     {
         SDL_Log("Could not set fullscreen mode! SDL error: %s\n", SDL_GetError());
         return false;
@@ -47,10 +47,10 @@ bool GraphicsManmager::init()
 
 int GraphicsManmager::destroy()
 {
-    SDL_DestroyRenderer(this->renderer);
-    this->renderer = nullptr;
-    SDL_DestroyWindow(this->window);
-    this->window = nullptr;
+    SDL_DestroyRenderer(renderer);
+    renderer = nullptr;
+    SDL_DestroyWindow(window);
+    window = nullptr;
 
     SDL_Quit();
 
@@ -59,26 +59,26 @@ int GraphicsManmager::destroy()
 
 void GraphicsManmager::beginFrame()
 {
-    SDL_SetRenderDrawColor(this->renderer, 0x00, 0x00, 0x00, 0xFF);
-    SDL_RenderClear(this->renderer);
+    SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+    SDL_RenderClear(renderer);
 }
 
 void GraphicsManmager::endFrame()
 {
-    SDL_RenderPresent(this->renderer);
+    SDL_RenderPresent(renderer);
 }
 
 const int GraphicsManmager::getScreenWidth() const
 {
-    return this->screenWidth;
+    return screenWidth;
 }
 
 const int GraphicsManmager::getScreenHeight() const
 {
-    return this->screenHeight;
+    return screenHeight;
 }
 
 SDL_Renderer& GraphicsManmager::getRenderer() const
 {
-    return *this->renderer;
+    return *renderer;
 }

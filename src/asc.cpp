@@ -16,25 +16,25 @@ int ApplicationStateController::run()
 {
     int exitCode{ 0 };
 
-    if (this->graphicsManager.init() == false)
+    if (graphicsManager.init() == false)
     {
         SDL_Log("Failed to initialize view!\n");
         return 1;
     }
 
-    if (this->view.init() == false)
+    if (view.init() == false)
     {
         SDL_Log("Failed to initialize view!\n");
         return 2;
     }
 
-    if (this->guiController.init() == false)
+    if (guiController.init() == false)
     {
         SDL_Log("Failed to initialize view!\n");
-        return 1;
+        return 3;
     }
 
-    this->guiController.setMainMenuVisible(true);
+    guiController.setMainMenuVisible(true);
 
     bool run{ true };
 
@@ -64,14 +64,14 @@ int ApplicationStateController::run()
                             break;
                     }
 
-                    switch (this->currentState)
+                    switch (currentState)
                     {
                         case ApplicationState::MAIN_MENU:
                             switch (e.key.key)
                             {
                                 case SDLK_P:
-                                    this->currentState = ApplicationState::GAMEPLAY;
-                                    this->guiController.setMainMenuVisible(false);
+                                    currentState = ApplicationState::GAMEPLAY;
+                                    guiController.setMainMenuVisible(false);
                                     break;
 
                                 default:
@@ -83,15 +83,15 @@ int ApplicationStateController::run()
                             switch (e.key.key)
                             {
                                 case SDLK_P:
-                                    this->currentState = ApplicationState::MAIN_MENU;
-                                    this->guiController.setMainMenuVisible(true);
+                                    currentState = ApplicationState::MAIN_MENU;
+                                    guiController.setMainMenuVisible(true);
                                     break;
 
                                 default:
                                     break;
                             }
 
-                            this->gameController.keyDownListener(e.key.key);
+                            gameController.keyDownListener(e.key.key);
                             break;
 
                         default:
@@ -104,9 +104,9 @@ int ApplicationStateController::run()
             }
         }
 
-        this->graphicsManager.beginFrame();
+        graphicsManager.beginFrame();
 
-        switch (this->currentState)
+        switch (currentState)
         {
             case ApplicationState::MAIN_MENU:
                 break;
@@ -119,9 +119,9 @@ int ApplicationStateController::run()
                 break;
         }
 
-        this->guiController.run();
+        guiController.run();
 
-        this->graphicsManager.endFrame();
+        graphicsManager.endFrame();
 
         Uint64 elapsedTime{ SDL_GetTicks() - startTime };
         Uint64 waitTime{ static_cast<Uint64>(1000 / framerate) - elapsedTime };

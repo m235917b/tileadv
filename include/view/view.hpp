@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <memory>
 
 #include "utils/rendercontext.hpp"
 #include "utils/ltexture.hpp"

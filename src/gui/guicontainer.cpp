@@ -1,48 +1,50 @@
 #include <memory>
-#include <algorithm>
 
 #include "gui/guicontainer.hpp"
 #include "gui/guielement.hpp"
 
-GUIContainer::GUIContainer(Layout layout, int posX, int posY, int width, int height)
-    : layout(layout), posX(posX), posY(posY), width(width), height(height)
+GUIContainer::GUIContainer(const std::string& id, const Layout layout, const int posX, const int posY, const int width, const int height)
+    : id(id), layout(layout), posX(posX), posY(posY), width(width), height(height)
 {
 
 }
 
-void GUIContainer::addElement(std::unique_ptr<GUIElement> element)
+bool GUIContainer::addElement(std::unique_ptr<GUIElement> element)
 {
-    elements.push_back(std::move(element));
+    return elements.emplace(element->getId(), std::move(element)).second;
 }
 
-void GUIContainer::removeElement(GUIElement* element)
+bool GUIContainer::removeElement(const std::string& id)
 {
-    elements.erase(std::remove_if(elements.begin(), elements.end(),
-                                   [element](const std::unique_ptr<GUIElement>& e) { return e.get() == element; }),
-                   elements.end());
+    return elements.erase(id) > 0;
 }
 
 void GUIContainer::update()
 {
-    for (const auto& element : elements)
+    for (const auto& [_, element] : elements)
     {
         element->update();
     }
 }
 
-void GUIContainer::keyDownListener(const SDL_Keycode& key)
+void GUIContainer::keyDownListener(const SDL_Keycode key)
 {
-    for (const auto& element : elements)
+    for (const auto& [_, element] : elements)
     {
         element->keyDownListener(key);
     }
+}
+
+const std::string GUIContainer::getId() const
+{
+    return id;
 }
 
 const Layout GUIContainer::getLayout() const {
     return layout;
 }
 
-const std::vector<std::unique_ptr<GUIElement>>& GUIContainer::getElements() const
+const std::unordered_map<std::string, std::unique_ptr<GUIElement>>& GUIContainer::getElements() const
 {
     return elements;
 }

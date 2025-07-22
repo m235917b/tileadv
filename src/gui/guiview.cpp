@@ -1,5 +1,3 @@
-#include <SDL3/SDL.h>
-
 #include "gui/guiview.hpp"
 #include "utils/rendercontext.hpp"
 #include "gui/guimenu.hpp"
@@ -13,11 +11,11 @@ GUIView::GUIView(const RenderContext& renderContext)
     
 }
 
-bool GUIView::init()
+const bool GUIView::init()
 {
-    SDL_Renderer& renderer{ this->renderContext.getRenderer() };
+    SDL_Renderer& renderer{ renderContext.getRenderer() };
 
-    if(this->asciiGrey.loadFromFile("assets/ascii_grey.png", &renderer) == false)
+    if(asciiGrey.loadFromFile("assets/ascii_grey.png", &renderer) == false)
     {
         SDL_Log("Unable to load png image!\n");
 
@@ -29,7 +27,7 @@ bool GUIView::init()
 
 void GUIView::drawGUIMenu(const GUIMenu& menu)
 {
-    for (const auto& container : menu.getMenuItems())
+    for (const auto& [_, container] : menu.getMenuItems())
     {
         switch (container->getLayout())
         {
@@ -53,7 +51,7 @@ void GUIView::drawVerticalLayout(const int posX, const int posY, const GUIContai
 {
     int offset = 0;
 
-    for (const std::unique_ptr<GUIElement>& element : container.getElements())
+    for (const auto& [_, element] : container.getElements())
     {
         switch (element->getType())
         {
@@ -76,7 +74,7 @@ void GUIView::drawTextElement(const int posX, const int posY, const GUIElement& 
 
 void GUIView::drawText(const int posX, const int posY, const float size, const std::string& text)
 {
-    SDL_Renderer& renderer{ this->renderContext.getRenderer() };
+    SDL_Renderer& renderer{ renderContext.getRenderer() };
 
     for (size_t i = 0; i < text.length(); ++i)
     {

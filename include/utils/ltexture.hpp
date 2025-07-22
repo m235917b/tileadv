@@ -18,11 +18,11 @@ public:
     LTexture& operator=(LTexture&&) noexcept;
     ~LTexture();
 
-    bool loadFromFile( std::string path, SDL_Renderer* gRenderer );
+    bool loadFromFile(std::string path, SDL_Renderer* gRenderer);
 
     void destroy();
 
-    void render( float x, float y, SDL_FRect* clip, float width, float height, SDL_Renderer* gRenderer );
+    void render(float x, float y, SDL_FRect* clip, float width, float height, SDL_Renderer* gRenderer);
 
     int getWidth();
     int getHeight();

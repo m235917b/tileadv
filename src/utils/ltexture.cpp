@@ -1,7 +1,7 @@
-#include "utils/ltexture.hpp"
-
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+
+#include "utils/ltexture.hpp"
 
 LTexture::LTexture():
     mTexture{ nullptr },
@@ -93,7 +93,7 @@ void LTexture::render(float x, float y, SDL_FRect* clip, float width, float heig
     {
         dstRect.w = width;
     }
-    
+
     if(height > 0)
     {
         dstRect.h = height;

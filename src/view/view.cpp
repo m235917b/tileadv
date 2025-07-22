@@ -1,37 +1,34 @@
 #include <string>
 #include <cmath>
-#include <memory>
 
 #include <SDL3/SDL.h>
 
 #include "view/view.hpp"
-#include "utils/rendercontext.hpp"
-#include "utils/ltexture.hpp"
 #include "view/tileatlas.hpp"
 #include "model/chunk.hpp"
 
 View::View(const RenderContext& renderContext)
     : renderContext(renderContext), tileSize(25), cameraX(0), cameraY(0), cameraMarginX(10), cameraMarginY(10), playerTexture(), worldTiles()
 {
-    auto screenWidth = this->renderContext.getScreenWidth();
-    auto screenHeight{ this->renderContext.getScreenHeight() };
+    auto screenWidth = renderContext.getScreenWidth();
+    auto screenHeight{ renderContext.getScreenHeight() };
 
-    this->topMargin = (screenHeight - tileSize * static_cast<int>(screenHeight / tileSize)) / 2;
-    this->leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
+    topMargin = (screenHeight - tileSize * static_cast<int>(screenHeight / tileSize)) / 2;
+    leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
 }
 
 bool View::init()
 {
-    SDL_Renderer& renderer{ this->renderContext.getRenderer() };
+    SDL_Renderer& renderer{ renderContext.getRenderer() };
 
-    if(this->playerTexture.loadFromFile("assets/tiles_char.png", &renderer) == false)
+    if(playerTexture.loadFromFile("assets/tiles_char.png", &renderer) == false)
     {
         SDL_Log("Unable to load png image!\n");
 
         return false;
     }
 
-    if(this->worldTiles.loadFromFile("assets/tiles_world.png", &renderer) == false)
+    if(worldTiles.loadFromFile("assets/tiles_world.png", &renderer) == false)
     {
         SDL_Log("Unable to load png image!\n");
 
@@ -43,9 +40,9 @@ bool View::init()
 
 const bool View::drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
 {
-    auto screenWidth{ this->renderContext.getScreenWidth() };
-    auto screenHeight{ this->renderContext.getScreenHeight() };
-    SDL_Renderer& renderer{ this->renderContext.getRenderer() };
+    auto screenWidth{ renderContext.getScreenWidth() };
+    auto screenHeight{ renderContext.getScreenHeight() };
+    SDL_Renderer& renderer{ renderContext.getRenderer() };
 
     if (player->getPosX() < cameraX + cameraMarginX)
     {

@@ -1,5 +1,3 @@
-#include <SDL3/SDL.h>
-
 #include "gui/guicontext.hpp"
 #include "utils/rendercontext.hpp"
 #include "gui/asciiatlas.hpp"
@@ -10,27 +8,30 @@ GUIContext::GUIContext(const RenderContext& renderContext)
     
 }
 
-bool GUIContext::init()
+const bool GUIContext::init()
 {
-    return this->guiView.init();
+    return guiView.init();
 }
 
-void GUIContext::keyDownListener(const SDL_Keycode& key)
+void GUIContext::keyDownListener(const SDL_Keycode key)
 {
-
+    for (const auto& [_, menu] : menus)
+    {
+        menu->keyDownListener(key);
+    }
 }
 
-bool GUIContext::addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu)
+const bool GUIContext::addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu)
 {
     return menus.emplace(id, std::move(menu)).second;
 }
 
-bool GUIContext::removeMenu(const std::string& id)
+const bool GUIContext::removeMenu(const std::string& id)
 {
     return menus.erase(id) > 0;
 }
 
-bool GUIContext::setMenuVisible(const std::string& id, const bool visible)
+const bool GUIContext::setMenuVisible(const std::string& id, const bool visible)
 {
     if (visible)
     {
@@ -42,7 +43,7 @@ bool GUIContext::setMenuVisible(const std::string& id, const bool visible)
     }
 }
 
-bool GUIContext::drawGUI()
+const bool GUIContext::drawGUI()
 {
     for (const auto& id : activeMenus)
     {

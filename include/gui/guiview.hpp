@@ -14,7 +14,7 @@ class GUIView
     public:
         GUIView(const RenderContext& renderContext);
 
-        bool init();
+        const bool init();
 
         void drawGUIMenu(const GUIMenu& menu);
         void drawVerticalLayout(const int posX, const int posY, const GUIContainer& container);

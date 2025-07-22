@@ -30,7 +30,7 @@ class GameController : public StateRunner
 
         int run() override;
         int runCharacterMenu();
-        void keyDownListener(SDL_Keycode& key);
+        void keyDownListener(SDL_Keycode key);
 
     private:
         GameState currentState;

@@ -17,16 +17,16 @@ class GUIContext
     public:
         GUIContext(const RenderContext& renderContext);
 
-        bool init();
+        const bool init();
 
-        void keyDownListener(const SDL_Keycode& key);
+        void keyDownListener(const SDL_Keycode key);
 
-        bool addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu);
-        bool removeMenu(const std::string& id);
+        const bool addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu);
+        const bool removeMenu(const std::string& id);
 
-        bool setMenuVisible(const std::string& id, const bool visible);
+        const bool setMenuVisible(const std::string& id, const bool visible);
 
-        bool drawGUI();
+        const bool drawGUI();
 
     private:
         GUIView guiView;

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "model/tile.hpp"
 
 struct SDL_FRect;

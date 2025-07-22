@@ -1,36 +1,38 @@
-#include <algorithm>
-
 #include "gui/guimenu.hpp"
 
-void GUIMenu::addMenuItem(std::unique_ptr<GUIContainer> container)
+GUIMenu::GUIMenu(const std::string& id)
+    : id(id)
 {
-    menuItems.push_back(std::move(container));
+
 }
 
-void GUIMenu::removeMenuItem(GUIContainer* container)
+const bool GUIMenu::addMenuItem(std::unique_ptr<GUIContainer> container)
 {
-    menuItems.erase(std::remove_if(menuItems.begin(), menuItems.end(),
-                                   [container](const std::unique_ptr<GUIContainer>& item) { return item.get() == container; }),
-                    menuItems.end());
+    return menuItems.emplace(container->getId(), std::move(container)).second;
+}
+
+const bool GUIMenu::removeMenuItem(const std::string& id)
+{
+    return menuItems.erase(id) > 0;
 }
 
 void GUIMenu::update()
 {
-    for (const auto& item : menuItems)
+    for (const auto& [_, item] : menuItems)
     {
         item->update();
     }
 }
 
-void GUIMenu::keyDownListener(const SDL_Keycode& key)
+void GUIMenu::keyDownListener(const SDL_Keycode key)
 {
-    for (const auto& item : menuItems)
+    for (const auto& [_, item] : menuItems)
     {
         item->keyDownListener(key);
     }
 }
 
-const std::vector<std::unique_ptr<GUIContainer>>& GUIMenu::getMenuItems() const
+const std::unordered_map<std::string, std::unique_ptr<GUIContainer>>& GUIMenu::getMenuItems() const
 {
     return menuItems;
 }

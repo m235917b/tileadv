@@ -1,10 +1,5 @@
-#include <memory>
-
-#include <SDL3/SDL.h>
-
 #include "gamecontroller.hpp"
 #include "utils/csvreader.hpp"
-#include "model/character.hpp"
 
 GameController::GameController(View& view, GUIController& guiController) :
     currentState(GameState::GAMEPLAY),
@@ -38,7 +33,7 @@ int GameController::run()
     return 0;
 }
 
-void GameController::keyDownListener(SDL_Keycode& key)
+void GameController::keyDownListener(SDL_Keycode key)
 {
     switch (currentState)
     {

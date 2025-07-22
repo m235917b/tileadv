@@ -16,21 +16,25 @@ enum class ElementType
 class GUIElement
 {
     public:
-        GUIElement(ElementType type, int width, int height);
-        GUIElement(ElementType type, int width, int height, std::string text);
+        GUIElement(const std::string& id, const ElementType type, const int width, const int height);
+        GUIElement(const std::string& id, const ElementType type, const int width, const int height, const std::string& text);
 
-        void setUpdateListener(std::function<void()> listener);
-        void addKeyListener(const SDL_Keycode& key, std::function<void()> listener);
+        void setUpdateListener(const std::function<void()>& listener);
+        void addKeyListener(const SDL_Keycode key, const std::function<void()>& listener);
         void update();
-        void keyDownListener(const SDL_Keycode& key);
+        void keyDownListener(const SDL_Keycode key);
 
         void setText(const std::string& text);
+
+        const std::string& getId() const;
         const std::string& getText() const;
         const ElementType getType() const;
         const int getWidth() const;
         const int getHeight() const;
 
     private:
+        const std::string id;
+
         ElementType type;
 
         int width;

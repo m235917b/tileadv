@@ -1,7 +1,7 @@
 #pragma once
 
-#include <vector>
-#include <tuple>
+#include <string>
+#include <unordered_map>
 #include <memory>
 
 #include "gui/guicontainer.hpp"
@@ -9,15 +9,17 @@
 class GUIMenu
 {
     public:
-        GUIMenu() = default;
+        GUIMenu(const std::string& id);
 
-        void addMenuItem(std::unique_ptr<GUIContainer> container);
-        void removeMenuItem(GUIContainer* container);
+        const bool addMenuItem(std::unique_ptr<GUIContainer> container);
+        const bool removeMenuItem(const std::string& id);
         void update();
-        void keyDownListener(const SDL_Keycode& key);
+        void keyDownListener(const SDL_Keycode key);
 
-        const std::vector<std::unique_ptr<GUIContainer>>& getMenuItems() const;
+        const std::unordered_map<std::string, std::unique_ptr<GUIContainer>>& getMenuItems() const;
 
     private:
-        std::vector<std::unique_ptr<GUIContainer>> menuItems;
+        const std::string id;
+
+        std::unordered_map<std::string, std::unique_ptr<GUIContainer>> menuItems;
 };
