@@ -17,7 +17,7 @@ GameController::GameController(View& view, GUIController& guiController) :
     guiController.initGameMenus();
 }
 
-int GameController::run()
+const int GameController::run()
 {
     switch (currentState)
     {

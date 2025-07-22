@@ -1,6 +1,6 @@
 #include "model/tile.hpp"
 
-Tile TileFactory::fromInt(int type)
+Tile TileFactory::fromInt(const int type)
 {
     Tile tile;
 

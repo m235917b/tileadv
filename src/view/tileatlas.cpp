@@ -2,7 +2,7 @@
 
 #include "view/tileatlas.hpp"
 
-SDL_FRect TileAtlas::getSpriteCoords(TileType type)
+const SDL_FRect TileAtlas::getSpriteCoords(const TileType type)
 {
     SDL_FRect rect;
 

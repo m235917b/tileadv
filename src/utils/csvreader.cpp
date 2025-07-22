@@ -6,7 +6,7 @@
 #include "model/tile.hpp"
 #include "model/chunk.hpp"
 
-Chunk csvToChunk(std::string filename)
+Chunk csvToChunk(const std::string& filename)
 {
     std::ifstream file(filename);
 

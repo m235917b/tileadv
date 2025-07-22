@@ -1,13 +1,13 @@
 #include "model/tileactor.hpp"
 #include "model/chunk.hpp"
 
-TileActor::TileActor(int posx, int posy)
+TileActor::TileActor(const int posx, const int posy)
     : Actor(), posx(posx), posy(posy)
 {
 
 }
 
-void TileActor::move(int dx, int dy, const Chunk& chunk)
+void TileActor::move(const int dx, const int dy, const Chunk& chunk)
 {
     if (posx + dx < 0 || posx + dx >= chunk.getWidth() || posy + dy < 0 || posy + dy >= chunk.getHeight())
     {
@@ -23,12 +23,12 @@ void TileActor::move(int dx, int dy, const Chunk& chunk)
     posy += dy;
 }
 
-int TileActor::getPosX() const
+const int TileActor::getPosX() const
 {
     return posx;
 }
 
-int TileActor::getPosY() const
+const int TileActor::getPosY() const
 {
     return posy;
 }

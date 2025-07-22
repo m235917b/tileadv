@@ -4,4 +4,4 @@
 
 struct Chunk;
 
-Chunk csvToChunk(std::string filename);
+Chunk csvToChunk(const std::string& filename);

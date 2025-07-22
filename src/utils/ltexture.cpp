@@ -38,7 +38,7 @@ LTexture::~LTexture()
     destroy();
 }
 
-bool LTexture::loadFromFile(std::string path, SDL_Renderer* gRenderer)
+const bool LTexture::loadFromFile(const std::string& path, SDL_Renderer* gRenderer)
 {
     destroy();
 
@@ -79,7 +79,7 @@ void LTexture::destroy()
     mHeight = 0;
 }
 
-void LTexture::render(float x, float y, SDL_FRect* clip, float width, float height, SDL_Renderer* gRenderer)
+void LTexture::render(const float x, const float y, const SDL_FRect* clip, const float width, const float height, SDL_Renderer* gRenderer)
 {
     SDL_FRect dstRect{ x, y, static_cast<float>(mWidth), static_cast<float>(mHeight) };
 
@@ -102,17 +102,17 @@ void LTexture::render(float x, float y, SDL_FRect* clip, float width, float heig
     SDL_RenderTexture(gRenderer, mTexture, clip, &dstRect);
 }
 
-int LTexture::getWidth()
+const int LTexture::getWidth() const
 {
     return mWidth;
 }
 
-int LTexture::getHeight()
+const int LTexture::getHeight() const
 {
     return mHeight;
 }
 
-bool LTexture::isLoaded()
+const bool LTexture::isLoaded() const
 {
     return mTexture != nullptr;
 }

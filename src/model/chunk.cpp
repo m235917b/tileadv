@@ -7,7 +7,7 @@ sizey{sizey}
     worldGrid = std::vector<Tile>(sizex * sizey, {TileType::EMPTY});
 }
 
-bool Chunk::setTile(int posx, int posy, Tile tile)
+const bool Chunk::setTile(const int posx, const int posy, const Tile tile)
 {
     if(posx < 0 || posx >= sizex || posy < 0 || posy >= sizey)
     {
@@ -19,17 +19,17 @@ bool Chunk::setTile(int posx, int posy, Tile tile)
     return true;
 }
 
-const Tile& Chunk::getTile(int posx, int posy) const
+const Tile& Chunk::getTile(const int posx, const int posy) const
 {
     return worldGrid[posy * sizex + posx];
 }
 
-int Chunk::getWidth() const
+const int Chunk::getWidth() const
 {
     return sizex;
 }
 
-int Chunk::getHeight() const
+const int Chunk::getHeight() const
 {
     return sizey;
 }

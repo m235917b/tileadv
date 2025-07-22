@@ -7,13 +7,13 @@
 class Chunk
 {
     public:
-        Chunk(int sizex, int sizey);
+        Chunk(const int sizex, const int sizey);
 
-        bool setTile(int posx, int posy, Tile tile);
+        const bool setTile(const int posx, const int posy, const Tile tile);
 
-        const Tile& getTile(int posx, int posy) const;
-        int getWidth() const;
-        int getHeight() const;
+        const Tile& getTile(const int posx, const int posy) const;
+        const int getWidth() const;
+        const int getHeight() const;
 
     private:
         int sizex;

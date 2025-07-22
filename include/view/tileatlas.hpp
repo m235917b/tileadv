@@ -9,5 +9,5 @@ constexpr float tileSpriteSize{ 25.f };
 class TileAtlas
 {
     public:
-        static SDL_FRect getSpriteCoords(TileType type);
+        static const SDL_FRect getSpriteCoords(const TileType type);
 };

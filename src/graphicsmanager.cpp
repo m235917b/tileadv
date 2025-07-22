@@ -8,7 +8,7 @@ GraphicsManmager::GraphicsManmager()
 
 }
 
-bool GraphicsManmager::init()
+const bool GraphicsManmager::init()
 {
     if (SDL_Init(SDL_INIT_VIDEO) == false)
     {
@@ -45,7 +45,7 @@ bool GraphicsManmager::init()
     return true;
 }
 
-int GraphicsManmager::destroy()
+const int GraphicsManmager::destroy()
 {
     SDL_DestroyRenderer(renderer);
     renderer = nullptr;

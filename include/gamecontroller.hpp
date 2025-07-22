@@ -28,9 +28,9 @@ class GameController : public StateRunner
         GameController& operator=(GameController&&) = default;
         ~GameController() = default;
 
-        int run() override;
-        int runCharacterMenu();
-        void keyDownListener(SDL_Keycode key);
+        const int run() override;
+        const int runCharacterMenu();
+        void keyDownListener(const SDL_Keycode key);
 
     private:
         GameState currentState;

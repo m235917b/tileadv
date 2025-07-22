@@ -7,12 +7,12 @@ class Chunk;
 class TileActor : public Actor
 {
     public:
-        TileActor(int posx, int posy);
+        TileActor(const int posx, const int posy);
 
-        void move(int dx, int dy, const Chunk& chunk);
+        void move(const int dx, const int dy, const Chunk& chunk);
 
-        int getPosX() const;
-        int getPosY() const;
+        const int getPosX() const;
+        const int getPosY() const;
 
     private:
         int posx;

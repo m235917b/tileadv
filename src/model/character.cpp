@@ -1,6 +1,6 @@
 #include "model/character.hpp"
 
-Character::Character(int x, int y) : TileActor(x, y)
+Character::Character(const int x, const int y) : TileActor(x, y)
 {
     
 }

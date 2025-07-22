@@ -5,5 +5,5 @@ class StateRunner
     public:
         StateRunner() = default;
 
-        virtual int run() = 0;
+        virtual const int run() = 0;
 };

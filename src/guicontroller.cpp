@@ -26,7 +26,7 @@ GUIController::GUIController(const RenderContext& renderContext)
     guiContext.addMenu("mainmenu", std::move(mainMenu));
 }
 
-bool GUIController::init()
+const bool GUIController::init()
 {
     return guiContext.init();
 }
@@ -61,7 +61,7 @@ void GUIController::setCharacterMenuVisible(const bool visible)
     guiContext.setMenuVisible("charactermenu", visible);
 }
 
-int GUIController::run()
+const int GUIController::run()
 {
     guiContext.drawGUI();
 

@@ -5,5 +5,5 @@
 class Character : public TileActor
 {
     public:
-        Character(int x, int y);
+        Character(const int x, const int y);
 };

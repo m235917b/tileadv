@@ -11,7 +11,7 @@ class GUIController : public StateRunner
     public:
         GUIController(const RenderContext& renderContext);
 
-        bool init();
+        const bool init();
 
         void initGameMenus();
 
@@ -20,7 +20,7 @@ class GUIController : public StateRunner
         void setMainMenuVisible(const bool visible);
         void setCharacterMenuVisible(const bool visible);
 
-        int run() override;
+        const int run() override;
 
     private:
         GUIContext guiContext;

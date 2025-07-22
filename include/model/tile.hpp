@@ -21,5 +21,5 @@ struct Tile
 class TileFactory
 {
     public:
-        static Tile fromInt(int type);
+        static Tile fromInt(const int type);
 };

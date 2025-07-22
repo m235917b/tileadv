@@ -12,7 +12,7 @@ ApplicationStateController::ApplicationStateController() :
 
 }
 
-int ApplicationStateController::run()
+const int ApplicationStateController::run()
 {
     int exitCode{ 0 };
 

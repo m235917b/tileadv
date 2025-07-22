@@ -14,8 +14,8 @@ class GraphicsManmager : public RenderContext
         GraphicsManmager& operator=(GraphicsManmager&&) = delete;
         ~GraphicsManmager() = default;
 
-        bool init();
-        int destroy();
+        const bool init();
+        const int destroy();
 
         void beginFrame();
         void endFrame();

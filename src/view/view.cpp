@@ -17,7 +17,7 @@ View::View(const RenderContext& renderContext)
     leftMargin = (screenWidth - tileSize * static_cast<int>(screenWidth / tileSize)) / 2;
 }
 
-bool View::init()
+const bool View::init()
 {
     SDL_Renderer& renderer{ renderContext.getRenderer() };
 
@@ -38,7 +38,7 @@ bool View::init()
     return true;
 }
 
-const bool View::drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
+const bool View::drawGame(const Chunk& chunk, const std::vector<Character*>& characters, const Character* player)
 {
     auto screenWidth{ renderContext.getScreenWidth() };
     auto screenHeight{ renderContext.getScreenHeight() };
@@ -78,7 +78,7 @@ const bool View::drawGame(Chunk& chunk, const std::vector<Character*>& character
         }
     }
 
-    for (const Character* character : characters)
+    for (const auto character : characters)
     {
         float posX = leftMargin + static_cast<float>(character->getPosX()) * tileSize - cameraX * tileSize;
         float posY = topMargin + static_cast<float>(character->getPosY()) * tileSize - cameraY * tileSize;

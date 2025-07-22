@@ -16,9 +16,9 @@ class View
         View& operator=(const View&) = delete;
         ~View() = default;
 
-        const bool drawGame(Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
+        const bool drawGame(const Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
 
-        bool init();
+        const bool init();
 
     private:
         const RenderContext& renderContext;
