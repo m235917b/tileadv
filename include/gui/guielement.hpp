@@ -19,8 +19,8 @@ class GUIElement
         GUIElement(const std::string& id, const ElementType type, const int width, const int height);
         GUIElement(const std::string& id, const ElementType type, const int width, const int height, const std::string& text);
 
-        void setUpdateListener(const std::function<void()>& listener);
-        void addKeyListener(const SDL_Keycode key, const std::function<void()>& listener);
+        void setUpdateListener(std::function<void()> listener);
+        void addKeyListener(const SDL_Keycode key, std::function<void()> listener);
         void update();
         void keyDownListener(const SDL_Keycode key);
 

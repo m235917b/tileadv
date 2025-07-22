@@ -12,14 +12,14 @@ GUIElement::GUIElement(const std::string& id, const ElementType type, const int 
     
 }
 
-void GUIElement::setUpdateListener(const std::function<void()>& listener)
+void GUIElement::setUpdateListener(std::function<void()> listener)
 {
-    updateListener = listener;
+    updateListener = std::move(listener);
 }
 
-void GUIElement::addKeyListener(const SDL_Keycode key, const std::function<void()>& listener)
+void GUIElement::addKeyListener(const SDL_Keycode key, std::function<void()> listener)
 {
-    keyListeners[key] = listener;
+    keyListeners[key] = std::move(listener);
 }
 
 void GUIElement::update()
