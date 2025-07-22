@@ -15,7 +15,7 @@ const bool GUIView::init()
 {
     SDL_Renderer& renderer{ renderContext.getRenderer() };
 
-    if(asciiGrey.loadFromFile("assets/ascii_grey.png", &renderer) == false)
+    if(asciiGrey.loadFromFile("guiassets/ascii_grey.png", &renderer) == false)
     {
         SDL_Log("Unable to load png image!\n");
 
