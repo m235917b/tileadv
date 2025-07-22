@@ -121,7 +121,7 @@ int ApplicationStateController::run()
                 break;
         }
 
-        this->guiController.drawMenus();
+        this->guiController.run();
 
         this->graphicsManager.endFrame();
 

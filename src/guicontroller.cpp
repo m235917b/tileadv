@@ -67,7 +67,9 @@ void GUIController::setCharacterMenuVisible(const bool visible)
     this->guiContext.setMenuVisible("charactermenu", visible);
 }
 
-void GUIController::drawMenus()
+int GUIController::run()
 {
     this->guiContext.drawGUI();
+
+    return 0;
 }

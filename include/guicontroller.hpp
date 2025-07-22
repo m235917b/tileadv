@@ -1,12 +1,13 @@
 #pragma once
 
+#include "staterunner.hpp"
 #include "gui/guicontext.hpp"
 #include "gui/guimenu.hpp"
 
 class RenderContext;
 struct SDL_Renderer;
 
-class GUIController
+class GUIController : public StateRunner
 {
     public:
         GUIController(RenderContext* renderContext);
@@ -21,7 +22,7 @@ class GUIController
         void setMainMenuVisible(const bool visible);
         void setCharacterMenuVisible(const bool visible);
 
-        void drawMenus();
+        int run() override;
 
     private:
         GUIContext guiContext;

@@ -27,6 +27,7 @@ int GameController::run()
     switch (currentState)
     {
         case GameState::CHARACTER_MENU:
+            view->drawGame(chunk, characters, player);
             break;
 
         case GameState::GAMEPLAY:
