@@ -22,7 +22,7 @@ class GraphicsManmager : public RenderContext
 
         const int getScreenWidth() const override;
         const int getScreenHeight() const override;
-        SDL_Renderer* getRenderer() const override;
+        SDL_Renderer& getRenderer() const override;
 
     private:
         int screenWidth;

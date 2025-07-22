@@ -22,8 +22,6 @@ int ApplicationStateController::run()
         return 1;
     }
 
-    SDL_Renderer* renderer = this->graphicsManager.getRenderer();
-
     if (this->view.init() == false)
     {
         SDL_Log("Failed to initialize view!\n");

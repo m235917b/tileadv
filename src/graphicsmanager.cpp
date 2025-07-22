@@ -78,7 +78,7 @@ const int GraphicsManmager::getScreenHeight() const
     return this->screenHeight;
 }
 
-SDL_Renderer* GraphicsManmager::getRenderer() const
+SDL_Renderer& GraphicsManmager::getRenderer() const
 {
-    return this->renderer;
+    return *this->renderer;
 }

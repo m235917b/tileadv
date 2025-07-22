@@ -22,16 +22,16 @@ View::View(const RenderContext& renderContext)
 
 bool View::init()
 {
-    SDL_Renderer* renderer{ this->renderContext.getRenderer() };
+    SDL_Renderer& renderer{ this->renderContext.getRenderer() };
 
-    if(this->playerTexture.loadFromFile("assets/tiles_char.png", renderer) == false)
+    if(this->playerTexture.loadFromFile("assets/tiles_char.png", &renderer) == false)
     {
         SDL_Log("Unable to load png image!\n");
 
         return false;
     }
 
-    if(this->worldTiles.loadFromFile("assets/tiles_world.png", renderer) == false)
+    if(this->worldTiles.loadFromFile("assets/tiles_world.png", &renderer) == false)
     {
         SDL_Log("Unable to load png image!\n");
 
@@ -45,7 +45,7 @@ const bool View::drawGame(Chunk& chunk, const std::vector<Character*>& character
 {
     auto screenWidth{ this->renderContext.getScreenWidth() };
     auto screenHeight{ this->renderContext.getScreenHeight() };
-    SDL_Renderer* renderer{ this->renderContext.getRenderer() };
+    SDL_Renderer& renderer{ this->renderContext.getRenderer() };
 
     if (player->getPosX() < cameraX + cameraMarginX)
     {
@@ -77,7 +77,7 @@ const bool View::drawGame(Chunk& chunk, const std::vector<Character*>& character
             float posX = leftMargin + static_cast<float>(x) * tileSize - cameraX * tileSize;
             float posY = topMargin + static_cast<float>(y) * tileSize - cameraY * tileSize;
 
-            worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize, renderer);
+            worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize, &renderer);
         }
     }
 
@@ -94,7 +94,7 @@ const bool View::drawGame(Chunk& chunk, const std::vector<Character*>& character
             posY + tileSize + topMargin <= screenHeight
         )
         {
-            playerTexture.render(posX, posY, nullptr, tileSize, tileSize, renderer);
+            playerTexture.render(posX, posY, nullptr, tileSize, tileSize, &renderer);
         }
     }
 

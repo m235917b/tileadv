@@ -15,9 +15,9 @@ GUIView::GUIView(const RenderContext& renderContext)
 
 bool GUIView::init()
 {
-    SDL_Renderer* renderer{ this->renderContext.getRenderer() };
+    SDL_Renderer& renderer{ this->renderContext.getRenderer() };
 
-    if(this->asciiGrey.loadFromFile("assets/ascii_grey.png", renderer) == false)
+    if(this->asciiGrey.loadFromFile("assets/ascii_grey.png", &renderer) == false)
     {
         SDL_Log("Unable to load png image!\n");
 
@@ -76,7 +76,7 @@ void GUIView::drawTextElement(const int posX, const int posY, const GUIElement& 
 
 void GUIView::drawText(const int posX, const int posY, const float size, const std::string& text)
 {
-    SDL_Renderer* renderer{ this->renderContext.getRenderer() };
+    SDL_Renderer& renderer{ this->renderContext.getRenderer() };
 
     for (size_t i = 0; i < text.length(); ++i)
     {
@@ -84,6 +84,6 @@ void GUIView::drawText(const int posX, const int posY, const float size, const s
         float textPosX = posX + static_cast<float>(i) * asciiWidth * size;
         float textPosY = posY;
 
-        asciiGrey.render(textPosX, textPosY, &spriteCoords, asciiWidth * size, asciiHeight * size, renderer);
+        asciiGrey.render(textPosX, textPosY, &spriteCoords, asciiWidth * size, asciiHeight * size, &renderer);
     }
 }
