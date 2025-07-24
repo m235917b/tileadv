@@ -8,30 +8,54 @@ GUIContext::GUIContext(const RenderContext& renderContext)
     
 }
 
-const bool GUIContext::init()
+bool GUIContext::init()
 {
     return guiView.init();
 }
 
 void GUIContext::keyDownListener(const SDL_Keycode key)
 {
-    for (const auto& [_, menu] : menus)
+    for (const auto& id : activeMenus)
     {
-        menu->keyDownListener(key);
+        const auto& menu = menus.find(id);
+
+        if (menu == menus.end())
+        {
+            return;
+        }
+
+        menu->second->keyDownListener(key);
     }
 }
 
-const bool GUIContext::addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu)
+void GUIContext::addKeyListener(const std::string& id, const SDL_Keycode key, std::function<void()> listener)
+{
+    for (const auto& menu : menus)
+    {
+        for (const auto& [_, container] : menu.second->getMenuItems())
+        {
+            for (const auto& [_, element] : container->getElements())
+            {
+                if (element->getId() == id)
+                {
+                    element->addKeyListener(key, listener);
+                }
+            }
+        }
+    }
+}
+
+bool GUIContext::addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu)
 {
     return menus.emplace(id, std::move(menu)).second;
 }
 
-const bool GUIContext::removeMenu(const std::string& id)
+bool GUIContext::removeMenu(const std::string& id)
 {
     return menus.erase(id) > 0;
 }
 
-const bool GUIContext::setMenuVisible(const std::string& id, const bool visible)
+bool GUIContext::setMenuVisible(const std::string& id, const bool visible)
 {
     if (visible)
     {
@@ -43,17 +67,19 @@ const bool GUIContext::setMenuVisible(const std::string& id, const bool visible)
     }
 }
 
-const bool GUIContext::drawGUI()
+bool GUIContext::drawGUI()
 {
     for (const auto& id : activeMenus)
     {
-        if (menus.find(id) == menus.end())
+        const auto& menu = menus.find(id);
+        
+        if (menu == menus.end())
         {
             return false;
         }
 
-        menus[id]->update();
-        guiView.drawGUIMenu(*menus[id].get());
+        menu->second->update();
+        guiView.drawGUIMenu(*menu->second);
     }
 
     return true;

@@ -8,5 +8,5 @@ constexpr float asciiHeight{ 50.f };
 class AsciiAtlas
 {
     public:
-        static const SDL_FRect getSpriteCoords(const char asciiChar);
+        static SDL_FRect getSpriteCoords(const char asciiChar);
 };

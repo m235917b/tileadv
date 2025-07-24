@@ -25,12 +25,14 @@ class GUIElement
         void keyDownListener(const SDL_Keycode key);
 
         void setText(const std::string& text);
+        void setSelected(const bool selected);
 
         const std::string& getId() const;
         const std::string& getText() const;
-        const ElementType getType() const;
-        const int getWidth() const;
-        const int getHeight() const;
+        ElementType getType() const;
+        int getWidth() const;
+        int getHeight() const;
+        bool isSelected() const;
 
     private:
         const std::string id;
@@ -39,6 +41,8 @@ class GUIElement
 
         int width;
         int height;
+
+        bool selected;
 
         std::function<void()> updateListener;
         std::unordered_map<SDL_Keycode, std::function<void()>> keyListeners;

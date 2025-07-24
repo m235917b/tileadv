@@ -11,16 +11,17 @@ class GUIController : public StateRunner
     public:
         GUIController(const RenderContext& renderContext);
 
-        const bool init();
+        bool init();
 
         void initGameMenus();
 
         void keyDownListener(const SDL_Keycode key);
+        void addKeyListener(const std::string& id, const SDL_Keycode key, std::function<void()> listener);
 
         void setMainMenuVisible(const bool visible);
         void setCharacterMenuVisible(const bool visible);
 
-        const int run() override;
+        int run() override;
 
     private:
         GUIContext guiContext;

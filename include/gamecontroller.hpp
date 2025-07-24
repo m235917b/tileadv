@@ -12,12 +12,6 @@
 #include "model/actor.hpp"
 #include "model/character.hpp"
 
-enum class GameState
-{
-    CHARACTER_MENU,
-    GAMEPLAY
-};
-
 class GameController : public StateRunner
 {
     public:
@@ -28,12 +22,16 @@ class GameController : public StateRunner
         GameController& operator=(GameController&&) = default;
         ~GameController() = default;
 
-        const int run() override;
-        const int runCharacterMenu();
+        int run() override;
+        int runCharacterMenu();
         void keyDownListener(const SDL_Keycode key);
 
+        void setRunning(const bool running);
+        void showCharacterMenu(const bool visible);
+
     private:
-        GameState currentState;
+        bool running;
+        bool characterMenu;
 
         View& view;
         GUIController& guiController;

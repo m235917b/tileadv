@@ -1,7 +1,7 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
+#include <map>
 
 #include <SDL3/SDL.h>
 
@@ -24,13 +24,22 @@ class GUIContainer
         void update();
         void keyDownListener(const SDL_Keycode key);
 
-        const std::string getId() const;
-        const Layout getLayout() const;
-        const std::unordered_map<std::string, std::unique_ptr<GUIElement>>& getElements() const;
-        const int getPosX() const;
-        const int getPosY() const;
-        const int getWidth() const;
-        const int getHeight() const;
+        void setBorder(const bool visible);
+        void setBackground(const bool visible);
+        void setSelected(const bool selected);
+        void setActive(const bool active);
+
+        std::string getId() const;
+        Layout getLayout() const;
+        const std::map<std::string, std::unique_ptr<GUIElement>>& getElements() const;
+        int getPosX() const;
+        int getPosY() const;
+        int getWidth() const;
+        int getHeight() const;
+        bool getBorder() const;
+        bool getBackground() const;
+        bool isSelected() const;
+        bool isActive() const;
 
     private:
         const std::string id;
@@ -43,6 +52,15 @@ class GUIContainer
         int height;
 
         bool border;
+        bool background;
 
-        std::unordered_map<std::string, std::unique_ptr<GUIElement>> elements;
+        bool selected;
+        bool active;
+
+        std::map<std::string, std::unique_ptr<GUIElement>> elements;
+
+        std::map<std::string, std::unique_ptr<GUIElement>>::iterator selectedElement;
+
+        void selectRight();
+        void selectLeft();
 };

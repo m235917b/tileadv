@@ -12,7 +12,7 @@ ApplicationStateController::ApplicationStateController() :
 
 }
 
-const int ApplicationStateController::run()
+int ApplicationStateController::run()
 {
     int exitCode{ 0 };
 
@@ -34,9 +34,19 @@ const int ApplicationStateController::run()
         return 3;
     }
 
-    guiController.setMainMenuVisible(true);
-
     bool run{ true };
+
+    guiController.addKeyListener("2_play", SDLK_RETURN, [this] () {
+        currentState = ApplicationState::GAMEPLAY;
+        guiController.setMainMenuVisible(false);
+        gameController.setRunning(true);
+    });
+
+    guiController.addKeyListener("3_exit", SDLK_RETURN, [&run] () {
+        run = false;
+    });
+
+    guiController.setMainMenuVisible(true);
 
     SDL_Event e;
     SDL_zero(e);
@@ -54,24 +64,15 @@ const int ApplicationStateController::run()
                     break;
 
                 case SDL_EVENT_KEY_DOWN:
-                    switch (e.key.key)
-                    {
-                        case SDLK_ESCAPE:
-                            run = false;
-                            break;
-
-                        default:
-                            break;
-                    }
-
                     switch (currentState)
                     {
                         case ApplicationState::MAIN_MENU:
                             switch (e.key.key)
                             {
-                                case SDLK_P:
+                                case SDLK_ESCAPE:
                                     currentState = ApplicationState::GAMEPLAY;
                                     guiController.setMainMenuVisible(false);
+                                    gameController.setRunning(true);
                                     break;
 
                                 default:
@@ -82,21 +83,25 @@ const int ApplicationStateController::run()
                         case ApplicationState::GAMEPLAY:
                             switch (e.key.key)
                             {
-                                case SDLK_P:
+                                case SDLK_ESCAPE:
                                     currentState = ApplicationState::MAIN_MENU;
                                     guiController.setMainMenuVisible(true);
+                                    gameController.setRunning(false);
                                     break;
 
                                 default:
                                     break;
                             }
 
-                            gameController.keyDownListener(e.key.key);
                             break;
 
                         default:
                             break;
                     }
+
+                    gameController.keyDownListener(e.key.key);
+                    guiController.keyDownListener(e.key.key);
+
                     break;
 
                 default:
@@ -106,19 +111,7 @@ const int ApplicationStateController::run()
 
         graphicsManager.beginFrame();
 
-        switch (currentState)
-        {
-            case ApplicationState::MAIN_MENU:
-                break;
-
-            case ApplicationState::GAMEPLAY:
-                gameController.run();
-                break;
-
-            default:
-                break;
-        }
-
+        gameController.run();
         guiController.run();
 
         graphicsManager.endFrame();

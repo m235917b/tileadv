@@ -20,7 +20,7 @@ class ApplicationStateController : public StateRunner
         ApplicationStateController(const ApplicationStateController&) = delete;
         ApplicationStateController& operator=(const ApplicationStateController&) = delete;
 
-        const int run() override;
+        int run() override;
 
     private:
         ApplicationState currentState;

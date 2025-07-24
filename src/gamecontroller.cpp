@@ -2,7 +2,8 @@
 #include "utils/csvreader.hpp"
 
 GameController::GameController(View& view, GUIController& guiController) :
-    currentState(GameState::GAMEPLAY),
+    running(false),
+    characterMenu(false),
     view(view),
     chunk(csvToChunk("world/chunk1.wrld")),
     guiController(guiController),
@@ -17,66 +18,55 @@ GameController::GameController(View& view, GUIController& guiController) :
     guiController.initGameMenus();
 }
 
-const int GameController::run()
+int GameController::run()
 {
-    switch (currentState)
-    {
-        case GameState::CHARACTER_MENU:
-            view.drawGame(chunk, characters, player);
-            break;
-
-        case GameState::GAMEPLAY:
-            view.drawGame(chunk, characters, player);
-            break;
-    }
+    view.drawGame(chunk, characters, player);
 
     return 0;
 }
 
 void GameController::keyDownListener(SDL_Keycode key)
 {
-    switch (currentState)
+    switch (key)
     {
-        case GameState::CHARACTER_MENU:
-            switch (key)
-            {
-                case SDLK_C:
-                    currentState = GameState::GAMEPLAY;
-                    guiController.setCharacterMenuVisible(false);
-                    break;
-
-                default:
-                    break;
-            }
-            break;
-
-        case GameState::GAMEPLAY:
-            switch (key)
-            {
-                case SDLK_C:
-                    currentState = GameState::CHARACTER_MENU;
-                    guiController.setCharacterMenuVisible(true);
-                    break;
-
-                case SDLK_UP:
-                    player->move(0, -1, chunk);
-                    break;
-
-                case SDLK_DOWN:
-                    player->move(0, 1, chunk);
-                    break;
-
-                case SDLK_LEFT:
-                    player->move(-1, 0, chunk);
-                    break;
-
-                case SDLK_RIGHT:
-                    player->move(1, 0, chunk);
-                    break;
-
-                default:
-                    break;
-            }
+        case SDLK_C:
+            guiController.setCharacterMenuVisible(!characterMenu);
+            showCharacterMenu(!characterMenu);
             break;
     }
+
+    if (running && !characterMenu)
+    {
+        switch (key)
+        {
+            case SDLK_UP:
+                player->move(0, -1, chunk);
+                break;
+
+            case SDLK_DOWN:
+                player->move(0, 1, chunk);
+                break;
+
+            case SDLK_LEFT:
+                player->move(-1, 0, chunk);
+                break;
+
+            case SDLK_RIGHT:
+                player->move(1, 0, chunk);
+                break;
+
+            default:
+                break;
+        }
+    }
+}
+
+void GameController::setRunning(const bool running)
+{
+    this->running = running;
+}
+
+void GameController::showCharacterMenu(const bool visible)
+{
+    characterMenu = visible;
 }

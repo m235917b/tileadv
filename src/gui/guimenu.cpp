@@ -1,19 +1,37 @@
 #include "gui/guimenu.hpp"
 
 GUIMenu::GUIMenu(const std::string& id)
-    : id(id)
+    : id(id), menuItems(), selectedContainer(menuItems.begin())
 {
 
 }
 
-const bool GUIMenu::addMenuItem(std::unique_ptr<GUIContainer> container)
+bool GUIMenu::addMenuItem(std::unique_ptr<GUIContainer> container)
 {
-    return menuItems.emplace(container->getId(), std::move(container)).second;
+    if (!menuItems.empty())
+    {
+        selectedContainer->second->setSelected(false);
+    }
+
+    auto retVal{ menuItems.emplace(container->getId(), std::move(container)).second };
+    selectedContainer = menuItems.begin();
+    selectedContainer->second->setSelected(true);
+
+    return retVal;
 }
 
-const bool GUIMenu::removeMenuItem(const std::string& id)
+bool GUIMenu::removeMenuItem(const std::string& id)
 {
-    return menuItems.erase(id) > 0;
+    if (!menuItems.empty())
+    {
+        selectedContainer->second->setSelected(false);
+    }
+
+    auto retVal{ menuItems.erase(id) > 0 };
+    selectedContainer = menuItems.begin();
+    selectedContainer->second->setSelected(true);
+
+    return retVal;
 }
 
 void GUIMenu::update()
@@ -26,13 +44,78 @@ void GUIMenu::update()
 
 void GUIMenu::keyDownListener(const SDL_Keycode key)
 {
-    for (const auto& [_, item] : menuItems)
+    if (!menuItems.empty() && selectedContainer->second->isActive())
     {
-        item->keyDownListener(key);
+        switch (key)
+        {
+            case SDLK_BACKSPACE:
+                selectedContainer->second->setActive(false);
+                break;
+
+            default:
+                selectedContainer->second->keyDownListener(key);
+                break;
+        }
+    }
+    else if (!menuItems.empty())
+    {
+        switch (key)
+        {
+            case SDLK_RIGHT:
+                selectRight();
+                break;
+
+            case SDLK_LEFT:
+                selectLeft();
+
+                break;
+
+            case SDLK_RETURN:
+                selectedContainer->second->setActive(true);
+                break;
+        }
     }
 }
 
-const std::unordered_map<std::string, std::unique_ptr<GUIContainer>>& GUIMenu::getMenuItems() const
+const std::map<std::string, std::unique_ptr<GUIContainer>>& GUIMenu::getMenuItems() const
 {
     return menuItems;
+}
+
+void GUIMenu::selectRight()
+{
+    if (menuItems.empty())
+    {
+        return;
+    }
+
+    selectedContainer->second->setSelected(false);
+
+    selectedContainer++;
+
+    if (selectedContainer == menuItems.end())
+    {
+        selectedContainer = menuItems.begin();
+    }
+
+    selectedContainer->second->setSelected(true);
+}
+
+void GUIMenu::selectLeft()
+{
+    if (menuItems.empty())
+    {
+        return;
+    }
+
+    selectedContainer->second->setSelected(false);
+
+    if (selectedContainer == menuItems.begin())
+    {
+        selectedContainer = menuItems.end();
+    }
+
+    selectedContainer--;
+
+    selectedContainer->second->setSelected(true);
 }

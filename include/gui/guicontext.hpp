@@ -4,6 +4,7 @@
 #include <string>
 #include <memory>
 #include <set>
+#include <functional>
 
 #include <SDL3/SDL.h>
 
@@ -17,16 +18,17 @@ class GUIContext
     public:
         GUIContext(const RenderContext& renderContext);
 
-        const bool init();
+        bool init();
 
         void keyDownListener(const SDL_Keycode key);
+        void addKeyListener(const std::string& id, const SDL_Keycode key, std::function<void()> listener);
 
-        const bool addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu);
-        const bool removeMenu(const std::string& id);
+        bool addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu);
+        bool removeMenu(const std::string& id);
 
-        const bool setMenuVisible(const std::string& id, const bool visible);
+        bool setMenuVisible(const std::string& id, const bool visible);
 
-        const bool drawGUI();
+        bool drawGUI();
 
     private:
         GUIView guiView;

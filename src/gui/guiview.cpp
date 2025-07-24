@@ -11,7 +11,7 @@ GUIView::GUIView(const RenderContext& renderContext)
     
 }
 
-const bool GUIView::init()
+bool GUIView::init()
 {
     SDL_Renderer& renderer{ renderContext.getRenderer() };
 
@@ -49,6 +49,60 @@ void GUIView::drawGUIMenu(const GUIMenu& menu)
 
 void GUIView::drawVerticalLayout(const int posX, const int posY, const GUIContainer& container)
 {
+    SDL_Renderer& renderer{ renderContext.getRenderer() };
+
+    if (container.getBorder())
+    {
+        SDL_FRect rect;
+
+        rect.x = container.getPosX();
+        rect.y = container.getPosY();
+        rect.w = container.getWidth();
+        rect.h = container.getHeight();
+
+        SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
+        SDL_RenderRect(&renderer, &rect);
+    }
+
+    if (container.getBackground())
+    {
+        SDL_FRect rect;
+
+        rect.x = container.getPosX();
+        rect.y = container.getPosY();
+        rect.w = container.getWidth();
+        rect.h = container.getHeight();
+
+        SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
+        SDL_RenderFillRect(&renderer, &rect);
+    }
+
+    if (container.isSelected())
+    {
+        SDL_FRect rect;
+
+        rect.x = container.getPosX();
+        rect.y = container.getPosY();
+        rect.w = container.getWidth();
+        rect.h = container.getHeight();
+
+        SDL_SetRenderDrawColor(&renderer, 0x50, 0x50, 0x50, 0xFF);
+        SDL_RenderRect(&renderer, &rect);
+    }
+
+    if (container.isActive())
+    {
+        SDL_FRect rect;
+
+        rect.x = container.getPosX();
+        rect.y = container.getPosY();
+        rect.w = container.getWidth();
+        rect.h = container.getHeight();
+
+        SDL_SetRenderDrawColor(&renderer, 0xFF, 0x40, 0x40, 0xFF);
+        SDL_RenderRect(&renderer, &rect);
+    }
+
     int offset = 0;
 
     for (const auto& [_, element] : container.getElements())
@@ -69,7 +123,11 @@ void GUIView::drawVerticalLayout(const int posX, const int posY, const GUIContai
 
 void GUIView::drawTextElement(const int posX, const int posY, const GUIElement& element)
 {
-    drawText(posX, posY, 1.f, element.getText());
+    SDL_Renderer& renderer{ renderContext.getRenderer() };
+
+    const auto text{ (element.isSelected() ? " > " : "   ") + element.getText() };
+
+    drawText(posX, posY, 1.f, text);
 }
 
 void GUIView::drawText(const int posX, const int posY, const float size, const std::string& text)
