@@ -1,35 +1,23 @@
 #include "model/chunk.hpp"
 
-Chunk::Chunk(int sizex, int sizey):
-sizex{sizex},
-sizey{sizey}
-{
-    worldGrid = std::vector<Tile>(sizex * sizey, {TileType::EMPTY});
+Chunk::Chunk(int sizex, int sizey) : sizex{sizex}, sizey{sizey} {
+  worldGrid = std::vector<Tile>(sizex * sizey, {TileType::EMPTY});
 }
 
-const bool Chunk::setTile(const int posx, const int posy, const Tile tile)
-{
-    if(posx < 0 || posx >= sizex || posy < 0 || posy >= sizey)
-    {
-        return false;
-    }
+bool Chunk::setTile(const int posx, const int posy, const Tile tile) {
+  if (posx < 0 || posx >= sizex || posy < 0 || posy >= sizey) {
+    return false;
+  }
 
-    worldGrid[posy * sizex + posx] = tile;
+  worldGrid[posy * sizex + posx] = tile;
 
-    return true;
+  return true;
 }
 
-const Tile& Chunk::getTile(const int posx, const int posy) const
-{
-    return worldGrid[posy * sizex + posx];
+const Tile &Chunk::getTile(const int posx, const int posy) const {
+  return worldGrid[posy * sizex + posx];
 }
 
-const int Chunk::getWidth() const
-{
-    return sizex;
-}
+int Chunk::getWidth() const { return sizex; }
 
-const int Chunk::getHeight() const
-{
-    return sizey;
-}
+int Chunk::getHeight() const { return sizey; }

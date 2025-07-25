@@ -1,28 +1,29 @@
 #pragma once
 
-#include "staterunner.hpp"
 #include "gui/guicontext.hpp"
+#include "staterunner.hpp"
+
 
 class RenderContext;
 struct SDL_Renderer;
 
-class GUIController : public StateRunner
-{
-    public:
-        GUIController(const RenderContext& renderContext);
+class GUIController : public StateRunner {
+public:
+  GUIController(const RenderContext &renderContext);
 
-        bool init();
+  bool init();
 
-        void initGameMenus();
+  void initGameMenus();
 
-        void keyDownListener(const SDL_Keycode key);
-        void addKeyListener(const std::string& id, const SDL_Keycode key, std::function<void()> listener);
+  void keyDownListener(const SDL_Keycode key);
+  void addKeyListener(const std::string &id, const SDL_Keycode key,
+                      std::function<void()> listener);
 
-        void setMainMenuVisible(const bool visible);
-        void setCharacterMenuVisible(const bool visible);
+  void setMainMenuVisible(const bool visible);
+  void setCharacterMenuVisible(const bool visible);
 
-        int run() override;
+  int run() override;
 
-    private:
-        GUIContext guiContext;
+private:
+  GUIContext guiContext;
 };

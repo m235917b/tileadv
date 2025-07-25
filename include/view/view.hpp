@@ -2,37 +2,38 @@
 
 #include <vector>
 
-#include "utils/rendercontext.hpp"
-#include "utils/ltexture.hpp"
 #include "model/character.hpp"
+#include "utils/ltexture.hpp"
+#include "utils/rendercontext.hpp"
+
 
 class Chunk;
 
-class View
-{
-    public:
-        View(const RenderContext& renderContext);
-        View(const View&) = delete;
-        View& operator=(const View&) = delete;
-        ~View() = default;
+class View {
+public:
+  View(const RenderContext &renderContext);
+  View(const View &) = delete;
+  View &operator=(const View &) = delete;
+  ~View() = default;
 
-        const bool drawGame(const Chunk& chunk, const std::vector<Character*>& characters, const Character* player);
+  bool drawGame(const Chunk &chunk, const std::vector<Character *> &characters,
+                const Character *player);
 
-        const bool init();
+  bool init();
 
-    private:
-        const RenderContext& renderContext;
+private:
+  const RenderContext &renderContext;
 
-        int topMargin;
-        int leftMargin;
-        int tileSize;
-        int cameraX;
-        int cameraY;
-        int cameraMarginX;
-        int cameraMarginY;
+  int topMargin;
+  int leftMargin;
+  int tileSize;
+  int cameraX;
+  int cameraY;
+  int cameraMarginX;
+  int cameraMarginY;
 
-        LTexture playerTexture;
-        LTexture worldTiles;
+  LTexture playerTexture;
+  LTexture worldTiles;
 
-        bool loadTextures();
+  bool loadTextures();
 };

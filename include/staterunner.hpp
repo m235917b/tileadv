@@ -1,9 +1,8 @@
 #pragma once
 
-class StateRunner
-{
-    public:
-        StateRunner() = default;
+class StateRunner {
+public:
+  StateRunner() = default;
 
-        virtual int run() = 0;
+  virtual int run() = 0;
 };

@@ -3,116 +3,90 @@
 
 #include "utils/ltexture.hpp"
 
-LTexture::LTexture():
-    mTexture{ nullptr },
-    mWidth{ 0 },
-    mHeight{ 0 }
-{
+LTexture::LTexture() : mTexture{nullptr}, mWidth{0}, mHeight{0} {}
 
+LTexture::LTexture(LTexture &&other) noexcept
+    : mTexture(other.mTexture), mWidth(other.mWidth), mHeight(other.mHeight) {
+  other.mTexture = nullptr;
+  other.mWidth = 0;
+  other.mHeight = 0;
 }
 
-LTexture::LTexture(LTexture&& other) noexcept
-    : mTexture(other.mTexture), mWidth(other.mWidth), mHeight(other.mHeight)
-{
+LTexture &LTexture::operator=(LTexture &&other) noexcept {
+  if (this != &other) {
+    destroy();
+    mTexture = other.mTexture;
+    mWidth = other.mWidth;
+    mHeight = other.mHeight;
     other.mTexture = nullptr;
     other.mWidth = 0;
     other.mHeight = 0;
+  }
+  return *this;
 }
 
-LTexture& LTexture::operator=(LTexture&& other) noexcept
-{
-    if (this != &other) {
-        destroy();
-        mTexture = other.mTexture;
-        mWidth = other.mWidth;
-        mHeight = other.mHeight;
-        other.mTexture = nullptr;
-        other.mWidth = 0;
-        other.mHeight = 0;
-    }
-    return *this;
-}
+LTexture::~LTexture() { destroy(); }
 
-LTexture::~LTexture()
-{
-    destroy();
-}
+bool LTexture::loadFromFile(const std::string &path, SDL_Renderer *gRenderer) {
+  destroy();
 
-const bool LTexture::loadFromFile(const std::string& path, SDL_Renderer* gRenderer)
-{
-    destroy();
-
-    if(SDL_Surface* loadedSurface = IMG_Load(path.c_str()); loadedSurface == nullptr)
-    {
-        SDL_Log("Unable to load image %s! SDL_image error: %s\n", path.c_str(), SDL_GetError());
-    }
-    else
-    {
-        if(SDL_SetSurfaceColorKey( loadedSurface, true, SDL_MapSurfaceRGB( loadedSurface, 0xFF, 0x00, 0xFF ) ) == false)
-        {
-            SDL_Log("Unable to color key! SDL error: %s", SDL_GetError());
-        }
-        else
-        {
-            if(mTexture = SDL_CreateTextureFromSurface( gRenderer, loadedSurface ); mTexture == nullptr)
-            {
-                SDL_Log("Unable to create texture from loaded pixels! SDL error: %s\n", SDL_GetError());
-            }
-            else
-            {
-                mWidth = loadedSurface->w;
-                mHeight = loadedSurface->h;
-            }
-        }
-
-        SDL_DestroySurface(loadedSurface);
+  if (SDL_Surface *loadedSurface = IMG_Load(path.c_str());
+      loadedSurface == nullptr) {
+    SDL_Log("Unable to load image %s! SDL_image error: %s\n", path.c_str(),
+            SDL_GetError());
+  } else {
+    if (SDL_SetSurfaceColorKey(
+            loadedSurface, true,
+            SDL_MapSurfaceRGB(loadedSurface, 0xFF, 0x00, 0xFF)) == false) {
+      SDL_Log("Unable to color key! SDL error: %s", SDL_GetError());
+    } else {
+      if (mTexture = SDL_CreateTextureFromSurface(gRenderer, loadedSurface);
+          mTexture == nullptr) {
+        SDL_Log("Unable to create texture from loaded pixels! SDL error: %s\n",
+                SDL_GetError());
+      } else {
+        mWidth = loadedSurface->w;
+        mHeight = loadedSurface->h;
+      }
     }
 
-    return mTexture != nullptr;
+    SDL_DestroySurface(loadedSurface);
+  }
+
+  return mTexture != nullptr;
 }
 
-void LTexture::destroy()
-{
-    SDL_DestroyTexture(mTexture);
-    mTexture = nullptr;
-    mWidth = 0;
-    mHeight = 0;
+void LTexture::destroy() {
+  SDL_DestroyTexture(mTexture);
+  mTexture = nullptr;
+  mWidth = 0;
+  mHeight = 0;
 }
 
-void LTexture::render(const float x, const float y, const SDL_FRect* clip, const float width, const float height, SDL_Renderer* gRenderer)
-{
-    SDL_FRect dstRect{ x, y, static_cast<float>(mWidth), static_cast<float>(mHeight) };
+void LTexture::render(const float x, const float y, const SDL_FRect *clip,
+                      const float width, const float height,
+                      SDL_Renderer *gRenderer) {
+  SDL_FRect dstRect{x, y, static_cast<float>(mWidth),
+                    static_cast<float>(mHeight)};
 
-    if(clip != nullptr)
-    {
-        dstRect.w = clip->w;
-        dstRect.h = clip->h;
-    }
+  if (clip != nullptr) {
+    dstRect.w = clip->w;
+    dstRect.h = clip->h;
+  }
 
-    if(width > 0)
-    {
-        dstRect.w = width;
-    }
+  if (width > 0) {
+    dstRect.w = width;
+  }
 
-    if(height > 0)
-    {
-        dstRect.h = height;
-    }
+  if (height > 0) {
+    dstRect.h = height;
+  }
 
-    SDL_RenderTexture(gRenderer, mTexture, clip, &dstRect);
+  SDL_RenderTexture(gRenderer, mTexture, clip, &dstRect);
 }
 
-const int LTexture::getWidth() const
-{
-    return mWidth;
-}
+int LTexture::getWidth() const { return mWidth; }
 
-const int LTexture::getHeight() const
-{
-    return mHeight;
-}
+int LTexture::getHeight() const { return mHeight; }
 
-const bool LTexture::isLoaded() const
-{
-    return mTexture != nullptr;
-}
+bool LTexture::isLoaded() const { return mTexture != nullptr; }

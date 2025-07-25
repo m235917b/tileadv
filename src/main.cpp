@@ -1,10 +1,9 @@
 #include "asc.hpp"
 
-int main(int argc, char* argv[])
-{
-    ApplicationStateController appStateController{};
+int main() {
+  ApplicationStateController appStateController{};
 
-    appStateController.run();
+  appStateController.run();
 
-    return 0;
+  return 0;
 }

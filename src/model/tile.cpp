@@ -1,15 +1,13 @@
 #include "model/tile.hpp"
 
-Tile TileFactory::fromInt(const int type)
-{
-    Tile tile;
+Tile TileFactory::fromInt(const int type) {
+  Tile tile;
 
-    tile.type = static_cast<TileType>(type);
+  tile.type = static_cast<TileType>(type);
 
-    if(type >= 100)
-    {
-        tile.solid = true;
-    }
+  if (type >= 100) {
+    tile.solid = true;
+  }
 
-    return tile;
+  return tile;
 }

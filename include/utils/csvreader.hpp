@@ -2,6 +2,6 @@
 
 #include <string>
 
-struct Chunk;
+class Chunk;
 
-Chunk csvToChunk(const std::string& filename);
+Chunk csvToChunk(const std::string &filename);

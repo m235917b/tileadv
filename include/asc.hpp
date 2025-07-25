@@ -1,32 +1,29 @@
 #pragma once
 
-#include "graphicsmanager.hpp"
 #include "gamecontroller.hpp"
-#include "view/view.hpp"
+#include "graphicsmanager.hpp"
 #include "guicontroller.hpp"
+#include "view/view.hpp"
 
-constexpr int framerate{ 60 };
 
-enum class ApplicationState
-{
-    MAIN_MENU,
-    GAMEPLAY
-};
+constexpr int framerate{60};
 
-class ApplicationStateController : public StateRunner
-{
-    public:
-        ApplicationStateController();
-        ApplicationStateController(const ApplicationStateController&) = delete;
-        ApplicationStateController& operator=(const ApplicationStateController&) = delete;
+enum class ApplicationState { MAIN_MENU, GAMEPLAY };
 
-        int run() override;
+class ApplicationStateController : public StateRunner {
+public:
+  ApplicationStateController();
+  ApplicationStateController(const ApplicationStateController &) = delete;
+  ApplicationStateController &
+  operator=(const ApplicationStateController &) = delete;
 
-    private:
-        ApplicationState currentState;
+  int run() override;
 
-        GraphicsManmager graphicsManager;
-        View view;
-        GUIController guiController;
-        GameController gameController;
+private:
+  ApplicationState currentState;
+
+  GraphicsManmager graphicsManager;
+  View view;
+  GUIController guiController;
+  GameController gameController;
 };

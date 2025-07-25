@@ -27,6 +27,12 @@ target_sources(tileadv PRIVATE ${HEADERS})
 
 target_link_libraries(tileadv PRIVATE SDL3::SDL3 SDL3_image::SDL3_image)
 
+if(MSVC)
+  target_compile_options(tileadv PRIVATE /W4 /WX)
+else()
+  target_compile_options(tileadv PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
 include(CTest)
 enable_testing()
 

@@ -2,7 +2,20 @@
     "version": 8,
     "configurePresets": [
         {
-            "name": "msys2-ucrt-mingw64",
+            "name": "clang",
+            "displayName": "Clang 20.1.8 x86_64-w64-windows-gnu (ucrt64)",
+            "description": "Using compilers: C = C:\\Programs\\msys64\\ucrt64\\bin\\clang.exe, CXX = C:\\Programs\\msys64\\ucrt64\\bin\\clang++.exe",
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_C_COMPILER": "C:/Programs/msys64/ucrt64/bin/clang.exe",
+                "CMAKE_CXX_COMPILER": "C:/Programs/msys64/ucrt64/bin/clang++.exe",
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "gcc",
             "displayName": "GCC 15.1.0 x86_64-w64-mingw32 (ucrt64)",
             "description": "Using compilers: C = C:\\Programs\\msys64\\ucrt64\\bin\\gcc.exe, CXX = C:\\Programs\\msys64\\ucrt64\\bin\\g++.exe",
             "generator": "MinGW Makefiles",
@@ -13,6 +26,14 @@
                 "CMAKE_CXX_COMPILER": "C:/Programs/msys64/ucrt64/bin/g++.exe",
                 "CMAKE_BUILD_TYPE": "Debug"
             }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "clang-build",
+            "description": "",
+            "displayName": "",
+            "configurePreset": "clang"
         }
     ]
 }

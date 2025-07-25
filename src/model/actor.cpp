@@ -1,6 +1,3 @@
 #include "model/actor.hpp"
 
-Actor::Actor()
-{
-    
-}
+Actor::Actor() {}

@@ -4,19 +4,18 @@
 
 #include "model/tile.hpp"
 
-class Chunk
-{
-    public:
-        Chunk(const int sizex, const int sizey);
+class Chunk {
+public:
+  Chunk(const int sizex, const int sizey);
 
-        const bool setTile(const int posx, const int posy, const Tile tile);
+  bool setTile(const int posx, const int posy, const Tile tile);
 
-        const Tile& getTile(const int posx, const int posy) const;
-        const int getWidth() const;
-        const int getHeight() const;
+  const Tile &getTile(const int posx, const int posy) const;
+  int getWidth() const;
+  int getHeight() const;
 
-    private:
-        int sizex;
-        int sizey;
-        std::vector<Tile> worldGrid;
+private:
+  int sizex;
+  int sizey;
+  std::vector<Tile> worldGrid;
 };
