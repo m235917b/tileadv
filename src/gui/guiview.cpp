@@ -1,22 +1,18 @@
 #include "gui/guiview.hpp"
 #include "utils/rendercontext.hpp"
-#include "gui/guimenu.hpp"
-#include "gui/guicontainer.hpp"
-#include "gui/guielement.hpp"
+#include "gui/guicomponent.hpp"
+#include "gui/guitreetraverser.hpp"
 #include "gui/asciiatlas.hpp"
 
 GUIView::GUIView(const RenderContext& renderContext)
-    : renderContext(renderContext), asciiGrey()
-{
+    : renderContext(renderContext), asciiGrey() {
     
 }
 
-bool GUIView::init()
-{
+bool GUIView::init() {
     SDL_Renderer& renderer{ renderContext.getRenderer() };
 
-    if(asciiGrey.loadFromFile("guiassets/ascii_grey.png", &renderer) == false)
-    {
+    if(asciiGrey.loadFromFile("guiassets/ascii_grey.png", &renderer) == false) {
         SDL_Log("Unable to load png image!\n");
 
         return false;
@@ -25,117 +21,71 @@ bool GUIView::init()
     return true;
 }
 
-void GUIView::drawGUIMenu(const GUIMenu& menu)
-{
-    for (const auto& [_, container] : menu.getMenuItems())
-    {
-        switch (container->getLayout())
-        {
-            case Layout::VERTICAL:
-                drawVerticalLayout(container->getPosX(), container->getPosY(), *container.get());
-                break;
-
-            case Layout::HORIZONTAL:
-                break;
-
-            case Layout::GRID:
-                break;
-
-            default:
-                break;
-        }
-    }
-}
-
-void GUIView::drawVerticalLayout(const int posX, const int posY, const GUIContainer& container)
-{
+void GUIView::drawGUIComponent(const GUIComponent& component) {
     SDL_Renderer& renderer{ renderContext.getRenderer() };
 
-    if (container.getBorder())
-    {
+    if (component.getBorder()) {
         SDL_FRect rect;
 
-        rect.x = container.getPosX();
-        rect.y = container.getPosY();
-        rect.w = container.getWidth();
-        rect.h = container.getHeight();
+        rect.x = component.getPosX();
+        rect.y = component.getPosY();
+        rect.w = component.getWidth();
+        rect.h = component.getHeight();
 
         SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
         SDL_RenderRect(&renderer, &rect);
     }
 
-    if (container.getBackground())
-    {
+    if (component.getBackground()) {
         SDL_FRect rect;
 
-        rect.x = container.getPosX();
-        rect.y = container.getPosY();
-        rect.w = container.getWidth();
-        rect.h = container.getHeight();
+        rect.x = component.getPosX();
+        rect.y = component.getPosY();
+        rect.w = component.getWidth();
+        rect.h = component.getHeight();
 
         SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
         SDL_RenderFillRect(&renderer, &rect);
     }
 
-    if (container.isSelected())
-    {
-        SDL_FRect rect;
+    if (component.isSelected()) {
+        if (component.getType() == GUIElementType::CONTAINER) {
+            SDL_FRect rect;
 
-        rect.x = container.getPosX();
-        rect.y = container.getPosY();
-        rect.w = container.getWidth();
-        rect.h = container.getHeight();
+            rect.x = component.getPosX();
+            rect.y = component.getPosY();
+            rect.w = component.getWidth();
+            rect.h = component.getHeight();
 
-        SDL_SetRenderDrawColor(&renderer, 0x50, 0x50, 0x50, 0xFF);
-        SDL_RenderRect(&renderer, &rect);
-    }
-
-    if (container.isActive())
-    {
-        SDL_FRect rect;
-
-        rect.x = container.getPosX();
-        rect.y = container.getPosY();
-        rect.w = container.getWidth();
-        rect.h = container.getHeight();
-
-        SDL_SetRenderDrawColor(&renderer, 0xFF, 0x40, 0x40, 0xFF);
-        SDL_RenderRect(&renderer, &rect);
-    }
-
-    int offset = 0;
-
-    for (const auto& [_, element] : container.getElements())
-    {
-        switch (element->getType())
-        {
-            case ElementType::TEXT:
-                drawTextElement(posX, posY + offset, *element.get());
-                break;
-
-            default:
-                break;
+            SDL_SetRenderDrawColor(&renderer, 0x50, 0x50, 0x50, 0xFF);
+            SDL_RenderRect(&renderer, &rect);
         }
+    }
 
-        offset += element->getHeight();
+    if (component.isActive()) {
+        if (component.getType() == GUIElementType::CONTAINER) {
+            SDL_FRect rect;
+
+            rect.x = component.getPosX();
+            rect.y = component.getPosY();
+            rect.w = component.getWidth();
+            rect.h = component.getHeight();
+
+            SDL_SetRenderDrawColor(&renderer, 0xFF, 0x40, 0x40, 0xFF);
+            SDL_RenderRect(&renderer, &rect);
+        }
+    }
+
+    if (component.getType() == GUIElementType::TEXT) {
+        const auto text = (component.isSelected() ? " > " : "   ") + component.getText();
+        drawText(component.getPosX(), component.getPosY(), 1.f, text);
     }
 }
 
-void GUIView::drawTextElement(const int posX, const int posY, const GUIElement& element)
-{
+void GUIView::drawText(const int posX, const int posY, const float size, const std::string& text) {
     SDL_Renderer& renderer{ renderContext.getRenderer() };
 
-    const auto text{ (element.isSelected() ? " > " : "   ") + element.getText() };
-
-    drawText(posX, posY, 1.f, text);
-}
-
-void GUIView::drawText(const int posX, const int posY, const float size, const std::string& text)
-{
-    SDL_Renderer& renderer{ renderContext.getRenderer() };
-
-    for (size_t i = 0; i < text.length(); ++i)
-    {
+    for (size_t i = 0; i < text.length(); ++i) {
         SDL_FRect spriteCoords = AsciiAtlas::getSpriteCoords(text[i]);
         float textPosX = posX + static_cast<float>(i) * asciiWidth * size;
         float textPosY = posY;

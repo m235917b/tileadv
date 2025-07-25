@@ -2,29 +2,36 @@
 
 #include "guicontroller.hpp"
 #include "utils/rendercontext.hpp"
-#include "gui/guicontainer.hpp"
-#include "gui/guielement.hpp"
+#include "gui/guicomponent.hpp"
 
 GUIController::GUIController(const RenderContext& renderContext)
     : guiContext(renderContext)
 {
     // Initialize main menu elements
-    auto mainMenu = std::make_unique<GUIMenu>("main_menu");
+    auto mainMenu = std::make_unique<GUIComponent>("main_menu");
+    mainMenu->setVisible(false);
 
-    auto mainMenuContainer = std::make_unique<GUIContainer>("main_menu_container", Layout::VERTICAL, 1000, 500, 500, 200);
+    auto mainMenuContainer = std::make_unique<GUIComponent>("main_menu_container", 1000, 500, 500, 200);
+    mainMenuContainer->setLayout(GUILayout::VERTICAL);
     mainMenuContainer->setBorder(true);
 
-    auto headline = std::make_unique<GUIElement>("1_headline", ElementType::TEXT, 100, 50, "Main Menu");
-    auto line1 = std::make_unique<GUIElement>("2_play", ElementType::TEXT, 100, 50, "Play Game");
-    auto line2 = std::make_unique<GUIElement>("3_exit", ElementType::TEXT, 100, 50, "Exit Game");
+    auto headline = std::make_unique<GUIComponent>("1_headline", 0, 0, 100, 50);
+    headline->setType(GUIElementType::TEXT);
+    headline->setText("Main Menu");
+    auto line1 = std::make_unique<GUIComponent>("2_play", 0, 0, 100, 50);
+    line1->setType(GUIElementType::TEXT);
+    line1->setText("Play Game");
+    auto line2 = std::make_unique<GUIComponent>("3_exit", 0, 0, 100, 50);
+    line2->setType(GUIElementType::TEXT);
+    line2->setText("Exit Game");
 
-    mainMenuContainer->addElement(std::move(headline));
-    mainMenuContainer->addElement(std::move(line1));
-    mainMenuContainer->addElement(std::move(line2));
+    mainMenuContainer->addItem(std::move(headline));
+    mainMenuContainer->addItem(std::move(line1));
+    mainMenuContainer->addItem(std::move(line2));
 
-    mainMenu->addMenuItem(std::move(mainMenuContainer));
+    mainMenu->addItem(std::move(mainMenuContainer));
 
-    guiContext.addMenu("mainmenu", std::move(mainMenu));
+    guiContext.addComponent(std::move(mainMenu));
 }
 
 bool GUIController::init()
@@ -34,27 +41,34 @@ bool GUIController::init()
 
 void GUIController::initGameMenus()
 {
-    auto characterMenu = std::make_unique<GUIMenu>("char_menu");
+    auto characterMenu = std::make_unique<GUIComponent>("char_menu");
+    characterMenu->setVisible(false);
 
-    auto characterMenuContainer = std::make_unique<GUIContainer>("char_menu_container", Layout::VERTICAL, 500, 100, 600, 200);
+    auto characterMenuContainer = std::make_unique<GUIComponent>("char_menu_container", 500, 100, 600, 200);
+    characterMenuContainer->setLayout(GUILayout::VERTICAL);
     characterMenuContainer->setBorder(true);
     characterMenuContainer->setBackground(true);
 
-    auto characterMenuContainer2 = std::make_unique<GUIContainer>("char_menu_container_2", Layout::VERTICAL, 1200, 100, 600, 200);
-    characterMenuContainer->setBorder(true);
+    auto characterMenuContainer2 = std::make_unique<GUIComponent>("char_menu_container_2", 1200, 100, 600, 200);
+    characterMenuContainer2->setLayout(GUILayout::VERTICAL);
+    characterMenuContainer2->setBorder(true);
 
-    auto headline = std::make_unique<GUIElement>("char_headline", ElementType::TEXT, 100, 20, "Character Menu");
+    auto headline = std::make_unique<GUIComponent>("char_headline", 0, 0, 100, 200);
+    headline->setType(GUIElementType::TEXT);
+    headline->setText("Character Menu");
 
-    characterMenuContainer->addElement(std::move(headline));
+    characterMenuContainer->addItem(std::move(headline));
 
-    auto headline2 = std::make_unique<GUIElement>("char_headline_2", ElementType::TEXT, 100, 20, "Character Menu 2");
+    auto headline2 = std::make_unique<GUIComponent>("char_headline_2", 0, 0, 100, 20);
+    headline2->setType(GUIElementType::TEXT);
+    headline2->setText("Character Menu 2");
 
-    characterMenuContainer2->addElement(std::move(headline2));
+    characterMenuContainer2->addItem(std::move(headline2));
 
-    characterMenu->addMenuItem(std::move(characterMenuContainer));
-    characterMenu->addMenuItem(std::move(characterMenuContainer2));
+    characterMenu->addItem(std::move(characterMenuContainer));
+    characterMenu->addItem(std::move(characterMenuContainer2));
 
-    guiContext.addMenu("charactermenu", std::move(characterMenu));
+    guiContext.addComponent(std::move(characterMenu));
 }
 
 void GUIController::keyDownListener(const SDL_Keycode key)
@@ -69,16 +83,17 @@ void GUIController::addKeyListener(const std::string& id, const SDL_Keycode key,
 
 void GUIController::setMainMenuVisible(const bool visible)
 {
-    guiContext.setMenuVisible("mainmenu", visible);
+    guiContext.setComponentVisible("main_menu", visible);
 }
 
 void GUIController::setCharacterMenuVisible(const bool visible)
 {
-    guiContext.setMenuVisible("charactermenu", visible);
+    guiContext.setComponentVisible("char_menu", visible);
 }
 
 int GUIController::run()
 {
+    guiContext.update();
     guiContext.drawGUI();
 
     return 0;

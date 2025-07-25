@@ -1,6 +1,6 @@
 #pragma once
 
-#include <unordered_map>
+#include <vector>
 #include <string>
 #include <memory>
 #include <set>
@@ -9,12 +9,11 @@
 #include <SDL3/SDL.h>
 
 #include "gui/guiview.hpp"
-#include "gui/guimenu.hpp"
+#include "gui/guicomponent.hpp"
 
 class RenderContext;
 
-class GUIContext
-{
+class GUIContext {
     public:
         GUIContext(const RenderContext& renderContext);
 
@@ -23,16 +22,16 @@ class GUIContext
         void keyDownListener(const SDL_Keycode key);
         void addKeyListener(const std::string& id, const SDL_Keycode key, std::function<void()> listener);
 
-        bool addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu);
-        bool removeMenu(const std::string& id);
+        void addComponent(std::unique_ptr<GUIComponent> component);
+        bool removeComponent(const std::string& id);
 
-        bool setMenuVisible(const std::string& id, const bool visible);
+        void setComponentVisible(const std::string& id, const bool visible);
 
-        bool drawGUI();
+        void update();
+        void drawGUI();
 
     private:
         GUIView guiView;
 
-        std::unordered_map<std::string, std::unique_ptr<GUIMenu>> menus;
-        std::set<std::string> activeMenus;
+        std::vector<std::unique_ptr<GUIComponent>> components;
 };

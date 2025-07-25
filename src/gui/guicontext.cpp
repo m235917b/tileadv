@@ -1,86 +1,73 @@
 #include "gui/guicontext.hpp"
 #include "utils/rendercontext.hpp"
 #include "gui/asciiatlas.hpp"
+#include "gui/guitreetraverser.hpp"
 
 GUIContext::GUIContext(const RenderContext& renderContext)
-    : guiView(renderContext), menus(), activeMenus()
-{
+    : guiView(renderContext), components() {
     
 }
 
-bool GUIContext::init()
-{
+bool GUIContext::init() {
     return guiView.init();
 }
 
-void GUIContext::keyDownListener(const SDL_Keycode key)
-{
-    for (const auto& id : activeMenus)
-    {
-        const auto& menu = menus.find(id);
-
-        if (menu == menus.end())
-        {
-            return;
+void GUIContext::keyDownListener(const SDL_Keycode key) {
+    /*GUITreeTraverser::traverse(components, [key] (const std::unique_ptr<GUIComponent>& component) {
+        if (component->isVisible()) {
+            component->keyDownListener(key);
         }
+    });*/
 
-        menu->second->keyDownListener(key);
+    for (const auto& component : components) {
+        component->keyDownListener(key);
     }
 }
 
-void GUIContext::addKeyListener(const std::string& id, const SDL_Keycode key, std::function<void()> listener)
-{
-    for (const auto& menu : menus)
-    {
-        for (const auto& [_, container] : menu.second->getMenuItems())
-        {
-            for (const auto& [_, element] : container->getElements())
-            {
-                if (element->getId() == id)
-                {
-                    element->addKeyListener(key, listener);
-                }
-            }
+void GUIContext::addKeyListener(const std::string& id, const SDL_Keycode key, std::function<void()> listener) {
+    GUITreeTraverser::traverse(components, [&id, key, listener] (const std::unique_ptr<GUIComponent>& component) {
+        if (component->getId() == id) {
+            component->addKeyListener(key, listener);
+        }
+    });
+}
+
+void GUIContext::addComponent(std::unique_ptr<GUIComponent> component) {
+    components.push_back(std::move(component));
+}
+
+bool GUIContext::removeComponent(const std::string& id) {
+    return std::erase_if(components, [&id] (const std::unique_ptr<GUIComponent>& component) {
+        return component->getId() == id;
+    });
+}
+
+void GUIContext::setComponentVisible(const std::string& id, const bool visible) {
+    GUITreeTraverser::traverse(components, [&id, visible] (const std::unique_ptr<GUIComponent>& component) {
+        if (component->getId() == id) {
+            component->setVisible(visible);
+            component->setActive(visible);
+            component->setSelected(visible);
+        }
+    });
+}
+
+void GUIContext::drawGUI() {
+    for (const auto& component : components) {
+        if (component->isVisible()) {
+            GUITreeTraverser::traverse(component->getItems(), [this] (const std::unique_ptr<GUIComponent>& component) {
+                this->guiView.drawGUIComponent(*component);
+            });
         }
     }
 }
 
-bool GUIContext::addMenu(const std::string& id, std::unique_ptr<GUIMenu> menu)
-{
-    return menus.emplace(id, std::move(menu)).second;
-}
-
-bool GUIContext::removeMenu(const std::string& id)
-{
-    return menus.erase(id) > 0;
-}
-
-bool GUIContext::setMenuVisible(const std::string& id, const bool visible)
-{
-    if (visible)
-    {
-        return activeMenus.emplace(id).second;
-    }
-    else
-    {
-        return activeMenus.erase(id) > 0;
-    }
-}
-
-bool GUIContext::drawGUI()
-{
-    for (const auto& id : activeMenus)
-    {
-        const auto& menu = menus.find(id);
-        
-        if (menu == menus.end())
-        {
-            return false;
+void GUIContext::update() {
+    for (const auto& component : components) {
+        if (component->isVisible()) {
+            GUITreeTraverser::traverse(component->getItems(), [] (const std::unique_ptr<GUIComponent>& component) {
+                component->update();
+            });
         }
-
-        menu->second->update();
-        guiView.drawGUIMenu(*menu->second);
     }
-
-    return true;
 }

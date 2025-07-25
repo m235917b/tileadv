@@ -5,9 +5,7 @@
 
 struct SDL_Renderer;
 
-class GUIMenu;
-class GUIContainer;
-class GUIElement;
+class GUIComponent;
 
 class GUIView
 {
@@ -16,9 +14,7 @@ class GUIView
 
         bool init();
 
-        void drawGUIMenu(const GUIMenu& menu);
-        void drawVerticalLayout(const int posX, const int posY, const GUIContainer& container);
-        void drawTextElement(const int posX, const int posY, const GUIElement& element);
+        void drawGUIComponent(const GUIComponent& component);
         void drawText(const int posX, const int posY, const float size, const std::string& text);
 
     private:
