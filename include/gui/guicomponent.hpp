@@ -26,6 +26,7 @@ public:
   void keyDownListener(const SDL_Keycode key);
   void setUpdateListener(std::function<void()> listener);
   void addKeyListener(const SDL_Keycode key, std::function<void()> listener);
+  void forEachChild(std::function<void(GUIComponent& child)> action);
 
   void setPosX(const int posX);
   void setPosY(const int posY);
@@ -41,7 +42,7 @@ public:
   void selectPreviousChild();
 
   std::string getId() const;
-  const std::vector<std::unique_ptr<GUIComponent>> &getChildren() const;
+  // const std::vector<std::unique_ptr<GUIComponent>> &getChildren() const;
   int getPosX() const;
   int getPosY() const;
   int getWidth() const;
@@ -56,10 +57,10 @@ public:
   bool isVisible() const;
   const GUIComponent *getSelectedChild() const;
 
-  auto getChildren2() {
+  /*auto getChildren2() {
     return std::views::transform(
         children, [](auto &ptr) -> GUIComponent & { return *ptr; });
-  }
+  }*/
 
 private:
   const std::string id;

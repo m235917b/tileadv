@@ -3,7 +3,6 @@
 #include <memory>
 #include <vector>
 
-
 #include <SDL3/SDL.h>
 
 #include "guicontroller.hpp"
@@ -12,7 +11,6 @@
 #include "model/chunk.hpp"
 #include "staterunner.hpp"
 #include "view/view.hpp"
-
 
 class GameController : public StateRunner {
 public:
@@ -24,7 +22,6 @@ public:
   ~GameController() = default;
 
   int run() override;
-  int runCharacterMenu();
   void keyDownListener(const SDL_Keycode key);
 
   void setRunning(const bool running);
