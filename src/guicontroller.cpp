@@ -26,11 +26,11 @@ GUIController::GUIController(const RenderContext &renderContext)
   line2->setType(GUIElementType::TEXT);
   line2->setText("Exit Game");
 
-  mainMenuContainer->addItem(std::move(headline));
-  mainMenuContainer->addItem(std::move(line1));
-  mainMenuContainer->addItem(std::move(line2));
+  mainMenuContainer->addChild(std::move(headline));
+  mainMenuContainer->addChild(std::move(line1));
+  mainMenuContainer->addChild(std::move(line2));
 
-  mainMenu->addItem(std::move(mainMenuContainer));
+  mainMenu->addChild(std::move(mainMenuContainer));
 
   guiContext.addComponent(std::move(mainMenu));
 }
@@ -57,17 +57,17 @@ void GUIController::initGameMenus() {
   headline->setType(GUIElementType::TEXT);
   headline->setText("Character Menu");
 
-  characterMenuContainer->addItem(std::move(headline));
+  characterMenuContainer->addChild(std::move(headline));
 
   auto headline2 =
       std::make_unique<GUIComponent>("char_headline_2", 0, 0, 100, 20);
   headline2->setType(GUIElementType::TEXT);
   headline2->setText("Character Menu 2");
 
-  characterMenuContainer2->addItem(std::move(headline2));
+  characterMenuContainer2->addChild(std::move(headline2));
 
-  characterMenu->addItem(std::move(characterMenuContainer));
-  characterMenu->addItem(std::move(characterMenuContainer2));
+  characterMenu->addChild(std::move(characterMenuContainer));
+  characterMenu->addChild(std::move(characterMenuContainer2));
 
   guiContext.addComponent(std::move(characterMenu));
 }
@@ -91,6 +91,7 @@ void GUIController::setCharacterMenuVisible(const bool visible) {
 
 int GUIController::run() {
   guiContext.update();
+  guiContext.updateLayout();
   guiContext.drawGUI();
 
   return 0;

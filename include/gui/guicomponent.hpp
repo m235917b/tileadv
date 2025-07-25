@@ -2,10 +2,10 @@
 
 #include <functional>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
 
 #include <SDL3/SDL.h>
 
@@ -19,9 +19,10 @@ public:
   GUIComponent(const std::string &id, const int posX, const int posY,
                const int width, const int height);
 
-  void addItem(std::unique_ptr<GUIComponent> item);
-  bool removeItem(const std::string &id);
+  void addChild(std::unique_ptr<GUIComponent> child);
+  bool removeChild(const std::string &id);
   void update();
+  void updateLayout();
   void keyDownListener(const SDL_Keycode key);
   void setUpdateListener(std::function<void()> listener);
   void addKeyListener(const SDL_Keycode key, std::function<void()> listener);
@@ -36,9 +37,11 @@ public:
   void setLayout(const GUILayout layout);
   void setType(const GUIElementType type);
   void setVisible(const bool visible);
+  void selectNextChild();
+  void selectPreviousChild();
 
   std::string getId() const;
-  const std::vector<std::unique_ptr<GUIComponent>> &getItems() const;
+  const std::vector<std::unique_ptr<GUIComponent>> &getChildren() const;
   int getPosX() const;
   int getPosY() const;
   int getWidth() const;
@@ -51,6 +54,12 @@ public:
   GUILayout getLayout() const;
   GUIElementType getType() const;
   bool isVisible() const;
+  const GUIComponent *getSelectedChild() const;
+
+  auto getChildren2() {
+    return std::views::transform(
+        children, [](auto &ptr) -> GUIComponent & { return *ptr; });
+  }
 
 private:
   const std::string id;
@@ -70,15 +79,12 @@ private:
   bool active;
   bool visible;
 
-  std::vector<std::unique_ptr<GUIComponent>> items;
+  std::vector<std::unique_ptr<GUIComponent>> children;
 
   std::function<void()> updateListener;
   std::unordered_map<SDL_Keycode, std::function<void()>> keyListeners;
 
-  int selectedItem;
-
-  void selectNextItem();
-  void selectPreviousItem();
+  int selectedChild;
 
   std::string text;
 

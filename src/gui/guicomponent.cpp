@@ -4,110 +4,70 @@ GUIComponent::GUIComponent(const std::string &id)
     : id(id), posX(0), posY(0), width(0), height(0), border(false),
       background(false), layout(GUILayout::FULLSCREEN),
       type(GUIElementType::CONTAINER), selected(false), active(false),
-      visible(true), items(), updateListener(), keyListeners(),
-      selectedItem(-1), text("") {}
+      visible(true), children(), updateListener(), keyListeners(),
+      selectedChild(-1), text("") {}
 
 GUIComponent::GUIComponent(const std::string &id, const int posX,
                            const int posY, const int width, const int height)
     : id(id), posX(posX), posY(posY), width(width), height(height),
       border(false), background(false), layout(GUILayout::FULLSCREEN),
       type(GUIElementType::CONTAINER), selected(false), active(false),
-      visible(true), items(), updateListener(), keyListeners(),
-      selectedItem(-1), text("") {}
+      visible(true), children(), updateListener(), keyListeners(),
+      selectedChild(-1), text("") {}
 
 void GUIComponent::deselect() {
-  if (selectedItem != -1) {
-    items[selectedItem]->setActive(false);
-    items[selectedItem]->setSelected(false);
+  if (selectedChild != -1) {
+    children[selectedChild]->setActive(false);
+    children[selectedChild]->setSelected(false);
 
-    for (const auto &item : items) {
-      item->setActive(false);
-      item->setSelected(false);
+    for (const auto &child : children) {
+      child->setActive(false);
+      child->setSelected(false);
     }
   }
 
-  selectedItem = -1;
+  selectedChild = -1;
 }
 
-void GUIComponent::addItem(std::unique_ptr<GUIComponent> item) {
+void GUIComponent::addChild(std::unique_ptr<GUIComponent> child) {
   deselect();
 
-  items.push_back(std::move(item));
+  children.push_back(std::move(child));
 }
 
-bool GUIComponent::removeItem(const std::string &id) {
+bool GUIComponent::removeChild(const std::string &id) {
   deselect();
 
-  return std::erase_if(items,
+  return std::erase_if(children,
                        [&id](const std::unique_ptr<GUIComponent> &component) {
                          return component->getId() == id;
                        }) > 0;
 }
 
 void GUIComponent::update() {
-  if (layout == GUILayout::VERTICAL) {
-    int offset = 0;
-
-    for (const auto &item : items) {
-      item->setPosX(posX);
-      item->setPosY(posY + offset);
-
-      offset += item->getHeight();
-    }
-  }
-
-  for (const auto &item : items) {
-    item->update();
-  }
-
   if (updateListener) {
     updateListener();
   }
 }
 
+void GUIComponent::updateLayout() {
+  if (layout == GUILayout::VERTICAL) {
+    int offset = 0;
+
+    for (const auto &child : children) {
+      child->setPosX(posX);
+      child->setPosY(posY + offset);
+
+      offset += child->getHeight();
+    }
+  }
+}
+
 void GUIComponent::keyDownListener(const SDL_Keycode key) {
-  if (!selected) {
-    return;
-  }
-
-  if (!active && key == SDLK_RETURN) {
-    setActive(true);
-
-    return;
-  }
-
   auto it = keyListeners.find(key);
+
   if (it != keyListeners.end()) {
     it->second();
-  }
-
-  if (!active) {
-    return;
-  }
-
-  const auto childIsActive =
-      selectedItem != -1 && items[selectedItem]->isActive();
-
-  for (const auto &item : items) {
-    item->keyDownListener(key);
-  }
-
-  if (childIsActive) {
-    return;
-  }
-
-  if ((layout == GUILayout::VERTICAL && key == SDLK_DOWN) ||
-      (layout != GUILayout::VERTICAL && key == SDLK_RIGHT)) {
-    selectNextItem();
-  }
-
-  if ((layout == GUILayout::VERTICAL && key == SDLK_UP) ||
-      (layout != GUILayout::VERTICAL && key == SDLK_LEFT)) {
-    selectPreviousItem();
-  }
-
-  if (key == SDLK_BACKSPACE) {
-    setActive(false);
   }
 }
 
@@ -145,8 +105,8 @@ void GUIComponent::setVisible(const bool visible) { this->visible = visible; }
 std::string GUIComponent::getId() const { return id; }
 
 const std::vector<std::unique_ptr<GUIComponent>> &
-GUIComponent::getItems() const {
-  return items;
+GUIComponent::getChildren() const {
+  return children;
 }
 
 int GUIComponent::getPosX() const { return posX; }
@@ -167,40 +127,48 @@ bool GUIComponent::isActive() const { return active; }
 
 std::string GUIComponent::getText() const { return text; }
 
-void GUIComponent::selectNextItem() {
-  if (items.empty()) {
-    return;
+const GUIComponent *GUIComponent::getSelectedChild() const {
+  if (selectedChild != -1) {
+    return children[selectedChild].get();
   }
 
-  if (selectedItem != -1) {
-    items[selectedItem]->setSelected(false);
-  }
-
-  selectedItem++;
-
-  if (static_cast<size_t>(selectedItem) >= items.size()) {
-    selectedItem = 0;
-  }
-
-  items[selectedItem]->setSelected(true);
+  return nullptr;
 }
 
-void GUIComponent::selectPreviousItem() {
-  if (items.empty()) {
+void GUIComponent::selectNextChild() {
+  if (children.empty()) {
     return;
   }
 
-  if (selectedItem != -1) {
-    items[selectedItem]->setSelected(false);
+  if (selectedChild != -1) {
+    children[selectedChild]->setSelected(false);
   }
 
-  selectedItem--;
+  selectedChild++;
 
-  if (selectedItem < 0) {
-    selectedItem = items.size() - 1;
+  if (static_cast<size_t>(selectedChild) >= children.size()) {
+    selectedChild = 0;
   }
 
-  items[selectedItem]->setSelected(true);
+  children[selectedChild]->setSelected(true);
+}
+
+void GUIComponent::selectPreviousChild() {
+  if (children.empty()) {
+    return;
+  }
+
+  if (selectedChild != -1) {
+    children[selectedChild]->setSelected(false);
+  }
+
+  selectedChild--;
+
+  if (selectedChild < 0) {
+    selectedChild = children.size() - 1;
+  }
+
+  children[selectedChild]->setSelected(true);
 }
 
 GUILayout GUIComponent::getLayout() const { return layout; }

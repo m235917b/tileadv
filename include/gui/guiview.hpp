@@ -3,7 +3,6 @@
 #include "utils/ltexture.hpp"
 #include "utils/rendercontext.hpp"
 
-
 struct SDL_Renderer;
 
 class GUIComponent;

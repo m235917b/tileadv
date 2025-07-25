@@ -14,9 +14,10 @@ void GUITreeWalker::traverse(
     std::function<void(const std::unique_ptr<GUIComponent> &parent,
                        const std::unique_ptr<GUIComponent> &component)>
         action,
-    bool &stop, bool &recurse) {
+    std::function<bool(const std::unique_ptr<GUIComponent> &component)> recurse,
+    bool &stop) {
   for (const auto &component : components) {
-    GUITreeWalker::traverseComponent(nullptr, component, action, stop, recurse);
+    GUITreeWalker::traverseComponent(nullptr, component, action, recurse, stop);
   }
 }
 
@@ -26,11 +27,21 @@ void GUITreeWalker::traverseComponent(
         action) {
   action(component);
 
-  const auto &components = component->getItems();
+  const auto &components = component->getChildren();
 
   for (const auto &component : components) {
     GUITreeWalker::traverseComponent(component, action);
   }
+}
+
+void GUITreeWalker::traverseComponent(
+    const std::unique_ptr<GUIComponent> &component,
+    std::function<void(const std::unique_ptr<GUIComponent> &parent,
+                       const std::unique_ptr<GUIComponent> &component)>
+        action,
+    std::function<bool(const std::unique_ptr<GUIComponent> &component)> recurse,
+    bool &stop) {
+  GUITreeWalker::traverseComponent(nullptr, component, action, recurse, stop);
 }
 
 void GUITreeWalker::traverseComponent(
@@ -39,28 +50,18 @@ void GUITreeWalker::traverseComponent(
     std::function<void(const std::unique_ptr<GUIComponent> &parent,
                        const std::unique_ptr<GUIComponent> &component)>
         action,
-    bool &stop, bool &recurse) {
+    std::function<bool(const std::unique_ptr<GUIComponent> &component)> recurse,
+    bool &stop) {
   if (stop) {
     return;
   }
 
   action(parent, component);
 
-  if (recurse) {
-    const auto &components = component->getItems();
-
-    for (const auto &component : components) {
-      GUITreeWalker::traverseComponent(parent, component, action, stop,
-                                       recurse);
+  if (recurse(component)) {
+    for (const auto &component : component->getChildren()) {
+      GUITreeWalker::traverseComponent(parent, component, action, recurse,
+                                       stop);
     }
   }
-}
-
-void GUITreeWalker::traverseComponent(
-    const std::unique_ptr<GUIComponent> &component,
-    std::function<void(const std::unique_ptr<GUIComponent> &parent,
-                       const std::unique_ptr<GUIComponent> &component)>
-        action,
-    bool &stop, bool &recurse) {
-  GUITreeWalker::traverseComponent(nullptr, component, action, stop, recurse);
 }

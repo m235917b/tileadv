@@ -18,7 +18,9 @@ public:
            std::function<void(const std::unique_ptr<GUIComponent> &parent,
                               const std::unique_ptr<GUIComponent> &component)>
                action,
-           bool &stop, bool &recurse);
+           std::function<bool(const std::unique_ptr<GUIComponent> &component)>
+               recurse,
+           bool &stop);
 
   static void traverseComponent(
       const std::unique_ptr<GUIComponent> &component,
@@ -30,13 +32,18 @@ public:
       std::function<void(const std::unique_ptr<GUIComponent> &parent,
                          const std::unique_ptr<GUIComponent> &component)>
           action,
-      bool &stop, bool &recurse);
+      std::function<bool(const std::unique_ptr<GUIComponent> &component)>
+          recurse,
+      bool &stop);
 
+private:
   static void traverseComponent(
       const std::unique_ptr<GUIComponent> &parent,
       const std::unique_ptr<GUIComponent> &component,
       std::function<void(const std::unique_ptr<GUIComponent> &parent,
                          const std::unique_ptr<GUIComponent> &component)>
           action,
-      bool &stop, bool &recurse);
+      std::function<bool(const std::unique_ptr<GUIComponent> &component)>
+          recurse,
+      bool &stop);
 };

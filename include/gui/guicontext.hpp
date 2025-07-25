@@ -31,6 +31,7 @@ public:
   void setComponentVisible(const std::string &id, const bool visible);
 
   void update();
+  void updateLayout();
   void drawGUI();
 
 private:
