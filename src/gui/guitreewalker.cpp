@@ -2,27 +2,28 @@
 
 void GUITreeWalker::traverse(
     GUIComponent &component,
-    std::function<void(GUIComponent &component)> action) {
-  action(component);
+    std::function<bool(GUIComponent &component)> action) {
+  const auto recurse{action(component)};
 
-  component.forEachChild([action](GUIComponent &child) {
-    GUITreeWalker::traverse(child, action);
-  });
+  if (recurse) {
+    component.forEachChild([&action](GUIComponent &child) {
+      GUITreeWalker::traverse(child, action);
+    });
+  }
 }
 
 void GUITreeWalker::traverse(
     GUIComponent &component,
-    std::function<void(GUIComponent &component)> action,
-    std::function<bool(const GUIComponent &component)> recurse, bool &stop) {
+    std::function<bool(GUIComponent &component)> action, bool &stop) {
   if (stop) {
     return;
   }
 
-  action(component);
+  const auto recurse{action(component)};
 
-  if (recurse(component)) {
-    component.forEachChild([action, recurse, &stop](GUIComponent &child) {
-      GUITreeWalker::traverse(child, action, recurse, stop);
+  if (recurse) {
+    component.forEachChild([&action, &stop](GUIComponent &child) {
+      GUITreeWalker::traverse(child, action, stop);
     });
   }
 }

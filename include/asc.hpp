@@ -5,7 +5,6 @@
 #include "guicontroller.hpp"
 #include "view/view.hpp"
 
-
 constexpr int framerate{60};
 
 enum class ApplicationState { MAIN_MENU, GAMEPLAY };

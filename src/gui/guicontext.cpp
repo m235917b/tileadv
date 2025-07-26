@@ -9,35 +9,29 @@ GUIContext::GUIContext(const RenderContext &renderContext)
 bool GUIContext::init() { return guiView.init(); }
 
 void GUIContext::keyDownListener(const SDL_Keycode key) {
-  auto stop{false};
-
-  auto recurse{[key](const GUIComponent &component) {
-    return component.isVisible() && component.isSelected() &&
-           (component.isActive() || key != SDLK_RETURN);
-  }};
-
   auto action{[key](GUIComponent &component) {
     if (!component.isVisible() || !component.isSelected()) {
-      return;
-    }
-
-    if (!component.isActive() && key == SDLK_RETURN) {
-      component.setActive(true);
-      return;
+      return false;
     }
 
     component.keyDownListener(key);
 
-    // Container navigation
+    if (!component.isActive() && key == SDLK_RETURN &&
+        component.getType() == GUIElementType::CONTAINER) {
+      component.setActive(true);
+      return false;
+    }
 
     if (!component.isActive()) {
-      return;
+      return false;
     }
+
+    // Container navigation
 
     const auto &selectedChild = component.getSelectedChild();
 
     if (selectedChild && selectedChild->isActive()) {
-      return;
+      return true;
     }
 
     if ((component.getLayout() == GUILayout::VERTICAL && key == SDLK_DOWN) ||
@@ -52,11 +46,14 @@ void GUIContext::keyDownListener(const SDL_Keycode key) {
 
     if (key == SDLK_BACKSPACE) {
       component.setActive(false);
+      return false;
     }
+
+    return true;
   }};
 
   for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action, recurse, stop);
+    GUITreeWalker::traverse(*component, action);
   }
 }
 
@@ -69,13 +66,15 @@ void GUIContext::addKeyListener(const std::string &id, const SDL_Keycode key,
       component.addKeyListener(key, listener);
 
       stop = true;
+
+      return false;
     }
+
+    return true;
   }};
 
-  auto recurse{[](const GUIComponent &) { return true; }};
-
   for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action, recurse, stop);
+    GUITreeWalker::traverse(*component, action, stop);
   }
 }
 
@@ -101,67 +100,62 @@ void GUIContext::setComponentVisible(const std::string &id,
       component.setSelected(visible);
 
       stop = true;
+
+      return false;
     }
+
+    return true;
   }};
 
-  auto recurse{[](const GUIComponent &) { return true; }};
-
   for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action, recurse, stop);
+    GUITreeWalker::traverse(*component, action, stop);
   }
 }
 
 void GUIContext::update() {
-  auto stop{false};
-
   auto action{[](GUIComponent &component) {
     if (!component.isVisible()) {
-      return;
+      return false;
     }
 
     component.update();
+
+    return true;
   }};
 
-  auto recurse{
-      [](const GUIComponent &component) { return component.isVisible(); }};
-
   for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action, recurse, stop);
+    GUITreeWalker::traverse(*component, action);
   }
 }
 
 void GUIContext::updateLayout() {
-  auto stop{false};
-
   auto action{[](GUIComponent &component) {
     if (!component.isVisible()) {
-      return;
+      return false;
     }
 
     component.updateLayout();
+
+    return true;
   }};
 
-  auto recurse{
-      [](const GUIComponent &component) { return component.isVisible(); }};
-
   for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action, recurse, stop);
+    GUITreeWalker::traverse(*component, action);
   }
 }
 
 void GUIContext::drawGUI() {
   auto action{[this](GUIComponent &component) {
-    if (component.isVisible()) {
-      this->guiView.drawGUIComponent(component);
+    if (!component.isVisible()) {
+      return false;
     }
+
+    this->guiView.drawGUIComponent(component);
+
+    return true;
   }};
 
-  auto stop{false};
-
-  auto recurse{
-      [](const GUIComponent &component) { return component.isVisible(); }};
-
   for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action, recurse, stop);
+    GUITreeWalker::traverse(*component, action);
   }
 }

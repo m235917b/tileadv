@@ -6,7 +6,6 @@
 #include "utils/ltexture.hpp"
 #include "utils/rendercontext.hpp"
 
-
 class Chunk;
 
 class View {
@@ -16,8 +15,8 @@ public:
   View &operator=(const View &) = delete;
   ~View() = default;
 
-  bool drawGame(const Chunk &chunk, const std::vector<Character *> &characters,
-                const Character *player);
+  void drawGame(const Chunk &chunk, const std::vector<Character *> &characters,
+                const Character &player);
 
   bool init();
 

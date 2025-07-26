@@ -52,7 +52,7 @@ void GUIComponent::update() {
 
 void GUIComponent::updateLayout() {
   if (layout == GUILayout::VERTICAL) {
-    int offset = 0;
+    int offset{0};
 
     for (const auto &child : children) {
       child->setPosX(posX);
@@ -64,15 +64,16 @@ void GUIComponent::updateLayout() {
 }
 
 void GUIComponent::keyDownListener(const SDL_Keycode key) {
-  auto it = keyListeners.find(key);
+  const auto it{keyListeners.find(key)};
 
   if (it != keyListeners.end()) {
     it->second();
   }
 }
 
-void GUIComponent::forEachChild(std::function<void(GUIComponent& child)> action) {
-  for (const auto& child : children) {
+void GUIComponent::forEachChild(
+    std::function<void(GUIComponent &child)> action) {
+  for (const auto &child : children) {
     action(*child);
   }
 }

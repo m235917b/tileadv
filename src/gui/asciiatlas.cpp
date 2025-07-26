@@ -3,13 +3,6 @@
 #include "gui/asciiatlas.hpp"
 
 SDL_FRect AsciiAtlas::getSpriteCoords(const char asciiChar) {
-  SDL_FRect rect;
-
   // Calculate the sprite coordinates based on the ASCII character
-  rect.x = (asciiChar - 32) * asciiWidth;
-  rect.y = 0;
-  rect.w = asciiWidth;
-  rect.h = asciiHeight;
-
-  return rect;
+  return {(asciiChar - 32) * asciiWidth, 0, asciiWidth, asciiHeight};
 }

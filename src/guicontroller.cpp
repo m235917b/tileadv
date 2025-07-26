@@ -4,25 +4,24 @@
 #include "guicontroller.hpp"
 #include "utils/rendercontext.hpp"
 
-
 GUIController::GUIController(const RenderContext &renderContext)
     : guiContext(renderContext) {
   // Initialize main menu elements
-  auto mainMenu = std::make_unique<GUIComponent>("main_menu");
+  auto mainMenu{std::make_unique<GUIComponent>("main_menu")};
   mainMenu->setVisible(false);
 
-  auto mainMenuContainer = std::make_unique<GUIComponent>("main_menu_container",
-                                                          1000, 500, 500, 200);
+  auto mainMenuContainer{std::make_unique<GUIComponent>("main_menu_container",
+                                                        1000, 500, 500, 200)};
   mainMenuContainer->setLayout(GUILayout::VERTICAL);
   mainMenuContainer->setBorder(true);
 
-  auto headline = std::make_unique<GUIComponent>("1_headline", 0, 0, 100, 50);
+  auto headline{std::make_unique<GUIComponent>("1_headline", 0, 0, 100, 50)};
   headline->setType(GUIElementType::TEXT);
   headline->setText("Main Menu");
-  auto line1 = std::make_unique<GUIComponent>("2_play", 0, 0, 100, 50);
+  auto line1{std::make_unique<GUIComponent>("2_play", 0, 0, 100, 50)};
   line1->setType(GUIElementType::TEXT);
   line1->setText("Play Game");
-  auto line2 = std::make_unique<GUIComponent>("3_exit", 0, 0, 100, 50);
+  auto line2{std::make_unique<GUIComponent>("3_exit", 0, 0, 100, 50)};
   line2->setType(GUIElementType::TEXT);
   line2->setText("Exit Game");
 
@@ -38,29 +37,29 @@ GUIController::GUIController(const RenderContext &renderContext)
 bool GUIController::init() { return guiContext.init(); }
 
 void GUIController::initGameMenus() {
-  auto characterMenu = std::make_unique<GUIComponent>("char_menu");
+  auto characterMenu{std::make_unique<GUIComponent>("char_menu")};
   characterMenu->setVisible(false);
 
-  auto characterMenuContainer =
-      std::make_unique<GUIComponent>("char_menu_container", 500, 100, 600, 200);
+  auto characterMenuContainer{std::make_unique<GUIComponent>(
+      "char_menu_container", 500, 100, 600, 200)};
   characterMenuContainer->setLayout(GUILayout::VERTICAL);
   characterMenuContainer->setBorder(true);
   characterMenuContainer->setBackground(true);
 
-  auto characterMenuContainer2 = std::make_unique<GUIComponent>(
-      "char_menu_container_2", 1200, 100, 600, 200);
+  auto characterMenuContainer2{std::make_unique<GUIComponent>(
+      "char_menu_container_2", 1200, 100, 600, 200)};
   characterMenuContainer2->setLayout(GUILayout::VERTICAL);
   characterMenuContainer2->setBorder(true);
 
-  auto headline =
-      std::make_unique<GUIComponent>("char_headline", 0, 0, 100, 200);
+  auto headline{
+      std::make_unique<GUIComponent>("char_headline", 0, 0, 100, 200)};
   headline->setType(GUIElementType::TEXT);
   headline->setText("Character Menu");
 
   characterMenuContainer->addChild(std::move(headline));
 
-  auto headline2 =
-      std::make_unique<GUIComponent>("char_headline_2", 0, 0, 100, 20);
+  auto headline2{
+      std::make_unique<GUIComponent>("char_headline_2", 0, 0, 100, 20)};
   headline2->setType(GUIElementType::TEXT);
   headline2->setText("Character Menu 2");
 

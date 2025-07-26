@@ -17,20 +17,20 @@ public:
   LTexture &operator=(LTexture &&) noexcept;
   ~LTexture();
 
-  bool loadFromFile(const std::string &path, SDL_Renderer *gRenderer);
+  bool loadFromFile(const std::string &path, SDL_Renderer &renderer);
 
   void destroy();
 
-  void render(const float x, const float y, const SDL_FRect *clip,
-              const float width, const float height, SDL_Renderer *gRenderer);
+  void render(const float x, const float y, const SDL_FRect &clip,
+              const float width, const float height, SDL_Renderer &renderer);
 
   int getWidth() const;
   int getHeight() const;
   bool isLoaded() const;
 
 private:
-  SDL_Texture *mTexture;
+  SDL_Texture *texture;
 
-  int mWidth;
-  int mHeight;
+  int width;
+  int height;
 };

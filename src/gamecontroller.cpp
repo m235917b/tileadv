@@ -14,7 +14,7 @@ GameController::GameController(View &view, GUIController &guiController)
 }
 
 int GameController::run() {
-  view.drawGame(chunk, characters, player);
+  view.drawGame(chunk, characters, *player);
 
   return 0;
 }
