@@ -93,11 +93,10 @@ void GUIContext::setComponentVisible(const std::string &id,
                                      const bool visible) {
   auto stop{false};
 
-  auto action{[&stop, &id, visible](GUIComponent &component) {
+  auto action{[&stop, &id, visible, this](GUIComponent &component) {
     if (component.getId() == id) {
       component.setVisible(visible);
-      component.setActive(visible);
-      component.setSelected(visible);
+      this->setComponentActive(component, visible);
 
       stop = true;
 
@@ -109,6 +108,44 @@ void GUIContext::setComponentVisible(const std::string &id,
 
   for (const auto &component : components) {
     GUITreeWalker::traverse(*component, action, stop);
+  }
+}
+
+void GUIContext::setComponentActive(const std::string &id, const bool active) {
+  auto stop{false};
+
+  for (const auto &component : components) {
+    GUITreeWalker::traverse(
+        *component,
+        [&id, active, &stop, this](GUIComponent &component) {
+          if (component.getId() == id) {
+            this->setComponentActive(component, active);
+
+            stop = true;
+
+            return false;
+          }
+
+          return true;
+        },
+        stop);
+  }
+}
+
+void GUIContext::setComponentActive(GUIComponent &component,
+                                    const bool active) {
+  component.setActive(active);
+  component.setSelected(active);
+
+  if (!active) {
+    component.forEachChild([](GUIComponent &child) {
+      GUITreeWalker::traverse(child, [](GUIComponent &subchild) {
+        subchild.setActive(false);
+        subchild.setSelected(false);
+
+        return true;
+      });
+    });
   }
 }
 

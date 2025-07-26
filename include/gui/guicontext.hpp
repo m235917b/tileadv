@@ -29,6 +29,7 @@ public:
   bool removeComponent(const std::string &id);
 
   void setComponentVisible(const std::string &id, const bool visible);
+  void setComponentActive(const std::string& id, const bool active);
 
   void update();
   void updateLayout();
@@ -38,4 +39,6 @@ private:
   GUIView guiView;
 
   std::vector<std::unique_ptr<GUIComponent>> components;
+
+  void setComponentActive(GUIComponent& component, const bool active);
 };

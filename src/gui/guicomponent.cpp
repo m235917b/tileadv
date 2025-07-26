@@ -19,11 +19,6 @@ void GUIComponent::deselect() {
   if (selectedChild != -1) {
     children[selectedChild]->setActive(false);
     children[selectedChild]->setSelected(false);
-
-    for (const auto &child : children) {
-      child->setActive(false);
-      child->setSelected(false);
-    }
   }
 
   selectedChild = -1;
@@ -99,7 +94,13 @@ void GUIComponent::setSelected(const bool selected) {
   this->selected = selected;
 }
 
-void GUIComponent::setActive(const bool active) { this->active = active; }
+void GUIComponent::setActive(const bool active) {
+  this->active = active;
+
+  if (!active) {
+    deselect();
+  }
+}
 
 void GUIComponent::setText(const std::string &text) { this->text = text; }
 
@@ -110,11 +111,6 @@ void GUIComponent::setType(const GUIElementType type) { this->type = type; }
 void GUIComponent::setVisible(const bool visible) { this->visible = visible; }
 
 std::string GUIComponent::getId() const { return id; }
-
-/*const std::vector<std::unique_ptr<GUIComponent>> &
-GUIComponent::getChildren() const {
-  return children;
-}*/
 
 int GUIComponent::getPosX() const { return posX; }
 

@@ -82,6 +82,10 @@ void GUIController::addKeyListener(const std::string &id, const SDL_Keycode key,
 
 void GUIController::setMainMenuVisible(const bool visible) {
   guiContext.setComponentVisible("main_menu", visible);
+  
+  if (visible) {
+    guiContext.setComponentActive("main_menu_container", true);
+  }
 }
 
 void GUIController::setCharacterMenuVisible(const bool visible) {
