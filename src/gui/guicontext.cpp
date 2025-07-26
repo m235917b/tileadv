@@ -4,7 +4,7 @@
 #include "utils/rendercontext.hpp"
 
 GUIContext::GUIContext(const RenderContext &renderContext)
-    : guiView(renderContext), components() {}
+    : guiView(renderContext), components(), focusStack() {}
 
 bool GUIContext::init() { return guiView.init(); }
 
@@ -52,8 +52,8 @@ void GUIContext::keyDownListener(const SDL_Keycode key) {
     return true;
   }};
 
-  for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action);
+  if (!focusStack.empty()) {
+    GUITreeWalker::traverse(*focusStack.top(), action);
   }
 }
 
@@ -97,6 +97,12 @@ void GUIContext::setComponentVisible(const std::string &id,
     if (component.getId() == id) {
       component.setVisible(visible);
       this->setComponentActive(component, visible);
+
+      if (visible) {
+        this->focusStack.push(&component);
+      } else if (!focusStack.empty() && this->focusStack.top()->getId() == id) {
+        this->focusStack.pop();
+      }
 
       stop = true;
 

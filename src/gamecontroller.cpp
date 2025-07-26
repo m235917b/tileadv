@@ -46,7 +46,6 @@ void GameController::keyDownListener(SDL_Keycode key) {
 
     switch (key) {
     case SDLK_C:
-      guiController.setCharacterMenuVisible(!characterMenu);
       showCharacterMenu(!characterMenu);
       break;
     }
@@ -56,5 +55,6 @@ void GameController::keyDownListener(SDL_Keycode key) {
 void GameController::setRunning(const bool running) { this->running = running; }
 
 void GameController::showCharacterMenu(const bool visible) {
+  guiController.setCharacterMenuVisible(visible);
   characterMenu = visible;
 }

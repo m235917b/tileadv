@@ -5,6 +5,7 @@
 #include <set>
 #include <string>
 #include <vector>
+#include <stack>
 
 
 #include <SDL3/SDL.h>
@@ -39,6 +40,7 @@ private:
   GUIView guiView;
 
   std::vector<std::unique_ptr<GUIComponent>> components;
+  std::stack<GUIComponent *> focusStack;
 
   void setComponentActive(GUIComponent& component, const bool active);
 };
