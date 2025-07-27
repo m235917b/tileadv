@@ -127,10 +127,10 @@ void GUIView::drawImage(const float posX, const float posY, const float width,
 
   const auto imgWidth{static_cast<float>(texture->second.getWidth()) * size};
   const auto imgHeight{static_cast<float>(texture->second.getHeight()) * size};
-  const auto imgPosX{centerTop ? posX + std::min(0.f, (width - imgWidth) / 2.f)
+  const auto imgPosX{centerTop ? posX + std::max(0.f, (width - imgWidth) / 2.f)
                                : posX};
   const auto imgPosY{
-      centerLeft ? posY + std::min(0.f, (height - imgHeight) / 2.f) : posY};
+      centerLeft ? posY + std::max(0.f, (height - imgHeight) / 2.f) : posY};
   const auto imgWidthClipped{
       fittingMode == GUIFittingMode::CLIP
           ? std::max(0.f, std::min(imgWidth, posX + width - imgPosX))
