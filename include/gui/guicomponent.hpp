@@ -13,6 +13,8 @@ enum class GUILayout { FLOATING, VERTICAL, FULLSCREEN };
 
 enum class GUIElementType { CONTAINER, ELEMENT };
 
+enum class GUIFittingMode { CLIP, SCALE, HIDE };
+
 class GUIComponent {
 public:
   GUIComponent(const std::string &id);
@@ -34,6 +36,10 @@ public:
   void setHeight(const float height);
   void setBorder(const bool visible);
   void setBackground(const bool visible);
+  void setCenterLeft(const bool center);
+  void setCenterTop(const bool center);
+  void setFittingMode(const GUIFittingMode fittingMode);
+  void setScale(const float scale);
   void setText(const std::string &text);
   void setImage(const std::string &path);
   void setLayout(const GUILayout layout);
@@ -47,6 +53,10 @@ public:
   float getHeight() const;
   bool getBorder() const;
   bool getBackground() const;
+  bool isCenteredLeft() const;
+  bool isCenteredTop() const;
+  GUIFittingMode getFittingMode() const;
+  float getScale() const;
   std::string getText() const;
   std::string getImage() const;
   GUILayout getLayout() const;
@@ -69,6 +79,10 @@ private:
 
   bool border;
   bool background;
+  bool centerLeft;
+  bool centerTop;
+  GUIFittingMode fittingMode;
+  float scale;
 
   GUILayout layout;
   GUIElementType type;

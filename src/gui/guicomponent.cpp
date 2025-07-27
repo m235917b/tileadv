@@ -4,19 +4,21 @@
 
 GUIComponent::GUIComponent(const std::string &id)
     : id(id), posX(0.f), posY(0.f), width(0.f), height(0.f), border(false),
-      background(false), layout(GUILayout::FULLSCREEN),
-      type(GUIElementType::CONTAINER), visible(true), children(),
-      updateListener(), keyListeners(), text(""), image(""), parent(nullptr),
-      root(nullptr) {}
+      background(false), centerLeft(false), centerTop(false),
+      fittingMode(GUIFittingMode::HIDE), scale(1.f),
+      layout(GUILayout::FULLSCREEN), type(GUIElementType::CONTAINER),
+      visible(true), children(), updateListener(), keyListeners(), text(""),
+      image(""), parent(nullptr), root(nullptr) {}
 
 GUIComponent::GUIComponent(const std::string &id, const float posX,
                            const float posY, const float width,
                            const float height)
     : id(id), posX(posX), posY(posY), width(width), height(height),
-      border(false), background(false), layout(GUILayout::FULLSCREEN),
-      type(GUIElementType::CONTAINER), visible(true), children(),
-      updateListener(), keyListeners(), text(""), image(""), parent(nullptr),
-      root(nullptr) {}
+      border(false), background(false), centerLeft(false), centerTop(false),
+      fittingMode(GUIFittingMode::HIDE), scale(1.f),
+      layout(GUILayout::FULLSCREEN), type(GUIElementType::CONTAINER),
+      visible(true), children(), updateListener(), keyListeners(), text(""),
+      image(""), parent(nullptr), root(nullptr) {}
 
 void GUIComponent::addChild(std::unique_ptr<GUIComponent> child) {
   child->parent = this;
@@ -82,6 +84,16 @@ void GUIComponent::setBorder(const bool visible) { border = visible; }
 
 void GUIComponent::setBackground(const bool visible) { background = visible; }
 
+void GUIComponent::setCenterLeft(const bool center) { centerLeft = center; }
+
+void GUIComponent::setCenterTop(const bool center) { centerTop = center; }
+
+void GUIComponent::setFittingMode(const GUIFittingMode fittingMode) {
+  this->fittingMode = fittingMode;
+}
+
+void GUIComponent::setScale(const float scale) { this->scale = scale; };
+
 void GUIComponent::setText(const std::string &text) { this->text = text; }
 
 void GUIComponent::setImage(const std::string &path) { image = path; }
@@ -105,6 +117,14 @@ float GUIComponent::getHeight() const { return height; }
 bool GUIComponent::getBorder() const { return border; }
 
 bool GUIComponent::getBackground() const { return background; }
+
+bool GUIComponent::isCenteredLeft() const { return centerLeft; }
+
+bool GUIComponent::isCenteredTop() const { return centerTop; }
+
+GUIFittingMode GUIComponent::getFittingMode() const { return fittingMode; }
+
+float GUIComponent::getScale() const { return scale; }
 
 std::string GUIComponent::getText() const { return text; }
 

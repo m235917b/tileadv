@@ -18,14 +18,23 @@ GUIController::GUIController(const RenderContext &renderContext)
   headline->setType(GUIElementType::ELEMENT);
   headline->setText("Main Menu");
   headline->setBorder(true);
+  headline->setScale(.7f);
+  headline->setCenterTop(true);
+  headline->setCenterLeft(true);
   auto line1{std::make_unique<GUIComponent>("2_play", 0, 0, 1.f, .33333f)};
   line1->setType(GUIElementType::ELEMENT);
   line1->setText("Play Game");
   line1->setBorder(true);
+  line1->setScale(.7f);
+  line1->setCenterTop(true);
+  line1->setCenterLeft(true);
   auto line2{std::make_unique<GUIComponent>("3_exit", 0, 0, 1.f, .33333f)};
   line2->setType(GUIElementType::ELEMENT);
   line2->setText("Exit Game");
   line2->setBorder(true);
+  line2->setScale(.7f);
+  line2->setCenterTop(true);
+  line2->setCenterLeft(true);
 
   mainMenu->addChild(std::move(headline));
   mainMenu->addChild(std::move(line1));
@@ -51,13 +60,24 @@ void GUIController::initGameMenus() {
       "char_menu_container_2", .6f, 0.f, .4f, .3f)};
   characterMenuContainer2->setLayout(GUILayout::VERTICAL);
   characterMenuContainer2->setImage("guiassets/border_brown.png");
+  characterMenuContainer2->setFittingMode(GUIFittingMode::SCALE);
 
   auto headline{
       std::make_unique<GUIComponent>("char_headline", 0.f, 0.f, 1.f, .2f)};
   headline->setType(GUIElementType::ELEMENT);
   headline->setText("Character Menu");
+  headline->setScale(2.f);
+  headline->setFittingMode(GUIFittingMode::CLIP);
+
+  auto headline22{
+      std::make_unique<GUIComponent>("char_headline_22", 0.f, 0.f, 1.f, .2f)};
+  headline22->setType(GUIElementType::ELEMENT);
+  headline22->setText("Inventory");
+  headline22->setScale(2.f);
+  headline22->setFittingMode(GUIFittingMode::SCALE);
 
   characterMenuContainer->addChild(std::move(headline));
+  characterMenuContainer->addChild(std::move(headline22));
 
   auto headline2{
       std::make_unique<GUIComponent>("char_headline_2", 0.f, 0.f, .5f, .5f)};
@@ -70,11 +90,13 @@ void GUIController::initGameMenus() {
       "char_menu_container_3", .3f, .5f, .4f, .4f)};
   characterMenuContainer3->setLayout(GUILayout::VERTICAL);
   characterMenuContainer3->setImage("guiassets/border_brown.png");
+  characterMenuContainer3->setFittingMode(GUIFittingMode::SCALE);
 
   auto subcontainer1{
       std::make_unique<GUIComponent>("sub_container_1", 0.f, 0.f, 1.f, .5f)};
   subcontainer1->setLayout(GUILayout::VERTICAL);
   subcontainer1->setImage("guiassets/border_brown.png");
+  subcontainer1->setFittingMode(GUIFittingMode::SCALE);
 
   auto line1{std::make_unique<GUIComponent>("line_1", 0.f, 0.f, 1.0f, .3f)};
   line1->setType(GUIElementType::ELEMENT);
@@ -91,6 +113,7 @@ void GUIController::initGameMenus() {
       std::make_unique<GUIComponent>("sub_container_2", .0f, .0f, 1.f, 1.f)};
   subcontainer2->setLayout(GUILayout::VERTICAL);
   subcontainer2->setImage("guiassets/border_brown.png");
+  subcontainer2->setFittingMode(GUIFittingMode::SCALE);
 
   auto line3{std::make_unique<GUIComponent>("line_3", 0.f, 0.f, 1.f, .3f)};
   line3->setType(GUIElementType::ELEMENT);
@@ -107,6 +130,7 @@ void GUIController::initGameMenus() {
       std::make_unique<GUIComponent>("sub_container_3", 0.f, 0.f, 1.f, .5f)};
   subcontainer3->setLayout(GUILayout::VERTICAL);
   subcontainer3->setImage("guiassets/border_brown.png");
+  subcontainer3->setFittingMode(GUIFittingMode::SCALE);
 
   subcontainer3->addChild(std::move(subcontainer2));
 

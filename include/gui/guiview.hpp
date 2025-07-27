@@ -14,6 +14,8 @@ struct SDL_Renderer;
 
 class GUIComponent;
 
+enum class GUIFittingMode;
+
 class GUIView {
 public:
   GUIView(const RenderContext &renderContext);
@@ -44,9 +46,13 @@ public:
 
   void drawGUIComponent(GUIComponent &component, const std::string &selected);
   void drawText(const float posX, const float posY, const float width,
-                const float height, const std::string &text);
+                const float height, const std::string &text, const float size,
+                GUIFittingMode fittingMode, const bool centerLeft,
+                const bool centerTop);
   void drawImage(const float posX, const float posY, const float width,
-                 const float height, const std::string &path);
+                 const float height, const std::string &path, const float size,
+                 GUIFittingMode fittingMode, const bool centerLeft,
+                 const bool centerTop);
 
 private:
   const RenderContext &renderContext;
