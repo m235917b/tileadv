@@ -9,7 +9,7 @@
 
 #include <SDL3/SDL.h>
 
-enum class GUILayout { FLOATING, VERTICAL, FULLSCREEN };
+enum class GUILayout { FLOATING, VERTICAL, HORIZONTAL };
 
 enum class GUIElementType { CONTAINER, ELEMENT };
 

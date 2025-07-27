@@ -125,8 +125,14 @@ void GUIView::drawImage(const float posX, const float posY, const float width,
     return;
   }
 
-  const auto imgWidth{static_cast<float>(texture->second.getWidth()) * size};
-  const auto imgHeight{static_cast<float>(texture->second.getHeight()) * size};
+  const auto imgWidth{fittingMode == GUIFittingMode::SCALE
+                          ? width
+                          : static_cast<float>(texture->second.getWidth()) *
+                                size};
+  const auto imgHeight{fittingMode == GUIFittingMode::SCALE
+                           ? height
+                           : static_cast<float>(texture->second.getHeight()) *
+                                 size};
   const auto imgPosX{centerTop ? posX + std::max(0.f, (width - imgWidth) / 2.f)
                                : posX};
   const auto imgPosY{
@@ -134,11 +140,11 @@ void GUIView::drawImage(const float posX, const float posY, const float width,
   const auto imgWidthClipped{
       fittingMode == GUIFittingMode::CLIP
           ? std::max(0.f, std::min(imgWidth, posX + width - imgPosX))
-          : (fittingMode == GUIFittingMode::SCALE ? width : imgWidth)};
+          : imgWidth};
   const auto imgHeightClipped{
       fittingMode == GUIFittingMode::CLIP
           ? std::max(0.f, std::min(imgHeight, posY + height - imgPosY))
-          : (fittingMode == GUIFittingMode::SCALE ? height : imgHeight)};
+          : imgHeight};
 
   const SDL_FRect rect{0.f, 0.f,
                        fittingMode == GUIFittingMode::CLIP

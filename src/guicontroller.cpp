@@ -91,9 +91,11 @@ void GUIController::initGameMenus() {
   characterMenuContainer3->setLayout(GUILayout::VERTICAL);
   characterMenuContainer3->setImage("guiassets/border_brown.png");
   characterMenuContainer3->setFittingMode(GUIFittingMode::SCALE);
+  characterMenuContainer3->setCenterTop(true);
+  characterMenuContainer3->setCenterLeft(true);
 
   auto subcontainer1{
-      std::make_unique<GUIComponent>("sub_container_1", 0.f, 0.f, 1.f, .5f)};
+      std::make_unique<GUIComponent>("sub_container_1", 0.f, 0.f, .5f, .4f)};
   subcontainer1->setLayout(GUILayout::VERTICAL);
   subcontainer1->setImage("guiassets/border_brown.png");
   subcontainer1->setFittingMode(GUIFittingMode::SCALE);
@@ -101,10 +103,12 @@ void GUIController::initGameMenus() {
   auto line1{std::make_unique<GUIComponent>("line_1", 0.f, 0.f, 1.0f, .3f)};
   line1->setType(GUIElementType::ELEMENT);
   line1->setText("Line 1");
+  line1->setScale(.8f);
 
   auto line2{std::make_unique<GUIComponent>("line_2", 0.f, 0.f, 1.f, .3f)};
   line2->setType(GUIElementType::ELEMENT);
   line2->setText("Line 2");
+  line2->setScale(.8f);
 
   subcontainer1->addChild(std::move(line1));
   subcontainer1->addChild(std::move(line2));
@@ -118,16 +122,18 @@ void GUIController::initGameMenus() {
   auto line3{std::make_unique<GUIComponent>("line_3", 0.f, 0.f, 1.f, .3f)};
   line3->setType(GUIElementType::ELEMENT);
   line3->setText("Line 3");
+  line3->setScale(.8f);
 
   auto line4{std::make_unique<GUIComponent>("line_4", 0.f, 0.f, 1.f, .3f)};
   line4->setType(GUIElementType::ELEMENT);
   line4->setText("Line 4");
+  line4->setScale(.8f);
 
   subcontainer2->addChild(std::move(line3));
   subcontainer2->addChild(std::move(line4));
 
   auto subcontainer3{
-      std::make_unique<GUIComponent>("sub_container_3", 0.f, 0.f, 1.f, .5f)};
+      std::make_unique<GUIComponent>("sub_container_3", 0.f, 0.f, .8f, .4f)};
   subcontainer3->setLayout(GUILayout::VERTICAL);
   subcontainer3->setImage("guiassets/border_brown.png");
   subcontainer3->setFittingMode(GUIFittingMode::SCALE);

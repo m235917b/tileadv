@@ -6,7 +6,7 @@ GUIComponent::GUIComponent(const std::string &id)
     : id(id), posX(0.f), posY(0.f), width(0.f), height(0.f), border(false),
       background(false), centerLeft(false), centerTop(false),
       fittingMode(GUIFittingMode::HIDE), scale(1.f),
-      layout(GUILayout::FULLSCREEN), type(GUIElementType::CONTAINER),
+      layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
       visible(true), children(), updateListener(), keyListeners(), text(""),
       image(""), parent(nullptr), root(nullptr) {}
 
@@ -16,7 +16,7 @@ GUIComponent::GUIComponent(const std::string &id, const float posX,
     : id(id), posX(posX), posY(posY), width(width), height(height),
       border(false), background(false), centerLeft(false), centerTop(false),
       fittingMode(GUIFittingMode::HIDE), scale(1.f),
-      layout(GUILayout::FULLSCREEN), type(GUIElementType::CONTAINER),
+      layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
       visible(true), children(), updateListener(), keyListeners(), text(""),
       image(""), parent(nullptr), root(nullptr) {}
 
@@ -40,10 +40,50 @@ void GUIComponent::updateLayout() {
   if (layout == GUILayout::VERTICAL) {
     float offset{0};
 
+    auto topMargin{.0f};
+
+    if (centerLeft) {
+      auto sum{.0f};
+
+      for (const auto &[_, child] : children) {
+        sum += child->getHeight();
+      }
+
+      topMargin = (1.f - sum) / 2.f;
+    }
+
     for (const auto &[_, child] : children) {
-      child->posY = offset;
+      if (centerTop) {
+        const auto leftMargin{(1.f - child->getWidth()) / 2.f};
+        child->posX = leftMargin;
+      }
+
+      child->posY = offset + (centerLeft ? topMargin : 0.f);
       offset += child->getHeight();
-      ;
+    }
+  } else if (layout == GUILayout::HORIZONTAL) {
+    float offset{0};
+
+    auto leftMargin{.0f};
+
+    if (centerTop) {
+      auto sum{.0f};
+
+      for (const auto &[_, child] : children) {
+        sum += child->getWidth();
+      }
+
+      leftMargin = (1.f - sum) / 2.f;
+    }
+
+    for (const auto &[_, child] : children) {
+      if (centerLeft) {
+        const auto topMargin{(1.f - child->getHeight()) / 2.f};
+        child->posY = topMargin;
+      }
+
+      child->posX = offset + (centerLeft ? leftMargin : 0.f);
+      offset += child->getWidth();
     }
   }
 }
