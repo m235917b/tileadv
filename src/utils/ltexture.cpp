@@ -63,13 +63,13 @@ void LTexture::destroy() {
   height = 0;
 }
 
-void LTexture::render(const float x, const float y, const SDL_FRect &clip,
+void LTexture::render(const float x, const float y, const SDL_FRect *clip,
                       const float width, const float height,
                       SDL_Renderer &renderer) {
-  const SDL_FRect dstRect{x, y, width > 0 ? width : clip.w,
-                          height > 0 ? height : clip.h};
+  const SDL_FRect dstRect{x, y, width > 0 ? width : clip->w,
+                          height > 0 ? height : clip->h};
 
-  SDL_RenderTexture(&renderer, texture, &clip, &dstRect);
+  SDL_RenderTexture(&renderer, texture, clip, &dstRect);
 }
 
 int LTexture::getWidth() const { return width; }

@@ -1,17 +1,18 @@
 #pragma once
 
 #include <functional>
+#include <map>
 #include <memory>
 #include <ranges>
 #include <string>
 #include <unordered_map>
-#include <vector>
+
 
 #include <SDL3/SDL.h>
 
 enum class GUILayout { FLOATING, VERTICAL, FULLSCREEN };
 
-enum class GUIElementType { CONTAINER, TEXT };
+enum class GUIElementType { CONTAINER, ELEMENT };
 
 class GUIComponent {
 public:
@@ -32,14 +33,11 @@ public:
   void setPosY(const int posY);
   void setBorder(const bool visible);
   void setBackground(const bool visible);
-  void setSelected(const bool selected);
-  void setActive(const bool active);
   void setText(const std::string &text);
+  void setImage(const std::string &path);
   void setLayout(const GUILayout layout);
   void setType(const GUIElementType type);
   void setVisible(const bool visible);
-  void selectNextChild();
-  void selectPreviousChild();
 
   std::string getId() const;
   int getPosX() const;
@@ -48,13 +46,17 @@ public:
   int getHeight() const;
   bool getBorder() const;
   bool getBackground() const;
-  bool isSelected() const;
-  bool isActive() const;
   std::string getText() const;
+  std::string getImage() const;
   GUILayout getLayout() const;
   GUIElementType getType() const;
   bool isVisible() const;
-  const GUIComponent *getSelectedChild() const;
+  GUIComponent *getParent();
+  GUIComponent *getNextChild(const std::string &id);
+  GUIComponent *getPreviousChild(const std::string &id);
+  GUIComponent *getRoot();
+  int numberOfChildren() const;
+  bool isDescendant(const std::string &id);
 
 private:
   const std::string id;
@@ -70,18 +72,16 @@ private:
   GUILayout layout;
   GUIElementType type;
 
-  bool selected;
-  bool active;
   bool visible;
 
-  std::vector<std::unique_ptr<GUIComponent>> children;
+  std::map<std::string, std::unique_ptr<GUIComponent>> children;
 
   std::function<void()> updateListener;
   std::unordered_map<SDL_Keycode, std::function<void()>> keyListeners;
 
-  int selectedChild;
-
   std::string text;
+  std::string image;
 
-  void deselect();
+  GUIComponent *parent;
+  GUIComponent *root;
 };

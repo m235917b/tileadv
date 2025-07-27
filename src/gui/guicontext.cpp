@@ -1,88 +1,128 @@
-#include "gui/guicontext.hpp"
+#include <algorithm>
+
 #include "gui/asciiatlas.hpp"
+#include "gui/guicontext.hpp"
 #include "gui/guitreewalker.hpp"
 #include "utils/rendercontext.hpp"
 
 GUIContext::GUIContext(const RenderContext &renderContext)
-    : guiView(renderContext), components(), focusStack() {}
+    : guiView(renderContext), components(), focusBuffer(), lookup() {}
 
-bool GUIContext::init() { return guiView.init(); }
+bool GUIContext::init() {
+  std::vector<std::string> imagePaths{};
+
+  for (const auto &component : components) {
+    GUITreeWalker::traverse(*component, [&imagePaths](GUIComponent &c) {
+      if (!c.getImage().empty()) {
+        imagePaths.push_back(c.getImage());
+      }
+
+      return true;
+    });
+  }
+
+  return guiView.init(imagePaths);
+}
 
 void GUIContext::keyDownListener(const SDL_Keycode key) {
-  auto action{[key](GUIComponent &component) {
-    if (!component.isVisible() || !component.isSelected()) {
-      return false;
+  if (!focusBuffer.empty()) {
+    auto selectedComponent{focusBuffer.back().second};
+
+    switch (key) {
+    case SDLK_RETURN: {
+      GUIComponent *child{selectedComponent};
+
+      for (; child->numberOfChildren() == 1; child = child->getNextChild(""))
+        ;
+
+      auto firstChild{child->getNextChild("")};
+
+      if (firstChild) {
+        this->focusBuffer.back().second = firstChild;
+      } else {
+        this->focusBuffer.back().second = child;
+      }
+
+      break;
     }
 
-    component.keyDownListener(key);
+    case SDLK_BACKSPACE:
+      if (focusBuffer.back().second->getParent()->getParent()) {
+        focusBuffer.back().second = focusBuffer.back().second->getParent();
+      }
+      return;
 
-    if (!component.isActive() && key == SDLK_RETURN &&
-        component.getType() == GUIElementType::CONTAINER) {
-      component.setActive(true);
-      return false;
+    case SDLK_LEFT: {
+      if (selectedComponent->getParent()->getLayout() != GUILayout::VERTICAL) {
+        auto nextSelected{selectedComponent->getParent()->getPreviousChild(
+            selectedComponent->getId())};
+        focusBuffer.back().second = nextSelected;
+      }
+      break;
     }
 
-    if (!component.isActive()) {
-      return false;
+    case SDLK_RIGHT: {
+      if (selectedComponent->getParent()->getLayout() != GUILayout::VERTICAL) {
+        auto nextSelected{selectedComponent->getParent()->getNextChild(
+            selectedComponent->getId())};
+        focusBuffer.back().second = nextSelected;
+      }
+      break;
     }
 
-    // Container navigation
-
-    const auto &selectedChild = component.getSelectedChild();
-
-    if (selectedChild && selectedChild->isActive()) {
-      return true;
+    case SDLK_UP: {
+      if (selectedComponent->getParent()->getLayout() == GUILayout::VERTICAL) {
+        auto nextSelected{selectedComponent->getParent()->getPreviousChild(
+            selectedComponent->getId())};
+        focusBuffer.back().second = nextSelected;
+      }
+      break;
     }
 
-    if ((component.getLayout() == GUILayout::VERTICAL && key == SDLK_DOWN) ||
-        (component.getLayout() != GUILayout::VERTICAL && key == SDLK_RIGHT)) {
-      component.selectNextChild();
+    case SDLK_DOWN: {
+      if (selectedComponent->getParent()->getLayout() == GUILayout::VERTICAL) {
+        auto nextSelected{selectedComponent->getParent()->getNextChild(
+            selectedComponent->getId())};
+        focusBuffer.back().second = nextSelected;
+      }
+      break;
+    }
     }
 
-    if ((component.getLayout() == GUILayout::VERTICAL && key == SDLK_UP) ||
-        (component.getLayout() != GUILayout::VERTICAL && key == SDLK_LEFT)) {
-      component.selectPreviousChild();
+    for (const auto frame : focusBuffer) {
+      for (auto component{frame.second}; component;
+           component = component->getParent()) {
+        component->keyDownListener(key);
+      }
     }
-
-    if (key == SDLK_BACKSPACE) {
-      component.setActive(false);
-      return false;
-    }
-
-    return true;
-  }};
-
-  if (!focusStack.empty()) {
-    GUITreeWalker::traverse(*focusStack.top(), action);
   }
 }
 
 void GUIContext::addKeyListener(const std::string &id, const SDL_Keycode key,
                                 std::function<void()> listener) {
-  auto stop{false};
+  auto component{lookup.find(id)};
 
-  auto action{[&stop, &id, key, listener](GUIComponent &component) {
-    if (component.getId() == id) {
-      component.addKeyListener(key, listener);
-
-      stop = true;
-
-      return false;
-    }
-
-    return true;
-  }};
-
-  for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action, stop);
-  }
+  if (component != lookup.end())
+    component->second->addKeyListener(key, listener);
 }
 
 void GUIContext::addComponent(std::unique_ptr<GUIComponent> component) {
+  GUITreeWalker::traverse(*component, [this](GUIComponent &child) {
+    this->lookup.emplace(child.getId(), &child);
+    return true;
+  });
+
   components.push_back(std::move(component));
 }
 
 bool GUIContext::removeComponent(const std::string &id) {
+  lookup.erase(id);
+
+  std::erase_if(focusBuffer,
+                [&id](std::pair<GUIComponent *, GUIComponent *> focussed) {
+                  return focussed.second->getId() == id;
+                });
+
   return std::erase_if(components,
                        [&id](const std::unique_ptr<GUIComponent> &component) {
                          return component->getId() == id;
@@ -91,18 +131,55 @@ bool GUIContext::removeComponent(const std::string &id) {
 
 void GUIContext::setComponentVisible(const std::string &id,
                                      const bool visible) {
+  auto componentPair{lookup.find(id)};
+
+  if (componentPair == lookup.end())
+    return;
+
+  auto component{componentPair->second};
+
+  component->setVisible(visible);
+
+  if (!visible) {
+    std::erase_if(focusBuffer, [&id](const auto &pair) {
+      return pair.first->getId() == id;
+    });
+
+    auto descendant{std::find_if(
+        focusBuffer.begin(), focusBuffer.end(), [&component](const auto &pair) {
+          return pair.first == component &&
+                 component->isDescendant(pair.second->getId());
+        })};
+
+    if (descendant != focusBuffer.end())
+      descendant->second = component->getParent();
+  } else {
+    if (!component->getParent()) {
+      GUIComponent *child{component};
+
+      for (; child->numberOfChildren() == 1; child = child->getNextChild(""))
+        ;
+
+      if (child->numberOfChildren() > 0)
+        this->focusBuffer.push_back({component, child->getNextChild("")});
+      else
+        this->focusBuffer.push_back({component, child});
+    }
+  }
+}
+
+void GUIContext::selectComponent(const std::string &id) {
   auto stop{false};
 
-  auto action{[&stop, &id, visible, this](GUIComponent &component) {
+  auto action{[&stop, &id, this](GUIComponent &component) {
     if (component.getId() == id) {
-      component.setVisible(visible);
-      this->setComponentActive(component, visible);
+      GUIComponent *root{};
 
-      if (visible) {
-        this->focusStack.push(&component);
-      } else if (!focusStack.empty() && this->focusStack.top()->getId() == id) {
-        this->focusStack.pop();
+      for (auto c = &component; c != nullptr; c = c->getParent()) {
+        root = c;
       }
+
+      this->focusBuffer.push_back({root, &component});
 
       stop = true;
 
@@ -114,44 +191,6 @@ void GUIContext::setComponentVisible(const std::string &id,
 
   for (const auto &component : components) {
     GUITreeWalker::traverse(*component, action, stop);
-  }
-}
-
-void GUIContext::setComponentActive(const std::string &id, const bool active) {
-  auto stop{false};
-
-  for (const auto &component : components) {
-    GUITreeWalker::traverse(
-        *component,
-        [&id, active, &stop, this](GUIComponent &component) {
-          if (component.getId() == id) {
-            this->setComponentActive(component, active);
-
-            stop = true;
-
-            return false;
-          }
-
-          return true;
-        },
-        stop);
-  }
-}
-
-void GUIContext::setComponentActive(GUIComponent &component,
-                                    const bool active) {
-  component.setActive(active);
-  component.setSelected(active);
-
-  if (!active) {
-    component.forEachChild([](GUIComponent &child) {
-      GUITreeWalker::traverse(child, [](GUIComponent &subchild) {
-        subchild.setActive(false);
-        subchild.setSelected(false);
-
-        return true;
-      });
-    });
   }
 }
 
@@ -166,8 +205,8 @@ void GUIContext::update() {
     return true;
   }};
 
-  for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action);
+  for (auto &component : focusBuffer) {
+    GUITreeWalker::traverse(*component.first, action);
   }
 }
 
@@ -182,8 +221,8 @@ void GUIContext::updateLayout() {
     return true;
   }};
 
-  for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action);
+  for (auto &component : focusBuffer) {
+    GUITreeWalker::traverse(*component.first, action);
   }
 }
 
@@ -193,12 +232,16 @@ void GUIContext::drawGUI() {
       return false;
     }
 
-    this->guiView.drawGUIComponent(component);
+    const auto selected{!focusBuffer.empty() &&
+                        focusBuffer.back().second->getId() ==
+                            component.getId()};
+
+    this->guiView.drawGUIComponent(component, selected);
 
     return true;
   }};
 
-  for (const auto &component : components) {
-    GUITreeWalker::traverse(*component, action);
+  for (auto &component : focusBuffer) {
+    GUITreeWalker::traverse(*component.first, action);
   }
 }

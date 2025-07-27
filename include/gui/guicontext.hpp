@@ -1,18 +1,15 @@
 #pragma once
 
-#include <functional>
 #include <memory>
-#include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
-#include <stack>
 
 
 #include <SDL3/SDL.h>
 
 #include "gui/guicomponent.hpp"
 #include "gui/guiview.hpp"
-
 
 class RenderContext;
 
@@ -30,7 +27,7 @@ public:
   bool removeComponent(const std::string &id);
 
   void setComponentVisible(const std::string &id, const bool visible);
-  void setComponentActive(const std::string& id, const bool active);
+  void selectComponent(const std::string &id);
 
   void update();
   void updateLayout();
@@ -40,7 +37,7 @@ private:
   GUIView guiView;
 
   std::vector<std::unique_ptr<GUIComponent>> components;
-  std::stack<GUIComponent *> focusStack;
+  std::vector<std::pair<GUIComponent *, GUIComponent *>> focusBuffer;
 
-  void setComponentActive(GUIComponent& component, const bool active);
+  std::unordered_map<std::string, GUIComponent *> lookup;
 };

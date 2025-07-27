@@ -73,7 +73,7 @@ void View::drawGame(const Chunk &chunk,
       float posY{topMargin + static_cast<float>(y) * tileSize -
                  cameraY * tileSize};
 
-      worldTiles.render(posX, posY, spriteCoords, tileSize, tileSize, renderer);
+      worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize, renderer);
     }
   }
 
@@ -88,7 +88,7 @@ void View::drawGame(const Chunk &chunk,
 
     if (posX >= leftMargin && posX + tileSize + leftMargin <= screenWidth &&
         posY >= topMargin && posY + tileSize + topMargin <= screenHeight) {
-      playerTexture.render(posX, posY, spriteCoords, tileSize, tileSize,
+      playerTexture.render(posX, posY, &spriteCoords, tileSize, tileSize,
                            renderer);
     }
   }

@@ -21,7 +21,7 @@ public:
 
   void destroy();
 
-  void render(const float x, const float y, const SDL_FRect &clip,
+  void render(const float x, const float y, const SDL_FRect *clip,
               const float width, const float height, SDL_Renderer &renderer);
 
   int getWidth() const;
