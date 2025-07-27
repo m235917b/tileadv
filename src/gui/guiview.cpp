@@ -1,84 +1,86 @@
 #include "gui/guiview.hpp"
 #include "gui/asciiatlas.hpp"
 #include "gui/guicomponent.hpp"
+#include "gui/guitreewalker.hpp"
 #include "utils/rendercontext.hpp"
 
 GUIView::GUIView(const RenderContext &renderContext)
-    : renderContext(renderContext), asciiGrey() {}
+    : renderContext(renderContext), asciiGrey(), borderMargin(.02f) {}
 
-bool GUIView::init(const std::vector<std::string> &texturePaths) {
-  SDL_Renderer &renderer{renderContext.getRenderer()};
+void GUIView::drawGUIComponent(GUIComponent &component,
+                               const std::string &selected) {
 
-  SDL_SetRenderDrawBlendMode(&renderer, SDL_BLENDMODE_BLEND);
-
-  if (!asciiGrey.loadFromFile("guiassets/ascii_grey.png", renderer)) {
-    SDL_Log("Unable to load png image!\n");
-
-    return false;
-  }
-
-  for (const auto &path : texturePaths) {
-    if (images.try_emplace(path).second) {
-      if (!images[path].loadFromFile(path, renderer)) {
-        return false;
-      }
+  auto action{[this, &selected](GUIComponent &node, float &posXParentAbs,
+                                float &posYParentAbs, float &widthParent,
+                                float &heightParent) {
+    if (!node.isVisible()) {
+      return false;
     }
-  }
 
-  return true;
+    SDL_Renderer &renderer{renderContext.getRenderer()};
+    const auto screenWidth{renderContext.getScreenWidth()};
+    const auto screenHeight{renderContext.getScreenHeight()};
+
+    const SDL_FRect rect = {
+        posXParentAbs +
+            (node.getPosX() + borderMargin) * widthParent * screenWidth,
+        posYParentAbs +
+            (node.getPosY() + borderMargin) * heightParent * screenHeight,
+        (node.getWidth() - 2.f * borderMargin) * widthParent * screenWidth,
+        (node.getHeight() - 2.f * borderMargin) * heightParent * screenHeight};
+
+    if (node.getBorder()) {
+      SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
+      SDL_RenderRect(&renderer, &rect);
+    }
+
+    if (node.getBackground()) {
+      SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
+      SDL_RenderFillRect(&renderer, &rect);
+    }
+
+    if (!node.getText().empty()) {
+      const auto text{(selected == node.getId() ? " > " : "   ") +
+                      node.getText() + "   "};
+      drawText(rect.x, rect.y, rect.w, rect.h, text);
+    } else if (selected == node.getId()) {
+      SDL_SetRenderDrawColor(&renderer, 0xFF, 0x40, 0x40, 0x20);
+      SDL_RenderFillRect(&renderer, &rect);
+    }
+
+    if (!node.getImage().empty()) {
+      drawImage(rect.x, rect.y, rect.w, rect.h, node.getImage());
+    }
+
+    posXParentAbs = rect.x;
+    posYParentAbs = rect.y;
+    widthParent = (node.getWidth() - 2.f * borderMargin) * widthParent;
+    heightParent = (node.getHeight() - 2.f * borderMargin) * heightParent;
+
+    return true;
+  }};
+
+  GUITreeWalker::traverse(component, action, 0.f, 0.f, 1.f, 1.f);
 }
 
-void GUIView::drawGUIComponent(const GUIComponent &component,
-                               const bool selected) {
+void GUIView::drawText(const float posX, const float posY, const float width,
+                       const float height, const std::string &text) {
   SDL_Renderer &renderer{renderContext.getRenderer()};
-
-  const SDL_FRect rect{static_cast<float>(component.getPosX()),
-                       static_cast<float>(component.getPosY()),
-                       static_cast<float>(component.getWidth()),
-                       static_cast<float>(component.getHeight())};
-
-  if (component.getBorder()) {
-    SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
-    SDL_RenderRect(&renderer, &rect);
-  }
-
-  if (component.getBackground()) {
-    SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
-    SDL_RenderFillRect(&renderer, &rect);
-  }
-
-  if (!component.getText().empty()) {
-    const auto text{(selected ? " > " : "   ") + component.getText()};
-    drawText(component.getPosX(), component.getPosY(), 1.f, text);
-  } else if (selected) {
-    SDL_SetRenderDrawColor(&renderer, 0xFF, 0x40, 0x40, 0x20);
-    SDL_RenderFillRect(&renderer, &rect);
-  }
-
-  if (!component.getImage().empty()) {
-    drawImage(component.getPosX(), component.getPosY(), component.getWidth(),
-              component.getHeight(), component.getImage());
-  }
-}
-
-void GUIView::drawText(const int posX, const int posY, const float size,
-                       const std::string &text) {
-  SDL_Renderer &renderer{renderContext.getRenderer()};
+  const auto charWidth{width / static_cast<float>(text.length())};
 
   for (size_t i = 0; i < text.length(); ++i) {
     const SDL_FRect spriteCoords = AsciiAtlas::getSpriteCoords(text[i]);
-    float textPosX{posX + static_cast<float>(i) * asciiWidth * size};
-    float textPosY{static_cast<float>(posY)};
+    float textPosX{posX + static_cast<float>(i) * charWidth};
 
     SDL_SetRenderDrawColor(&renderer, 0x50, 0x50, 0x50, 0xFF);
 
-    asciiGrey.render(textPosX, textPosY, &spriteCoords, asciiWidth * size,
-                     asciiHeight * size, renderer);
+    asciiGrey.render(textPosX, posY, &spriteCoords, charWidth, height,
+                     renderer);
   }
 }
 
-void GUIView::drawImage(const int posX, const int posY, const int width,
-                        const int height, const std::string &path) {
+void GUIView::drawImage(const float posX, const float posY, const float width,
+                        const float height, const std::string &path) {
   const auto &texture{images.find(path)};
 
   if (texture == images.end()) {

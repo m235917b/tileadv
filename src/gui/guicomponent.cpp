@@ -3,14 +3,15 @@
 #include "gui/guicomponent.hpp"
 
 GUIComponent::GUIComponent(const std::string &id)
-    : id(id), posX(0), posY(0), width(0), height(0), border(false),
+    : id(id), posX(0.f), posY(0.f), width(0.f), height(0.f), border(false),
       background(false), layout(GUILayout::FULLSCREEN),
       type(GUIElementType::CONTAINER), visible(true), children(),
       updateListener(), keyListeners(), text(""), image(""), parent(nullptr),
       root(nullptr) {}
 
-GUIComponent::GUIComponent(const std::string &id, const int posX,
-                           const int posY, const int width, const int height)
+GUIComponent::GUIComponent(const std::string &id, const float posX,
+                           const float posY, const float width,
+                           const float height)
     : id(id), posX(posX), posY(posY), width(width), height(height),
       border(false), background(false), layout(GUILayout::FULLSCREEN),
       type(GUIElementType::CONTAINER), visible(true), children(),
@@ -35,13 +36,12 @@ void GUIComponent::update() {
 
 void GUIComponent::updateLayout() {
   if (layout == GUILayout::VERTICAL) {
-    int offset{0};
+    float offset{0};
 
     for (const auto &[_, child] : children) {
-      child->setPosX(posX + 10);
-      child->setPosY(posY + 10 + offset);
-
-      offset += child->getHeight() + 10;
+      child->posY = offset;
+      offset += child->getHeight();
+      ;
     }
   }
 }
@@ -61,9 +61,13 @@ void GUIComponent::forEachChild(
   }
 }
 
-void GUIComponent::setPosX(const int posX) { this->posX = posX; }
+void GUIComponent::setPosX(const float posX) { this->posX = posX; }
 
-void GUIComponent::setPosY(const int posY) { this->posY = posY; }
+void GUIComponent::setPosY(const float posY) { this->posY = posY; }
+
+void GUIComponent::setWidth(const float width) { this->width = width; }
+
+void GUIComponent::setHeight(const float height) { this->height = height; }
 
 void GUIComponent::setUpdateListener(std::function<void()> listener) {
   updateListener = std::move(listener);
@@ -90,13 +94,13 @@ void GUIComponent::setVisible(const bool visible) { this->visible = visible; }
 
 std::string GUIComponent::getId() const { return id; }
 
-int GUIComponent::getPosX() const { return posX; }
+float GUIComponent::getPosX() const { return posX; }
 
-int GUIComponent::getPosY() const { return posY; }
+float GUIComponent::getPosY() const { return posY; }
 
-int GUIComponent::getWidth() const { return width; }
+float GUIComponent::getWidth() const { return width; }
 
-int GUIComponent::getHeight() const { return height; }
+float GUIComponent::getHeight() const { return height; }
 
 bool GUIComponent::getBorder() const { return border; }
 

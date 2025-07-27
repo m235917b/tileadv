@@ -7,7 +7,6 @@
 #include <string>
 #include <unordered_map>
 
-
 #include <SDL3/SDL.h>
 
 enum class GUILayout { FLOATING, VERTICAL, FULLSCREEN };
@@ -17,8 +16,8 @@ enum class GUIElementType { CONTAINER, ELEMENT };
 class GUIComponent {
 public:
   GUIComponent(const std::string &id);
-  GUIComponent(const std::string &id, const int posX, const int posY,
-               const int width, const int height);
+  GUIComponent(const std::string &id, const float posX, const float posY,
+               const float width, const float height);
 
   void addChild(std::unique_ptr<GUIComponent> child);
   bool removeChild(const std::string &id);
@@ -29,8 +28,10 @@ public:
   void addKeyListener(const SDL_Keycode key, std::function<void()> listener);
   void forEachChild(std::function<void(GUIComponent &child)> action);
 
-  void setPosX(const int posX);
-  void setPosY(const int posY);
+  void setPosX(const float posX);
+  void setPosY(const float posY);
+  void setWidth(const float width);
+  void setHeight(const float height);
   void setBorder(const bool visible);
   void setBackground(const bool visible);
   void setText(const std::string &text);
@@ -40,10 +41,10 @@ public:
   void setVisible(const bool visible);
 
   std::string getId() const;
-  int getPosX() const;
-  int getPosY() const;
-  int getWidth() const;
-  int getHeight() const;
+  float getPosX() const;
+  float getPosY() const;
+  float getWidth() const;
+  float getHeight() const;
   bool getBorder() const;
   bool getBackground() const;
   std::string getText() const;
@@ -61,10 +62,10 @@ public:
 private:
   const std::string id;
 
-  int posX;
-  int posY;
-  int width;
-  int height;
+  float posX;
+  float posY;
+  float width;
+  float height;
 
   bool border;
   bool background;

@@ -17,7 +17,7 @@ bool GUIContext::init() {
     }
   }
 
-  return guiView.init(imagePaths);
+  return guiView.loadTextures(imagePaths);
 }
 
 void GUIContext::keyDownListener(const SDL_Keycode key) {
@@ -212,21 +212,10 @@ void GUIContext::updateLayout() {
 }
 
 void GUIContext::drawGUI() {
-  auto action{[this](GUIComponent &node) {
-    if (!node.isVisible()) {
-      return false;
-    }
-
-    const auto selected{!focusBuffer.empty() &&
-                        focusBuffer.back().second->getId() == node.getId()};
-
-    this->guiView.drawGUIComponent(node, selected);
-
-    return true;
-  }};
-
-  for (auto &[focussed, _] : focusBuffer) {
-    GUITreeWalker::traverse(*focussed, action);
+  for (auto &[focussed, selected] : focusBuffer) {
+    guiView.drawGUIComponent(
+        *focussed,
+        focusBuffer.empty() ? "" : focusBuffer.back().second->getId());
   }
 }
 
