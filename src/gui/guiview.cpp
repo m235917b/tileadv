@@ -6,7 +6,7 @@
 GUIView::GUIView(const RenderContext &renderContext)
     : renderContext(renderContext), asciiGrey() {}
 
-bool GUIView::init(std::vector<std::string> texturePaths) {
+bool GUIView::init(const std::vector<std::string> &texturePaths) {
   SDL_Renderer &renderer{renderContext.getRenderer()};
 
   SDL_SetRenderDrawBlendMode(&renderer, SDL_BLENDMODE_BLEND);

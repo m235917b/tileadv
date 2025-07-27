@@ -5,7 +5,6 @@
 #include <unordered_map>
 #include <vector>
 
-
 #include <SDL3/SDL.h>
 
 #include "gui/guicomponent.hpp"
@@ -26,8 +25,9 @@ public:
   void addComponent(std::unique_ptr<GUIComponent> component);
   bool removeComponent(const std::string &id);
 
-  void setComponentVisible(const std::string &id, const bool visible);
+  void setComponentVisible(const std::string &id, const bool visible = true);
   void selectComponent(const std::string &id);
+  void rotateFocus(const bool down = false);
 
   void update();
   void updateLayout();
@@ -40,4 +40,6 @@ private:
   std::vector<std::pair<GUIComponent *, GUIComponent *>> focusBuffer;
 
   std::unordered_map<std::string, GUIComponent *> lookup;
+
+  GUIComponent *descendSingleChildren(GUIComponent *component);
 };

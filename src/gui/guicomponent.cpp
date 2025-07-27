@@ -155,6 +155,7 @@ GUIElementType GUIComponent::getType() const { return type; }
 bool GUIComponent::isVisible() const { return visible; }
 
 bool GUIComponent::isDescendant(const std::string &id) {
-  return std::all_of(children.begin(), children.end(),
+  return this->id == id ||
+         std::any_of(children.begin(), children.end(),
                      [&id](const auto &pair) { return pair.first == id; });
 }

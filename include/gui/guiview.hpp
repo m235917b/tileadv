@@ -15,7 +15,7 @@ class GUIView {
 public:
   GUIView(const RenderContext &renderContext);
 
-  bool init(std::vector<std::string> texturePaths);
+  bool init(const std::vector<std::string> &texturePaths);
 
   void drawGUIComponent(const GUIComponent &component, const bool selected);
   void drawText(const int posX, const int posY, const float size,
