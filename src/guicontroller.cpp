@@ -61,8 +61,60 @@ void GUIController::initGameMenus() {
 
   characterMenuContainer2->addChild(std::move(headline2));
 
+  auto characterMenuContainer3{std::make_unique<GUIComponent>(
+      "char_menu_container_3", 900, 500, 600, 800)};
+  characterMenuContainer3->setLayout(GUILayout::VERTICAL);
+  characterMenuContainer3->setImage("guiassets/border_brown.png");
+
+  auto subcontainer1{std::make_unique<GUIComponent>(
+      "sub_container_1", 10, 10, 580, 300)};
+  subcontainer1->setLayout(GUILayout::VERTICAL);
+  subcontainer1->setImage("guiassets/border_brown.png");
+
+  auto line1{
+      std::make_unique<GUIComponent>("line_1", 0, 0, 100, 30)};
+  line1->setType(GUIElementType::ELEMENT);
+  line1->setText("Line 1");
+
+  auto line2{
+      std::make_unique<GUIComponent>("line_2", 0, 0, 100, 30)};
+  line2->setType(GUIElementType::ELEMENT);
+  line2->setText("Line 2");
+
+  subcontainer1->addChild(std::move(line1));
+  subcontainer1->addChild(std::move(line2));
+
+  auto subcontainer2{std::make_unique<GUIComponent>(
+      "sub_container_2", 10, 10, 500, 200)};
+  subcontainer2->setLayout(GUILayout::VERTICAL);
+  subcontainer2->setImage("guiassets/border_brown.png");
+
+  auto line3{
+      std::make_unique<GUIComponent>("line_3", 0, 0, 100, 30)};
+  line3->setType(GUIElementType::ELEMENT);
+  line3->setText("Line 3");
+
+  auto line4{
+      std::make_unique<GUIComponent>("line_4", 0, 0, 100, 30)};
+  line4->setType(GUIElementType::ELEMENT);
+  line4->setText("Line 4");
+
+  subcontainer2->addChild(std::move(line3));
+  subcontainer2->addChild(std::move(line4));
+
+  auto subcontainer3{std::make_unique<GUIComponent>(
+      "sub_container_3", 10, 10, 580, 300)};
+  subcontainer3->setLayout(GUILayout::VERTICAL);
+  subcontainer3->setImage("guiassets/border_brown.png");
+
+  subcontainer3->addChild(std::move(subcontainer2));
+
+  characterMenuContainer3->addChild(std::move(subcontainer1));
+  characterMenuContainer3->addChild(std::move(subcontainer3));
+
   characterMenu->addChild(std::move(characterMenuContainer));
   characterMenu->addChild(std::move(characterMenuContainer2));
+  characterMenu->addChild(std::move(characterMenuContainer3));
 
   guiContext.addComponent(std::move(characterMenu));
 }

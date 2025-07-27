@@ -41,7 +41,7 @@ void GUIComponent::updateLayout() {
       child->setPosX(posX + 10);
       child->setPosY(posY + 10 + offset);
 
-      offset += child->getHeight();
+      offset += child->getHeight() + 10;
     }
   }
 }

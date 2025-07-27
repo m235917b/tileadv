@@ -21,67 +21,69 @@ bool GUIContext::init() {
 }
 
 void GUIContext::keyDownListener(const SDL_Keycode key) {
-  if (!focusBuffer.empty()) {
-    auto selectedFrame{focusBuffer.back().second};
+  if (focusBuffer.empty()) {
+    return;
+  }
 
-    switch (key) {
-    case SDLK_RETURN:
-      this->focusBuffer.back().second = descendSingleChildren(selectedFrame);
-      break;
+  auto selectedFrame{focusBuffer.back().second};
 
-    case SDLK_BACKSPACE:
-      if (focusBuffer.back().second->getParent()->getParent()) {
-        focusBuffer.back().second = focusBuffer.back().second->getParent();
-      }
-      return;
+  switch (key) {
+  case SDLK_RETURN:
+    focusBuffer.back().second = descendSingleChildren(selectedFrame);
+    break;
 
-    case SDLK_TAB:
-      rotateFocus();
-      break;
+  case SDLK_BACKSPACE:
+    focusBuffer.back().second = ascendSingleParents(selectedFrame);
+    return;
 
-    case SDLK_LEFT: {
-      if (selectedFrame->getParent()->getLayout() != GUILayout::VERTICAL) {
-        auto nextSelected{selectedFrame->getParent()->getPreviousChild(
-            selectedFrame->getId())};
-        focusBuffer.back().second = nextSelected;
-      }
-      break;
+  case SDLK_TAB:
+    rotateFocus();
+    break;
+
+  case SDLK_LEFT: {
+    if (selectedFrame->getParent() &&
+        selectedFrame->getParent()->getLayout() != GUILayout::VERTICAL) {
+      auto nextSelected{
+          selectedFrame->getParent()->getPreviousChild(selectedFrame->getId())};
+      focusBuffer.back().second = nextSelected;
     }
+    break;
+  }
 
-    case SDLK_RIGHT: {
-      if (selectedFrame->getParent()->getLayout() != GUILayout::VERTICAL) {
-        auto nextSelected{
-            selectedFrame->getParent()->getNextChild(selectedFrame->getId())};
-        focusBuffer.back().second = nextSelected;
-      }
-      break;
+  case SDLK_RIGHT: {
+    if (selectedFrame->getParent() &&
+        selectedFrame->getParent()->getLayout() != GUILayout::VERTICAL) {
+      auto nextSelected{
+          selectedFrame->getParent()->getNextChild(selectedFrame->getId())};
+      focusBuffer.back().second = nextSelected;
     }
+    break;
+  }
 
-    case SDLK_UP: {
-      if (selectedFrame->getParent()->getLayout() == GUILayout::VERTICAL) {
-        auto nextSelected{selectedFrame->getParent()->getPreviousChild(
-            selectedFrame->getId())};
-        focusBuffer.back().second = nextSelected;
-      }
-      break;
+  case SDLK_UP: {
+    if (selectedFrame->getParent() &&
+        selectedFrame->getParent()->getLayout() == GUILayout::VERTICAL) {
+      auto nextSelected{
+          selectedFrame->getParent()->getPreviousChild(selectedFrame->getId())};
+      focusBuffer.back().second = nextSelected;
     }
+    break;
+  }
 
-    case SDLK_DOWN: {
-      if (selectedFrame->getParent()->getLayout() == GUILayout::VERTICAL) {
-        auto nextSelected{
-            selectedFrame->getParent()->getNextChild(selectedFrame->getId())};
-        focusBuffer.back().second = nextSelected;
-      }
-      break;
+  case SDLK_DOWN: {
+    if (selectedFrame->getParent() &&
+        selectedFrame->getParent()->getLayout() == GUILayout::VERTICAL) {
+      auto nextSelected{
+          selectedFrame->getParent()->getNextChild(selectedFrame->getId())};
+      focusBuffer.back().second = nextSelected;
     }
-    }
+    break;
+  }
+  }
 
-    for (const auto &[_, selected] : focusBuffer) {
-      for (auto component{selected}; component;
-           component = component->getParent()) {
-        component->keyDownListener(key);
-      }
-    }
+  for (auto component{selectedFrame}; component;
+       component = component->getParent()) {
+    component->keyDownListener(key);
   }
 }
 
@@ -238,4 +240,19 @@ GUIComponent *GUIContext::descendSingleChildren(GUIComponent *component) {
   auto firstChild{descendant->getNextChild("")};
 
   return firstChild ? firstChild : descendant;
+}
+
+GUIComponent *GUIContext::ascendSingleParents(GUIComponent *component) {
+  if (!component->getParent() || !component->getParent()->getParent()) {
+    return component;
+  }
+
+  GUIComponent *predecessor{component->getParent()};
+
+  for (; predecessor->getParent() && predecessor->getParent()->getParent() &&
+         predecessor->getParent()->numberOfChildren() == 1;
+       predecessor = predecessor->getParent()) {
+  };
+
+  return predecessor;
 }

@@ -42,4 +42,5 @@ private:
   std::unordered_map<std::string, GUIComponent *> lookup;
 
   GUIComponent *descendSingleChildren(GUIComponent *component);
+  GUIComponent *ascendSingleParents(GUIComponent *component);
 };
