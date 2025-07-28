@@ -10,7 +10,7 @@
 View::View(const RenderContext &renderContext)
     : renderContext(renderContext), tileSize(25), cameraX(0), cameraY(0),
       cameraMarginX(10), cameraMarginY(10), playerTexture(), worldTiles() {
-  auto screenWidth = renderContext.getScreenWidth();
+  auto screenWidth{renderContext.getScreenWidth()};
   auto screenHeight{renderContext.getScreenHeight()};
 
   topMargin =
@@ -73,7 +73,8 @@ void View::drawGame(const Chunk &chunk,
       float posY{topMargin + static_cast<float>(y) * tileSize -
                  cameraY * tileSize};
 
-      worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize, renderer);
+      worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize,
+                        renderer);
     }
   }
 

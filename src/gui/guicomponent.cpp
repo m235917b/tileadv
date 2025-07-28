@@ -5,20 +5,22 @@
 GUIComponent::GUIComponent(const std::string &id)
     : id(id), posX(0.f), posY(0.f), width(0.f), height(0.f), border(false),
       background(false), centerLeft(false), centerTop(false),
-      fittingMode(GUIFittingMode::HIDE), scale(1.f),
+      fittingMode(GUIFittingMode::HIDE), scale(1.f), spacing(0.f),
       layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
-      visible(true), navigable(true), children(), updateListener(),
-      keyListeners(), text(""), image(""), parent(nullptr), root(this) {}
+      visible(true), tempInvisible(false), navigable(true), children(),
+      updateListener(), keyListeners(), text(""), image(""), parent(nullptr),
+      root(this) {}
 
 GUIComponent::GUIComponent(const std::string &id, const float posX,
                            const float posY, const float width,
                            const float height)
     : id(id), posX(posX), posY(posY), width(width), height(height),
       border(false), background(false), centerLeft(false), centerTop(false),
-      fittingMode(GUIFittingMode::HIDE), scale(1.f),
+      fittingMode(GUIFittingMode::HIDE), scale(1.f), spacing(0.f),
       layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
-      visible(true), navigable(true), children(), updateListener(),
-      keyListeners(), text(""), image(""), parent(nullptr), root(this) {}
+      visible(true), tempInvisible(false), navigable(true), children(),
+      updateListener(), keyListeners(), text(""), image(""), parent(nullptr),
+      root(this) {}
 
 void GUIComponent::addChild(std::unique_ptr<GUIComponent> child) {
   child->parent = this;
@@ -37,17 +39,26 @@ void GUIComponent::update() {
 }
 
 void GUIComponent::updateLayout() {
-  if (layout == GUILayout::VERTICAL) {
-    float offset{0};
+  tempInvisible =
+      (posX < 0.f || posY < 0.f || posX + width > 1.f || posY + height > 1.f);
 
-    auto topMargin{.0f};
+  if (tempInvisible) {
+    return;
+  }
+
+  if (layout == GUILayout::VERTICAL) {
+    float offset{spacing};
+
+    auto topMargin{0.f};
 
     if (centerLeft) {
-      auto sum{.0f};
+      auto sum{0.f};
 
       for (const auto &[_, child] : children) {
-        sum += child->getHeight();
+        sum += child->getHeight() + spacing;
       }
+
+      sum += spacing;
 
       topMargin = (1.f - sum) / 2.f;
     }
@@ -58,20 +69,22 @@ void GUIComponent::updateLayout() {
         child->posX = leftMargin;
       }
 
-      child->posY = offset + (centerLeft ? topMargin : 0.f);
-      offset += child->getHeight();
+      child->posY = offset + topMargin;
+      offset += child->getHeight() + spacing;
     }
   } else if (layout == GUILayout::HORIZONTAL) {
-    float offset{0};
+    float offset{spacing};
 
-    auto leftMargin{.0f};
+    auto leftMargin{0.f};
 
     if (centerTop) {
-      auto sum{.0f};
+      auto sum{0.f};
 
       for (const auto &[_, child] : children) {
-        sum += child->getWidth();
+        sum += child->getWidth() + spacing;
       }
+
+      sum += spacing;
 
       leftMargin = (1.f - sum) / 2.f;
     }
@@ -82,8 +95,8 @@ void GUIComponent::updateLayout() {
         child->posY = topMargin;
       }
 
-      child->posX = offset + (centerLeft ? leftMargin : 0.f);
-      offset += child->getWidth();
+      child->posX = offset + leftMargin + spacing;
+      offset += child->getWidth() + spacing;
     }
   }
 }
@@ -135,6 +148,8 @@ void GUIComponent::setFittingMode(const GUIFittingMode fittingMode) {
 
 void GUIComponent::setScale(const float scale) { this->scale = scale; };
 
+void GUIComponent::setSpacing(const float spacing) { this->spacing = spacing; }
+
 void GUIComponent::setText(const std::string &text) { this->text = text; }
 
 void GUIComponent::setImage(const std::string &path) { image = path; }
@@ -170,6 +185,8 @@ bool GUIComponent::isCenteredTop() const { return centerTop; }
 GUIFittingMode GUIComponent::getFittingMode() const { return fittingMode; }
 
 float GUIComponent::getScale() const { return scale; }
+
+float GUIComponent::getSpacing() const { return spacing; }
 
 std::string GUIComponent::getText() const { return text; }
 
@@ -221,7 +238,7 @@ GUILayout GUIComponent::getLayout() const { return layout; }
 
 GUIElementType GUIComponent::getType() const { return type; }
 
-bool GUIComponent::isVisible() const { return visible; }
+bool GUIComponent::isVisible() const { return visible && !tempInvisible; }
 
 bool GUIComponent::isNavigable() const { return navigable; }
 

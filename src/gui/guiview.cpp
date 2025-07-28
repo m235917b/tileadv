@@ -7,7 +7,7 @@
 #include "utils/rendercontext.hpp"
 
 GUIView::GUIView(const RenderContext &renderContext)
-    : renderContext(renderContext), asciiGrey(), borderMargin(.02f) {}
+    : renderContext(renderContext), asciiGrey() {}
 
 void GUIView::drawGUIComponent(GUIComponent &component,
                                const std::string &selected) {
@@ -24,12 +24,10 @@ void GUIView::drawGUIComponent(GUIComponent &component,
     const auto screenHeight{renderContext.getScreenHeight()};
 
     const SDL_FRect rect{
-        posXParentAbs +
-            (node.getPosX() + borderMargin) * widthParent * screenWidth,
-        posYParentAbs +
-            (node.getPosY() + borderMargin) * heightParent * screenHeight,
-        (node.getWidth() - 2.f * borderMargin) * widthParent * screenWidth,
-        (node.getHeight() - 2.f * borderMargin) * heightParent * screenHeight};
+        posXParentAbs + node.getPosX() * widthParent * screenWidth,
+        posYParentAbs + node.getPosY() * heightParent * screenHeight,
+        node.getWidth() * widthParent * screenWidth,
+        node.getHeight() * heightParent * screenHeight};
 
     if (node.getBorder()) {
       SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
@@ -60,8 +58,8 @@ void GUIView::drawGUIComponent(GUIComponent &component,
 
     posXParentAbs = rect.x;
     posYParentAbs = rect.y;
-    widthParent = (node.getWidth() - 2.f * borderMargin) * widthParent;
-    heightParent = (node.getHeight() - 2.f * borderMargin) * heightParent;
+    widthParent = node.getWidth() * widthParent;
+    heightParent = node.getHeight() * heightParent;
 
     return true;
   }};

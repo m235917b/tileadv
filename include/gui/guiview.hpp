@@ -60,6 +60,4 @@ private:
   LTexture asciiGrey;
 
   std::unordered_map<std::string, LTexture> images;
-
-  float borderMargin;
 };

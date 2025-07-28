@@ -40,6 +40,7 @@ public:
   void setCenterTop(const bool center);
   void setFittingMode(const GUIFittingMode fittingMode);
   void setScale(const float scale);
+  void setSpacing(const float spacing);
   void setText(const std::string &text);
   void setImage(const std::string &path);
   void setLayout(const GUILayout layout);
@@ -58,6 +59,7 @@ public:
   bool isCenteredTop() const;
   GUIFittingMode getFittingMode() const;
   float getScale() const;
+  float getSpacing() const;
   std::string getText() const;
   std::string getImage() const;
   GUILayout getLayout() const;
@@ -85,11 +87,13 @@ private:
   bool centerTop;
   GUIFittingMode fittingMode;
   float scale;
+  float spacing;
 
   GUILayout layout;
   GUIElementType type;
 
   bool visible;
+  bool tempInvisible;
   bool navigable;
 
   std::map<std::string, std::unique_ptr<GUIComponent>> children;
