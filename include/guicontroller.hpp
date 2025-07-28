@@ -3,9 +3,10 @@
 #include "gui/guicontext.hpp"
 #include "staterunner.hpp"
 
-
 class RenderContext;
 struct SDL_Renderer;
+
+class Character;
 
 class GUIController : public StateRunner {
 public:
@@ -13,7 +14,7 @@ public:
 
   bool init();
 
-  void initGameMenus();
+  void initGameMenus(const Character &player);
 
   void keyDownListener(const SDL_Keycode key);
   void addKeyListener(const std::string &id, const SDL_Keycode key,

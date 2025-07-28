@@ -20,20 +20,18 @@ bool GUIContext::init() {
   return guiView.loadTextures(imagePaths);
 }
 
-void GUIContext::keyDownListener(const SDL_Keycode key) {
-  if (focusBuffer.empty()) {
+void GUIContext::navigate(GUIComponent &component, SDL_Keycode key) {
+  if (!component.isNavigable()) {
     return;
   }
 
-  auto selectedFrame{focusBuffer.back().second};
-
   switch (key) {
   case SDLK_RETURN:
-    focusBuffer.back().second = descendSingleChildren(selectedFrame);
+    focusBuffer.back().second = descendSingleChildren(component);
     break;
 
   case SDLK_BACKSPACE:
-    focusBuffer.back().second = ascendSingleParents(selectedFrame);
+    focusBuffer.back().second = ascendSingleParents(component);
     return;
 
   case SDLK_TAB:
@@ -41,45 +39,53 @@ void GUIContext::keyDownListener(const SDL_Keycode key) {
     break;
 
   case SDLK_LEFT: {
-    if (selectedFrame->getParent() &&
-        selectedFrame->getParent()->getLayout() != GUILayout::VERTICAL) {
+    if (component.getParent() &&
+        component.getParent()->getLayout() != GUILayout::VERTICAL) {
       auto nextSelected{
-          selectedFrame->getParent()->getPreviousChild(selectedFrame->getId())};
+          component.getParent()->getPreviousChild(component.getId())};
       focusBuffer.back().second = nextSelected;
     }
     break;
   }
 
   case SDLK_RIGHT: {
-    if (selectedFrame->getParent() &&
-        selectedFrame->getParent()->getLayout() != GUILayout::VERTICAL) {
-      auto nextSelected{
-          selectedFrame->getParent()->getNextChild(selectedFrame->getId())};
+    if (component.getParent() &&
+        component.getParent()->getLayout() != GUILayout::VERTICAL) {
+      auto nextSelected{component.getParent()->getNextChild(component.getId())};
       focusBuffer.back().second = nextSelected;
     }
     break;
   }
 
   case SDLK_UP: {
-    if (selectedFrame->getParent() &&
-        selectedFrame->getParent()->getLayout() == GUILayout::VERTICAL) {
+    if (component.getParent() &&
+        component.getParent()->getLayout() == GUILayout::VERTICAL) {
       auto nextSelected{
-          selectedFrame->getParent()->getPreviousChild(selectedFrame->getId())};
+          component.getParent()->getPreviousChild(component.getId())};
       focusBuffer.back().second = nextSelected;
     }
     break;
   }
 
   case SDLK_DOWN: {
-    if (selectedFrame->getParent() &&
-        selectedFrame->getParent()->getLayout() == GUILayout::VERTICAL) {
-      auto nextSelected{
-          selectedFrame->getParent()->getNextChild(selectedFrame->getId())};
+    if (component.getParent() &&
+        component.getParent()->getLayout() == GUILayout::VERTICAL) {
+      auto nextSelected{component.getParent()->getNextChild(component.getId())};
       focusBuffer.back().second = nextSelected;
     }
     break;
   }
   }
+}
+
+void GUIContext::keyDownListener(const SDL_Keycode key) {
+  if (focusBuffer.empty()) {
+    return;
+  }
+
+  auto selectedFrame{focusBuffer.back().second};
+
+  navigate(*selectedFrame, key);
 
   for (auto component{selectedFrame}; component;
        component = component->getParent()) {
@@ -149,7 +155,7 @@ void GUIContext::setComponentVisible(const std::string &id,
   } else {
     if (!component->getParent()) {
       this->focusBuffer.push_back(
-          {component, descendSingleChildren(component)});
+          {component, descendSingleChildren(*component)});
     }
   }
 }
@@ -174,9 +180,27 @@ void GUIContext::selectComponent(const std::string &id) {
 }
 
 void GUIContext::rotateFocus(const bool down) {
-  std::rotate(focusBuffer.begin(),
-              down ? focusBuffer.begin() + 1 : focusBuffer.end() - 1,
-              focusBuffer.end());
+  auto rotate_to =
+      down ? std::find_if(focusBuffer.rbegin(), focusBuffer.rend(),
+                          [](const auto &selectedPair) {
+                            return selectedPair.second->isNavigable();
+                          })
+                 .base()
+           : std::find_if(focusBuffer.begin(), focusBuffer.end(),
+                          [](const auto &selectedPair) {
+                            return selectedPair.second->isNavigable();
+                          });
+
+  if (!down) {
+    if (rotate_to != focusBuffer.end() &&
+        rotate_to->second->getId() != focusBuffer.back().second->getId()) {
+      ++rotate_to;
+    } else {
+      return;
+    }
+  }
+
+  std::rotate(focusBuffer.begin(), rotate_to, focusBuffer.end());
 }
 
 void GUIContext::update() {
@@ -213,14 +237,15 @@ void GUIContext::updateLayout() {
 
 void GUIContext::drawGUI() {
   for (auto &[focussed, selected] : focusBuffer) {
-    guiView.drawGUIComponent(
-        *focussed,
-        focusBuffer.empty() ? "" : focusBuffer.back().second->getId());
+    guiView.drawGUIComponent(*focussed,
+                             !focusBuffer.back().second->isNavigable()
+                                 ? ""
+                                 : focusBuffer.back().second->getId());
   }
 }
 
-GUIComponent *GUIContext::descendSingleChildren(GUIComponent *component) {
-  GUIComponent *descendant{component};
+GUIComponent *GUIContext::descendSingleChildren(GUIComponent &component) {
+  GUIComponent *descendant{&component};
 
   for (; descendant->numberOfChildren() == 1;
        descendant = descendant->getNextChild(""))
@@ -231,12 +256,12 @@ GUIComponent *GUIContext::descendSingleChildren(GUIComponent *component) {
   return firstChild ? firstChild : descendant;
 }
 
-GUIComponent *GUIContext::ascendSingleParents(GUIComponent *component) {
-  if (!component->getParent() || !component->getParent()->getParent()) {
-    return component;
+GUIComponent *GUIContext::ascendSingleParents(GUIComponent &component) {
+  if (!component.getParent() || !component.getParent()->getParent()) {
+    return &component;
   }
 
-  GUIComponent *predecessor{component->getParent()};
+  GUIComponent *predecessor{component.getParent()};
 
   for (; predecessor->getParent() && predecessor->getParent()->getParent() &&
          predecessor->getParent()->numberOfChildren() == 1;

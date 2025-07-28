@@ -10,7 +10,7 @@ GameController::GameController(View &view, GUIController &guiController)
   characters.push_back(this->player);
   actors.push_back(std::move(player));
 
-  guiController.initGameMenus();
+  guiController.initGameMenus(*this->player);
 }
 
 int GameController::run() {

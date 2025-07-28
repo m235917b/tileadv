@@ -4,6 +4,8 @@
 #include "guicontroller.hpp"
 #include "utils/rendercontext.hpp"
 
+#include "model/character.hpp"
+
 GUIController::GUIController(const RenderContext &renderContext)
     : guiContext(renderContext) {
   // Initialize main menu elements
@@ -45,7 +47,7 @@ GUIController::GUIController(const RenderContext &renderContext)
 
 bool GUIController::init() { return guiContext.init(); }
 
-void GUIController::initGameMenus() {
+void GUIController::initGameMenus(const Character &player) {
   auto characterMenu{
       std::make_unique<GUIComponent>("char_menu", 0.f, 0.f, 1.f, 1.f)};
   characterMenu->setVisible(false);
@@ -102,8 +104,12 @@ void GUIController::initGameMenus() {
 
   auto line1{std::make_unique<GUIComponent>("line_1", 0.f, 0.f, 1.0f, .3f)};
   line1->setType(GUIElementType::ELEMENT);
-  line1->setText("Line 1");
+  line1->setText("(0, 0)");
   line1->setScale(.8f);
+  line1->setUpdateListener([&player](GUIComponent &component) {
+    component.setText("(" + std::to_string(player.getPosX()) + ", " +
+                      std::to_string(player.getPosY()) + ")");
+  });
 
   auto line2{std::make_unique<GUIComponent>("line_2", 0.f, 0.f, 1.f, .3f)};
   line2->setType(GUIElementType::ELEMENT);
@@ -148,6 +154,35 @@ void GUIController::initGameMenus() {
   characterMenu->addChild(std::move(characterMenuContainer3));
 
   guiContext.addComponent(std::move(characterMenu));
+
+  auto statusBar{
+      std::make_unique<GUIComponent>("statusbar", 0.f, .9f, 1.f, .1f)};
+  statusBar->setLayout(GUILayout::HORIZONTAL);
+  statusBar->setCenterTop(true);
+  statusBar->setCenterLeft(true);
+  statusBar->setFittingMode(GUIFittingMode::CLIP);
+  statusBar->setNavigable(false);
+  auto status1{std::make_unique<GUIComponent>("1_status", 0.f, 0.f, .5f, 1.f)};
+  status1->setText("Status 1");
+  status1->setScale(.5f);
+  status1->setCenterLeft(true);
+  status1->setCenterTop(true);
+  status1->setFittingMode(GUIFittingMode::CLIP);
+  status1->setNavigable(false);
+  statusBar->addChild(std::move(status1));
+  auto status2{std::make_unique<GUIComponent>("2_status", 0.f, 0.f, .5f, 1.f)};
+  status2->setUpdateListener([&player](GUIComponent &component) {
+    component.setText("Position: (" + std::to_string(player.getPosX()) + ", " +
+                      std::to_string(player.getPosY()) + ")");
+  });
+  status2->setScale(.5f);
+  status2->setCenterLeft(true);
+  status2->setCenterTop(true);
+  status2->setFittingMode(GUIFittingMode::CLIP);
+  status2->setNavigable(false);
+  statusBar->addChild(std::move(status2));
+  guiContext.addComponent(std::move(statusBar));
+  guiContext.setComponentVisible("statusbar");
 }
 
 void GUIController::keyDownListener(const SDL_Keycode key) {

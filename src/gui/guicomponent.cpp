@@ -7,8 +7,8 @@ GUIComponent::GUIComponent(const std::string &id)
       background(false), centerLeft(false), centerTop(false),
       fittingMode(GUIFittingMode::HIDE), scale(1.f),
       layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
-      visible(true), children(), updateListener(), keyListeners(), text(""),
-      image(""), parent(nullptr), root(nullptr) {}
+      visible(true), navigable(true), children(), updateListener(),
+      keyListeners(), text(""), image(""), parent(nullptr), root(this) {}
 
 GUIComponent::GUIComponent(const std::string &id, const float posX,
                            const float posY, const float width,
@@ -17,8 +17,8 @@ GUIComponent::GUIComponent(const std::string &id, const float posX,
       border(false), background(false), centerLeft(false), centerTop(false),
       fittingMode(GUIFittingMode::HIDE), scale(1.f),
       layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
-      visible(true), children(), updateListener(), keyListeners(), text(""),
-      image(""), parent(nullptr), root(nullptr) {}
+      visible(true), navigable(true), children(), updateListener(),
+      keyListeners(), text(""), image(""), parent(nullptr), root(this) {}
 
 void GUIComponent::addChild(std::unique_ptr<GUIComponent> child) {
   child->parent = this;
@@ -32,7 +32,7 @@ bool GUIComponent::removeChild(const std::string &id) {
 
 void GUIComponent::update() {
   if (updateListener) {
-    updateListener();
+    updateListener(*this);
   }
 }
 
@@ -111,7 +111,8 @@ void GUIComponent::setWidth(const float width) { this->width = width; }
 
 void GUIComponent::setHeight(const float height) { this->height = height; }
 
-void GUIComponent::setUpdateListener(std::function<void()> listener) {
+void GUIComponent::setUpdateListener(
+    std::function<void(GUIComponent &component)> listener) {
   updateListener = std::move(listener);
 }
 
@@ -143,6 +144,10 @@ void GUIComponent::setLayout(const GUILayout layout) { this->layout = layout; }
 void GUIComponent::setType(const GUIElementType type) { this->type = type; }
 
 void GUIComponent::setVisible(const bool visible) { this->visible = visible; }
+
+void GUIComponent::setNavigable(const bool navigable) {
+  this->navigable = navigable;
+}
 
 std::string GUIComponent::getId() const { return id; }
 
@@ -217,6 +222,8 @@ GUILayout GUIComponent::getLayout() const { return layout; }
 GUIElementType GUIComponent::getType() const { return type; }
 
 bool GUIComponent::isVisible() const { return visible; }
+
+bool GUIComponent::isNavigable() const { return navigable; }
 
 bool GUIComponent::isDescendant(const std::string &id) {
   return this->id == id ||

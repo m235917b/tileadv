@@ -26,7 +26,7 @@ public:
   void update();
   void updateLayout();
   void keyDownListener(const SDL_Keycode key);
-  void setUpdateListener(std::function<void()> listener);
+  void setUpdateListener(std::function<void(GUIComponent &component)> listener);
   void addKeyListener(const SDL_Keycode key, std::function<void()> listener);
   void forEachChild(std::function<void(GUIComponent &child)> action);
 
@@ -45,6 +45,7 @@ public:
   void setLayout(const GUILayout layout);
   void setType(const GUIElementType type);
   void setVisible(const bool visible);
+  void setNavigable(const bool navigable);
 
   std::string getId() const;
   float getPosX() const;
@@ -62,6 +63,7 @@ public:
   GUILayout getLayout() const;
   GUIElementType getType() const;
   bool isVisible() const;
+  bool isNavigable() const;
   GUIComponent *getParent();
   GUIComponent *getNextChild(const std::string &id);
   GUIComponent *getPreviousChild(const std::string &id);
@@ -88,10 +90,11 @@ private:
   GUIElementType type;
 
   bool visible;
+  bool navigable;
 
   std::map<std::string, std::unique_ptr<GUIComponent>> children;
 
-  std::function<void()> updateListener;
+  std::function<void(GUIComponent &component)> updateListener;
   std::unordered_map<SDL_Keycode, std::function<void()>> keyListeners;
 
   std::string text;

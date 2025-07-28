@@ -41,6 +41,8 @@ private:
 
   std::unordered_map<std::string, GUIComponent *> lookup;
 
-  GUIComponent *descendSingleChildren(GUIComponent *component);
-  GUIComponent *ascendSingleParents(GUIComponent *component);
+  GUIComponent *descendSingleChildren(GUIComponent &component);
+  GUIComponent *ascendSingleParents(GUIComponent &component);
+
+  void navigate(GUIComponent &component, SDL_Keycode key);
 };
