@@ -56,6 +56,8 @@ public:
   void allocateLayoutCache(const size_t size);
   void recomputeLayoutCache(GUIComponent &component);
 
+  GUIComponent *getHitComponent(const float posX, const float posY);
+
 private:
   const RenderContext &renderContext;
   LTexture asciiGrey;

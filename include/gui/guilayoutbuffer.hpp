@@ -22,9 +22,37 @@ public:
 
   template <typename Func>
     requires std::invocable<Func, GUILayoutData &>
-  void forEach(Func &&action) {
-    for (auto i{0}; i < head; ++i) {
-      std::invoke(std::forward<Func>(action), buffer[i]);
+  void forEach(Func &&action, bool reverse = false) {
+    if (!reverse) {
+      for (auto i{0}; i < head; ++i) {
+        std::invoke(std::forward<Func>(action), buffer[i]);
+      }
+    } else {
+      for (auto i{head - 1}; i >= 0; --i) {
+        std::invoke(std::forward<Func>(action), buffer[i]);
+      }
+    }
+  }
+
+  template <typename Func>
+    requires std::invocable<Func, GUILayoutData &>
+  void forEach(Func &&action, bool &stop, bool reverse = false) {
+    if (!reverse) {
+      for (auto i{0}; i < head; ++i) {
+        if (stop) {
+          return;
+        }
+
+        std::invoke(std::forward<Func>(action), buffer[i]);
+      }
+    } else {
+      for (auto i{head - 1}; i >= 0; --i) {
+        if (stop) {
+          return;
+        }
+
+        std::invoke(std::forward<Func>(action), buffer[i]);
+      }
     }
   }
 

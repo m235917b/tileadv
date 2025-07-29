@@ -36,6 +36,15 @@ int ApplicationStateController::run() {
   guiController.addKeyListener("3_exit", SDLK_RETURN,
                                [&run]() { run = false; });
 
+  guiController.addMouseButtonListener("2_play", SDL_BUTTON_LEFT, [this]() {
+    currentState = ApplicationState::GAMEPLAY;
+    guiController.setMainMenuVisible(false);
+    gameController.setRunning(true);
+  });
+
+  guiController.addMouseButtonListener("3_exit", SDL_BUTTON_LEFT,
+                                       [&run]() { run = false; });
+
   guiController.setMainMenuVisible(true);
 
   SDL_Event e;
@@ -89,14 +98,17 @@ int ApplicationStateController::run() {
         break;
 
       case SDL_EVENT_MOUSE_MOTION: {
-        float *posX{nullptr};
-        float *posY{nullptr};
-        SDL_GetMouseState(posX, posY);
-        if (posX && posY) {
-          guiController.mouseMotionListener(*posX, *posY);
-        }
+        float posX;
+        float posY;
+        SDL_GetMouseState(&posX, &posY);
+        guiController.mouseMotionListener(posX, posY);
         break;
       }
+
+      case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        guiController.mouseButtonDownListener(
+            SDL_GetMouseState(nullptr, nullptr));
+        break;
 
       default:
         break;

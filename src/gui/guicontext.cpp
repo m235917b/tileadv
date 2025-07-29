@@ -94,9 +94,19 @@ void GUIContext::keyDownListener(const SDL_Keycode key) {
 }
 
 void GUIContext::mouseMotionListener(const float posX, const float posY) {
-  /*for (const auto &[_, component] : lookup) {
-    if (posX >= )
-  }*/
+  const auto component{guiView.getHitComponent(posX, posY)};
+
+  if (component) {
+    selectComponent(component->getId());
+  }
+}
+
+void GUIContext::mouseButtonDownListener(const SDL_MouseButtonFlags button) {
+  if (focusBuffer.empty() || !focusBuffer.back().second->isNavigable()) {
+    return;
+  }
+
+  focusBuffer.back().second->mouseButtonDownListener(button);
 }
 
 void GUIContext::addKeyListener(const std::string &id, const SDL_Keycode key,
@@ -105,6 +115,16 @@ void GUIContext::addKeyListener(const std::string &id, const SDL_Keycode key,
 
   if (component != lookup.end()) {
     component->second->addKeyListener(key, listener);
+  }
+}
+
+void GUIContext::addMouseButtonListener(const std::string &id,
+                                        const SDL_MouseButtonFlags button,
+                                        std::function<void()> listener) {
+  auto component{lookup.find(id)};
+
+  if (component != lookup.end()) {
+    component->second->addMouseButtonListener(button, listener);
   }
 }
 

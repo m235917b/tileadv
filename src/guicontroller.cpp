@@ -197,9 +197,19 @@ void GUIController::mouseMotionListener(const float posX, const float posY) {
   guiContext.mouseMotionListener(posX, posY);
 }
 
+void GUIController::mouseButtonDownListener(const SDL_MouseButtonFlags button) {
+  guiContext.mouseButtonDownListener(button);
+}
+
 void GUIController::addKeyListener(const std::string &id, const SDL_Keycode key,
                                    std::function<void()> listener) {
   guiContext.addKeyListener(id, key, listener);
+}
+
+void GUIController::addMouseButtonListener(const std::string &id,
+                                           const SDL_MouseButtonFlags button,
+                                           std::function<void()> listener) {
+  guiContext.addMouseButtonListener(id, button, listener);
 }
 
 void GUIController::setMainMenuVisible(const bool visible) {

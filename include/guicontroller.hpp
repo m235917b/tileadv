@@ -18,9 +18,12 @@ public:
 
   void keyDownListener(const SDL_Keycode key);
   void mouseMotionListener(const float posX, const float posY);
-  void mouseButtonListener(const SDL_MouseButtonFlags button);
+  void mouseButtonDownListener(const SDL_MouseButtonFlags button);
   void addKeyListener(const std::string &id, const SDL_Keycode key,
                       std::function<void()> listener);
+  void addMouseButtonListener(const std::string &id,
+                              const SDL_MouseButtonFlags button,
+                              std::function<void()> listener);
 
   void setMainMenuVisible(const bool visible);
   void setCharacterMenuVisible(const bool visible);

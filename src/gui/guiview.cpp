@@ -16,9 +16,6 @@ void GUIView::drawGUI(const std::string &selected) {
     const auto component = data.component;
     const auto rect = data.layout;
 
-    SDL_Log("%s, %f, %f, %f, %f", component->getId().data(), rect.x, rect.y,
-            rect.w, rect.h);
-
     if (component->getBorder()) {
       SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
       SDL_RenderRect(&renderer, &rect);
@@ -174,4 +171,21 @@ void GUIView::recomputeLayoutCache(GUIComponent &component) {
         return true;
       },
       0.f, 0.f, 1.f, 1.f);
+}
+
+GUIComponent *GUIView::getHitComponent(const float posX, const float posY) {
+  auto stop{false};
+  GUIComponent *component{nullptr};
+
+  layoutBuffer.forEach(
+      [&posX, &posY, &stop, &component](GUILayoutData &data) {
+        if (posX >= data.layout.x && posX <= data.layout.x + data.layout.w &&
+            posY >= data.layout.y && posY <= data.layout.y + data.layout.h) {
+          component = data.component;
+          stop = true;
+        }
+      },
+      stop, true);
+
+  return component;
 }

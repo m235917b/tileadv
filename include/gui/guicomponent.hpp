@@ -27,8 +27,11 @@ public:
   void update();
   void updateLayout();
   void keyDownListener(const SDL_Keycode key);
+  void mouseButtonDownListener(const SDL_MouseButtonFlags button);
   void setUpdateListener(std::function<void(GUIComponent &component)> listener);
   void addKeyListener(const SDL_Keycode key, std::function<void()> listener);
+  void addMouseButtonListener(const SDL_MouseButtonFlags button,
+                              std::function<void()> listener);
 
   template <typename Func>
     requires std::invocable<Func, GUIComponent &>
@@ -108,10 +111,14 @@ private:
 
   std::function<void(GUIComponent &component)> updateListener;
   std::unordered_map<SDL_Keycode, std::function<void()>> keyListeners;
+  std::unordered_map<SDL_MouseButtonFlags, std::function<void()>>
+      mouseButtonListeners;
 
   std::string text;
   std::string image;
 
   GUIComponent *parent;
   GUIComponent *root;
+
+  void setRoot(GUIComponent *root);
 };

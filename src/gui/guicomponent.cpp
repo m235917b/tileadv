@@ -8,8 +8,8 @@ GUIComponent::GUIComponent(const std::string &id)
       fittingMode(GUIFittingMode::HIDE), scale(1.f), spacing(0.f),
       layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
       visible(true), tempInvisible(false), navigable(true), children(),
-      updateListener(), keyListeners(), text(""), image(""), parent(nullptr),
-      root(this) {}
+      updateListener(), keyListeners(), mouseButtonListeners(), text(""),
+      image(""), parent(nullptr), root(this) {}
 
 GUIComponent::GUIComponent(const std::string &id, const float posX,
                            const float posY, const float width,
@@ -19,13 +19,13 @@ GUIComponent::GUIComponent(const std::string &id, const float posX,
       fittingMode(GUIFittingMode::HIDE), scale(1.f), spacing(0.f),
       layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
       visible(true), tempInvisible(false), navigable(true), children(),
-      updateListener(), keyListeners(), text(""), image(""), parent(nullptr),
-      root(this) {}
+      updateListener(), keyListeners(), mouseButtonListeners(), text(""),
+      image(""), parent(nullptr), root(this) {}
 
 void GUIComponent::addChild(std::unique_ptr<GUIComponent> child) {
   child->parent = this;
-  child->root = parent ? this->root : this;
   children.emplace(child->getId(), std::move(child));
+  setRoot(parent ? root : this);
 }
 
 bool GUIComponent::removeChild(const std::string &id) {
@@ -109,6 +109,14 @@ void GUIComponent::keyDownListener(const SDL_Keycode key) {
   }
 }
 
+void GUIComponent::mouseButtonDownListener(const SDL_MouseButtonFlags button) {
+  const auto it{mouseButtonListeners.find(button)};
+
+  if (it != mouseButtonListeners.end()) {
+    it->second();
+  }
+}
+
 void GUIComponent::setPosX(const float posX) { this->posX = posX; }
 
 void GUIComponent::setPosY(const float posY) { this->posY = posY; }
@@ -125,6 +133,11 @@ void GUIComponent::setUpdateListener(
 void GUIComponent::addKeyListener(const SDL_Keycode key,
                                   std::function<void()> listener) {
   keyListeners[key] = std::move(listener);
+}
+
+void GUIComponent::addMouseButtonListener(const SDL_MouseButtonFlags button,
+                                          std::function<void()> listener) {
+  mouseButtonListeners[button] = std::move(listener);
 }
 
 void GUIComponent::setBorder(const bool visible) { border = visible; }
@@ -247,4 +260,12 @@ bool GUIComponent::isDescendant(const std::string &id) {
   }
 
   return false;
+}
+
+void GUIComponent::setRoot(GUIComponent *root) {
+  this->root = root;
+
+  for (auto &[_, child] : children) {
+    child->setRoot(root);
+  }
 }
