@@ -11,7 +11,7 @@ void GUILayoutBuffer::allocate(const size_t size) {
 }
 
 bool GUILayoutBuffer::push(GUILayoutData data) {
-  if (head < buffer.size()) {
+  if (head < static_cast<int>(buffer.size())) {
     buffer[head++] = data;
 
     return true;

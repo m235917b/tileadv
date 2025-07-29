@@ -43,6 +43,8 @@ public:
 private:
   GUIView guiView;
 
+  bool dirtyCache;
+
   std::vector<std::unique_ptr<GUIComponent>> components;
   std::vector<std::pair<GUIComponent *, GUIComponent *>> focusBuffer;
 
