@@ -88,6 +88,16 @@ int ApplicationStateController::run() {
 
         break;
 
+      case SDL_EVENT_MOUSE_MOTION: {
+        float *posX{nullptr};
+        float *posY{nullptr};
+        SDL_GetMouseState(posX, posY);
+        if (posX && posY) {
+          guiController.mouseMotionListener(*posX, *posY);
+        }
+        break;
+      }
+
       default:
         break;
       }

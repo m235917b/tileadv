@@ -7,6 +7,7 @@
 
 #include <SDL3/SDL.h>
 
+#include "gui/guilayoutbuffer.hpp"
 #include "utils/ltexture.hpp"
 #include "utils/rendercontext.hpp"
 
@@ -44,20 +45,20 @@ public:
     return true;
   }
 
-  void drawGUIComponent(GUIComponent &component, const std::string &selected);
-  void drawText(const float posX, const float posY, const float width,
-                const float height, const std::string &text, const float size,
+  void drawGUI(const std::string &selected);
+  void drawText(const SDL_FRect rect, const std::string &text, const float size,
                 GUIFittingMode fittingMode, const bool centerLeft,
                 const bool centerTop);
-  void drawImage(const float posX, const float posY, const float width,
-                 const float height, const std::string &path, const float size,
-                 GUIFittingMode fittingMode, const bool centerLeft,
-                 const bool centerTop);
+  void drawImage(const SDL_FRect rect, const std::string &path,
+                 const float size, GUIFittingMode fittingMode,
+                 const bool centerLeft, const bool centerTop);
+
+  void allocateLayoutCache(const size_t size);
+  void recomputeLayoutCache(GUIComponent &component);
 
 private:
   const RenderContext &renderContext;
-
   LTexture asciiGrey;
-
   std::unordered_map<std::string, LTexture> images;
+  GUILayoutBuffer layoutBuffer;
 };

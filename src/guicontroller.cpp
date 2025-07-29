@@ -193,6 +193,10 @@ void GUIController::keyDownListener(const SDL_Keycode key) {
   guiContext.keyDownListener(key);
 }
 
+void GUIController::mouseMotionListener(const float posX, const float posY) {
+  guiContext.mouseMotionListener(posX, posY);
+}
+
 void GUIController::addKeyListener(const std::string &id, const SDL_Keycode key,
                                    std::function<void()> listener) {
   guiContext.addKeyListener(id, key, listener);

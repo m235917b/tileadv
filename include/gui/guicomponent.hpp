@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <functional>
 #include <map>
 #include <memory>
@@ -28,7 +29,14 @@ public:
   void keyDownListener(const SDL_Keycode key);
   void setUpdateListener(std::function<void(GUIComponent &component)> listener);
   void addKeyListener(const SDL_Keycode key, std::function<void()> listener);
-  void forEachChild(std::function<void(GUIComponent &child)> action);
+
+  template <typename Func>
+    requires std::invocable<Func, GUIComponent &>
+  void forEachChild(Func &&action) {
+    for (const auto &[_, child] : children) {
+      std::invoke(std::forward<Func>(action), *child);
+    }
+  }
 
   void setPosX(const float posX);
   void setPosY(const float posY);

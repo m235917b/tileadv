@@ -93,6 +93,12 @@ void GUIContext::keyDownListener(const SDL_Keycode key) {
   }
 }
 
+void GUIContext::mouseMotionListener(const float posX, const float posY) {
+  /*for (const auto &[_, component] : lookup) {
+    if (posX >= )
+  }*/
+}
+
 void GUIContext::addKeyListener(const std::string &id, const SDL_Keycode key,
                                 std::function<void()> listener) {
   auto component{lookup.find(id)};
@@ -112,12 +118,21 @@ void GUIContext::addComponent(std::unique_ptr<GUIComponent> component) {
 }
 
 bool GUIContext::removeComponent(const std::string &id) {
-  lookup.erase(id);
+  const auto &component{lookup.find(id)};
 
-  std::erase_if(focusBuffer,
-                [&id](std::pair<GUIComponent *, GUIComponent *> focussedPair) {
-                  return focussedPair.second->getId() == id;
-                });
+  if (component == lookup.end()) {
+    return false;
+  }
+
+  std::erase_if(
+      focusBuffer,
+      [&component](std::pair<GUIComponent *, GUIComponent *> focussedPair) {
+        return component->second->isDescendant(focussedPair.second->getId());
+      });
+
+  std::erase_if(lookup, [&component](const auto &toDelete) {
+    return component->second->isDescendant(toDelete.first);
+  });
 
   return std::erase_if(components,
                        [&id](const std::unique_ptr<GUIComponent> &component) {
@@ -204,44 +219,39 @@ void GUIContext::rotateFocus(const bool down) {
 }
 
 void GUIContext::update() {
-  auto action{[](GUIComponent &node) {
-    if (!node.isVisible()) {
-      return false;
-    }
-
-    node.update();
-
-    return true;
-  }};
-
   for (auto &[focussed, _] : focusBuffer) {
-    GUITreeWalker::traverse(*focussed, action);
+    GUITreeWalker::traverse(*focussed, [](GUIComponent &node) {
+      if (!node.isVisible()) {
+        return false;
+      }
+
+      node.update();
+
+      return true;
+    });
   }
 }
 
 void GUIContext::updateLayout() {
-  auto action{[](GUIComponent &node) {
-    if (!node.isVisible()) {
-      return false;
-    }
-
-    node.updateLayout();
-
-    return true;
-  }};
-
   for (auto &[focussed, _] : focusBuffer) {
-    GUITreeWalker::traverse(*focussed, action);
+    GUITreeWalker::traverse(*focussed, [](GUIComponent &node) {
+      if (!node.isVisible()) {
+        return false;
+      }
+
+      node.updateLayout();
+
+      return true;
+    });
   }
+
+  recomputeLayoutCache();
 }
 
 void GUIContext::drawGUI() {
-  for (auto &[focussed, selected] : focusBuffer) {
-    guiView.drawGUIComponent(*focussed,
-                             !focusBuffer.back().second->isNavigable()
-                                 ? ""
-                                 : focusBuffer.back().second->getId());
-  }
+  guiView.drawGUI(!focusBuffer.back().second->isNavigable()
+                      ? ""
+                      : focusBuffer.back().second->getId());
 }
 
 GUIComponent *GUIContext::descendSingleChildren(GUIComponent &component) {
@@ -269,4 +279,22 @@ GUIComponent *GUIContext::ascendSingleParents(GUIComponent &component) {
   };
 
   return predecessor;
+}
+
+GUIComponent *GUIContext::getComponent(std::string id) {
+  const auto &component{lookup.find(id)};
+
+  if (component != lookup.end()) {
+    return component->second;
+  }
+
+  return nullptr;
+}
+
+void GUIContext::recomputeLayoutCache() {
+  guiView.allocateLayoutCache(lookup.size());
+
+  for (auto &[focussed, _] : focusBuffer) {
+    guiView.recomputeLayoutCache(*focussed);
+  }
 }

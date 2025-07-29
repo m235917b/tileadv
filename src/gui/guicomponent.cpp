@@ -109,13 +109,6 @@ void GUIComponent::keyDownListener(const SDL_Keycode key) {
   }
 }
 
-void GUIComponent::forEachChild(
-    std::function<void(GUIComponent &child)> action) {
-  for (const auto &[_, child] : children) {
-    action(*child);
-  }
-}
-
 void GUIComponent::setPosX(const float posX) { this->posX = posX; }
 
 void GUIComponent::setPosY(const float posY) { this->posY = posY; }
@@ -243,7 +236,15 @@ bool GUIComponent::isVisible() const { return visible && !tempInvisible; }
 bool GUIComponent::isNavigable() const { return navigable; }
 
 bool GUIComponent::isDescendant(const std::string &id) {
-  return this->id == id ||
-         std::any_of(children.begin(), children.end(),
-                     [&id](const auto &pair) { return pair.first == id; });
+  if (this->id == id) {
+    return true;
+  }
+
+  for (const auto &[_, child] : children) {
+    if (child->isDescendant(id)) {
+      return true;
+    }
+  }
+
+  return false;
 }

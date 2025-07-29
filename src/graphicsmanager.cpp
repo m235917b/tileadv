@@ -23,10 +23,10 @@ bool GraphicsManmager::init() {
     return false;
   }
 
-  if (SDL_HideCursor() == false) {
+  /*if (SDL_HideCursor() == false) {
     SDL_Log("Could not hide cursor! SDL error: %s\n", SDL_GetError());
     return false;
-  }
+  }*/
 
   /*
   if(SDL_SetRenderVSync(renderer, 1) == false)

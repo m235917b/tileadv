@@ -19,6 +19,8 @@ public:
   bool init();
 
   void keyDownListener(const SDL_Keycode key);
+  void mouseMotionListener(const float posX, const float posY);
+  void mouseButtonListener(const SDL_MouseButtonFlags button);
   void addKeyListener(const std::string &id, const SDL_Keycode key,
                       std::function<void()> listener);
 
@@ -33,6 +35,8 @@ public:
   void updateLayout();
   void drawGUI();
 
+  GUIComponent *getComponent(std::string id);
+
 private:
   GUIView guiView;
 
@@ -45,4 +49,5 @@ private:
   GUIComponent *ascendSingleParents(GUIComponent &component);
 
   void navigate(GUIComponent &component, SDL_Keycode key);
+  void recomputeLayoutCache();
 };
