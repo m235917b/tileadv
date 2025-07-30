@@ -222,8 +222,6 @@ void GUIController::setCharacterMenuVisible(const bool visible) {
 
 int GUIController::run() {
   guiContext.update();
-  guiContext.updateLayout();
-  guiContext.drawGUI();
 
   return 0;
 }

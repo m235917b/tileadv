@@ -35,19 +35,17 @@ public:
   void rotateFocus(const bool down = false);
 
   void update();
-  void updateLayout();
-  void drawGUI();
 
   GUIComponent *getComponent(std::string id);
 
 private:
   GUIView guiView;
 
-  bool dirtyCache;
+  float mouseX;
+  float mouseY;
 
   std::vector<std::unique_ptr<GUIComponent>> components;
   std::vector<std::pair<GUIComponent *, GUIComponent *>> focusBuffer;
-
   std::unordered_map<std::string, GUIComponent *> lookup;
 
   GUIComponent *descendSingleChildren(GUIComponent &component);

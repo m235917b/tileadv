@@ -7,41 +7,95 @@
 #include "utils/rendercontext.hpp"
 
 GUIView::GUIView(const RenderContext &renderContext)
-    : renderContext(renderContext), asciiGrey(), layoutBuffer() {}
+    : renderContext(renderContext), asciiGrey() {}
 
-void GUIView::drawGUI(const std::string &selected) {
+bool GUIView::loadTextures(const std::vector<std::string> &texturePaths) {
+  SDL_Renderer &renderer{renderContext.getRenderer()};
+
+  SDL_SetRenderDrawBlendMode(&renderer, SDL_BLENDMODE_BLEND);
+
+  if (!asciiGrey.loadFromFile("guiassets/ascii_grey.png", renderer)) {
+    SDL_Log("Unable to load png image!\n");
+
+    return false;
+  }
+
+  for (const auto &path : texturePaths) {
+    if (images.try_emplace(path).second) {
+      if (!images[path].loadFromFile(path, renderer)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+GUIComponent *GUIView::drawAndHitTest(GUIComponent &component,
+                                      const std::string &selected,
+                                      const float mouseX, const float mouseY) {
   auto &renderer{renderContext.getRenderer()};
+  GUIComponent *hitComponent{nullptr};
 
-  layoutBuffer.forEach([&selected, &renderer, this](GUILayoutData data) {
-    const auto component = data.component;
-    const auto rect = data.layout;
+  GUITreeWalker::traverse(
+      component,
+      [this, selected, mouseX, mouseY, &renderer, &hitComponent](
+          GUIComponent &node, float &posXParentAbs, float &posYParentAbs,
+          float &widthParent, float &heightParent) {
+        if (!node.isVisible()) {
+          return false;
+        }
 
-    if (component->getBorder()) {
-      SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
-      SDL_RenderRect(&renderer, &rect);
-    }
+        const auto screenWidth{renderContext.getScreenWidth()};
+        const auto screenHeight{renderContext.getScreenHeight()};
 
-    if (component->getBackground()) {
-      SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
-      SDL_RenderFillRect(&renderer, &rect);
-    }
+        const SDL_FRect rect{
+            posXParentAbs + node.getPosX() * widthParent * screenWidth,
+            posYParentAbs + node.getPosY() * heightParent * screenHeight,
+            node.getWidth() * widthParent * screenWidth,
+            node.getHeight() * heightParent * screenHeight};
 
-    if (!component->getText().empty()) {
-      const auto text{(selected == component->getId() ? ">" : " ") +
-                      component->getText() + " "};
-      drawText(rect, text, component->getScale(), component->getFittingMode(),
-               component->isCenteredLeft(), component->isCenteredTop());
-    } else if (selected == component->getId()) {
-      SDL_SetRenderDrawColor(&renderer, 0xFF, 0x40, 0x40, 0x20);
-      SDL_RenderFillRect(&renderer, &rect);
-    }
+        if (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
+            mouseY <= rect.y + rect.h) {
+          hitComponent = &node;
+        }
 
-    if (!component->getImage().empty()) {
-      drawImage(rect, component->getImage(), component->getScale(),
-                component->getFittingMode(), component->isCenteredLeft(),
-                component->isCenteredTop());
-    }
-  });
+        if (node.getBorder()) {
+          SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
+          SDL_RenderRect(&renderer, &rect);
+        }
+
+        if (node.getBackground()) {
+          SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
+          SDL_RenderFillRect(&renderer, &rect);
+        }
+
+        if (!node.getText().empty()) {
+          const auto text{(selected == node.getId() ? ">" : " ") +
+                          node.getText() + " "};
+          drawText(rect, text, node.getScale(), node.getFittingMode(),
+                   node.isCenteredLeft(), node.isCenteredTop());
+        } else if (selected == node.getId()) {
+          SDL_SetRenderDrawColor(&renderer, 0xFF, 0x40, 0x40, 0x20);
+          SDL_RenderFillRect(&renderer, &rect);
+        }
+
+        if (!node.getImage().empty()) {
+          drawImage(rect, node.getImage(), node.getScale(),
+                    node.getFittingMode(), node.isCenteredLeft(),
+                    node.isCenteredTop());
+        }
+
+        posXParentAbs = rect.x;
+        posYParentAbs = rect.y;
+        widthParent = node.getWidth() * widthParent;
+        heightParent = node.getHeight() * heightParent;
+
+        return true;
+      },
+      0.f, 0.f, 1.f, 1.f);
+
+  return hitComponent;
 }
 
 void GUIView::drawText(const SDL_FRect rect, const std::string &text,
@@ -139,41 +193,7 @@ void GUIView::drawImage(const SDL_FRect rect, const std::string &path,
   }
 }
 
-void GUIView::allocateLayoutCache(const size_t size) {
-  layoutBuffer.allocate(size);
-}
-
-void GUIView::recomputeLayoutCache(GUIComponent &component) {
-  GUITreeWalker::traverse(
-      component,
-      [this](GUIComponent &node, float &posXParentAbs, float &posYParentAbs,
-             float &widthParent, float &heightParent) {
-        if (!node.isVisible()) {
-          return false;
-        }
-
-        const auto screenWidth{renderContext.getScreenWidth()};
-        const auto screenHeight{renderContext.getScreenHeight()};
-
-        const SDL_FRect rect{
-            posXParentAbs + node.getPosX() * widthParent * screenWidth,
-            posYParentAbs + node.getPosY() * heightParent * screenHeight,
-            node.getWidth() * widthParent * screenWidth,
-            node.getHeight() * heightParent * screenHeight};
-
-        layoutBuffer.push({&node, rect});
-
-        posXParentAbs = rect.x;
-        posYParentAbs = rect.y;
-        widthParent = node.getWidth() * widthParent;
-        heightParent = node.getHeight() * heightParent;
-
-        return true;
-      },
-      0.f, 0.f, 1.f, 1.f);
-}
-
-GUIComponent *GUIView::getHitComponent(const float posX, const float posY) {
+/*GUIComponent *GUIView::getHitComponent(const float posX, const float posY) {
   auto stop{false};
   GUIComponent *component{nullptr};
 
@@ -188,4 +208,4 @@ GUIComponent *GUIView::getHitComponent(const float posX, const float posY) {
       stop, true);
 
   return component;
-}
+}*/

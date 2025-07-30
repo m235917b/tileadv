@@ -6,13 +6,8 @@
 #include "gui/guitreewalker.hpp"
 #include "utils/rendercontext.hpp"
 
-constexpr float EPSILON = 0.001f;
-
-auto nearlyEqual = [](float a, float b) { return std::fabs(a - b) < EPSILON; };
-
 GUIContext::GUIContext(const RenderContext &renderContext)
-    : guiView(renderContext), dirtyCache(true), components(), focusBuffer(),
-      lookup() {}
+    : guiView(renderContext), components(), focusBuffer(), lookup() {}
 
 bool GUIContext::init() {
   std::vector<std::string> imagePaths{};
@@ -95,28 +90,14 @@ void GUIContext::keyDownListener(const SDL_Keycode key) {
 
   for (auto component{selectedFrame}; component;
        component = component->getParent()) {
-    const auto posX{component->getPosX()};
-    const auto posY{component->getPosY()};
-    const auto width{component->getWidth()};
-    const auto height{component->getHeight()};
 
     component->keyDownListener(key);
-
-    if (!nearlyEqual(posX, component->getPosX()) ||
-        !nearlyEqual(posY, component->getPosY()) ||
-        !nearlyEqual(width, component->getWidth()) ||
-        !nearlyEqual(height, component->getHeight())) {
-      dirtyCache = true;
-    }
   }
 }
 
 void GUIContext::mouseMotionListener(const float posX, const float posY) {
-  const auto component{guiView.getHitComponent(posX, posY)};
-
-  if (component) {
-    selectComponent(component->getId());
-  }
+  mouseX = posX;
+  mouseY = posY;
 }
 
 void GUIContext::mouseButtonDownListener(const SDL_MouseButtonFlags button) {
@@ -124,21 +105,7 @@ void GUIContext::mouseButtonDownListener(const SDL_MouseButtonFlags button) {
     return;
   }
 
-  auto node{focusBuffer.back().second};
-
-  const auto posX{node->getPosX()};
-  const auto posY{node->getPosY()};
-  const auto width{node->getWidth()};
-  const auto height{node->getHeight()};
-
-  node->mouseButtonDownListener(button);
-
-  if (!nearlyEqual(posX, node->getPosX()) ||
-      !nearlyEqual(posY, node->getPosY()) ||
-      !nearlyEqual(width, node->getWidth()) ||
-      !nearlyEqual(height, node->getHeight())) {
-    dirtyCache = true;
-  }
+  focusBuffer.back().second->mouseButtonDownListener(button);
 }
 
 void GUIContext::addKeyListener(const std::string &id, const SDL_Keycode key,
@@ -167,8 +134,6 @@ void GUIContext::addComponent(std::unique_ptr<GUIComponent> component) {
   });
 
   components.push_back(std::move(component));
-
-  dirtyCache = true;
 }
 
 bool GUIContext::removeComponent(const std::string &id) {
@@ -192,8 +157,6 @@ bool GUIContext::removeComponent(const std::string &id) {
                        [&id](const std::unique_ptr<GUIComponent> &component) {
                          return component->getId() == id;
                        });
-
-  dirtyCache = true;
 }
 
 void GUIContext::setComponentVisible(const std::string &id,
@@ -229,8 +192,6 @@ void GUIContext::setComponentVisible(const std::string &id,
           {component, descendSingleChildren(*component)});
     }
   }
-
-  dirtyCache = true;
 }
 
 void GUIContext::selectComponent(const std::string &id) {
@@ -273,69 +234,36 @@ void GUIContext::rotateFocus(const bool down) {
     }
   }
 
-  dirtyCache = true;
-
   std::rotate(focusBuffer.begin(), rotate_to, focusBuffer.end());
 }
 
 void GUIContext::update() {
   for (auto &[focussed, _] : focusBuffer) {
-    GUITreeWalker::traverse(*focussed, [this](GUIComponent &node) {
+    GUITreeWalker::traverse(*focussed, [](GUIComponent &node) {
       if (!node.isVisible()) {
         return false;
       }
-
-      const auto posX{node.getPosX()};
-      const auto posY{node.getPosY()};
-      const auto width{node.getWidth()};
-      const auto height{node.getHeight()};
 
       node.update();
-
-      if (!nearlyEqual(posX, node.getPosX()) ||
-          !nearlyEqual(posY, node.getPosY()) ||
-          !nearlyEqual(width, node.getWidth()) ||
-          !nearlyEqual(height, node.getHeight())) {
-        dirtyCache = true;
-      }
-
-      return true;
-    });
-  }
-}
-
-void GUIContext::updateLayout() {
-  for (auto &[focussed, _] : focusBuffer) {
-    GUITreeWalker::traverse(*focussed, [this](GUIComponent &node) {
-      if (!node.isVisible()) {
-        return false;
-      }
-
-      const auto posX{node.getPosX()};
-      const auto posY{node.getPosY()};
-      const auto width{node.getWidth()};
-      const auto height{node.getHeight()};
-
       node.updateLayout();
 
-      if (!nearlyEqual(posX, node.getPosX()) ||
-          !nearlyEqual(posY, node.getPosY()) ||
-          !nearlyEqual(width, node.getWidth()) ||
-          !nearlyEqual(height, node.getHeight())) {
-        dirtyCache = true;
-      }
-
       return true;
     });
+
+    const auto hitComponent{
+        guiView.drawAndHitTest(*focussed,
+                               !focusBuffer.back().second->isNavigable()
+                                   ? ""
+                                   : focusBuffer.back().second->getId(),
+                               mouseX, mouseY)};
+
+    if (hitComponent) {
+      selectComponent(hitComponent->getId());
+    }
   }
 
-  recomputeLayoutCache();
-}
-
-void GUIContext::drawGUI() {
-  guiView.drawGUI(!focusBuffer.back().second->isNavigable()
-                      ? ""
-                      : focusBuffer.back().second->getId());
+  mouseX = -1.f;
+  mouseY = -1.f;
 }
 
 GUIComponent *GUIContext::descendSingleChildren(GUIComponent &component) {
@@ -373,16 +301,4 @@ GUIComponent *GUIContext::getComponent(std::string id) {
   }
 
   return nullptr;
-}
-
-void GUIContext::recomputeLayoutCache() {
-  if (dirtyCache) {
-    guiView.allocateLayoutCache(lookup.size());
-
-    for (auto &[focussed, _] : focusBuffer) {
-      guiView.recomputeLayoutCache(*focussed);
-    }
-
-    dirtyCache = false;
-  }
 }

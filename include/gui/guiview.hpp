@@ -7,7 +7,6 @@
 
 #include <SDL3/SDL.h>
 
-#include "gui/guilayoutbuffer.hpp"
 #include "utils/ltexture.hpp"
 #include "utils/rendercontext.hpp"
 
@@ -21,31 +20,11 @@ class GUIView {
 public:
   GUIView(const RenderContext &renderContext);
 
-  template <std::ranges::input_range Range>
-    requires std::same_as<std::ranges::range_value_t<Range>, std::string>
-  bool loadTextures(const Range &texturePaths) {
-    SDL_Renderer &renderer{renderContext.getRenderer()};
+  bool loadTextures(const std::vector<std::string> &texturePaths);
 
-    SDL_SetRenderDrawBlendMode(&renderer, SDL_BLENDMODE_BLEND);
-
-    if (!asciiGrey.loadFromFile("guiassets/ascii_grey.png", renderer)) {
-      SDL_Log("Unable to load png image!\n");
-
-      return false;
-    }
-
-    for (const auto &path : texturePaths) {
-      if (images.try_emplace(path).second) {
-        if (!images[path].loadFromFile(path, renderer)) {
-          return false;
-        }
-      }
-    }
-
-    return true;
-  }
-
-  void drawGUI(const std::string &selected);
+  GUIComponent *drawAndHitTest(GUIComponent &component,
+                               const std::string &selected, const float mouseX,
+                               const float mouseY);
   void drawText(const SDL_FRect rect, const std::string &text, const float size,
                 GUIFittingMode fittingMode, const bool centerLeft,
                 const bool centerTop);
@@ -53,14 +32,8 @@ public:
                  const float size, GUIFittingMode fittingMode,
                  const bool centerLeft, const bool centerTop);
 
-  void allocateLayoutCache(const size_t size);
-  void recomputeLayoutCache(GUIComponent &component);
-
-  GUIComponent *getHitComponent(const float posX, const float posY);
-
 private:
   const RenderContext &renderContext;
   LTexture asciiGrey;
   std::unordered_map<std::string, LTexture> images;
-  GUILayoutBuffer layoutBuffer;
 };
