@@ -55,8 +55,8 @@ GUIComponent *GUIView::drawAndHitTest(GUIComponent &component,
             node.getWidth() * widthParent * screenWidth,
             node.getHeight() * heightParent * screenHeight};
 
-        if (mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
-            mouseY <= rect.y + rect.h) {
+        if (node.getParent() && mouseX >= rect.x && mouseX <= rect.x + rect.w &&
+            mouseY >= rect.y && mouseY <= rect.y + rect.h) {
           hitComponent = &node;
         }
 
