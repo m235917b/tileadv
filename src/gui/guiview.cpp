@@ -7,7 +7,7 @@
 #include "utils/rendercontext.hpp"
 
 GUIView::GUIView(const RenderContext &renderContext)
-    : renderContext(renderContext), asciiGrey() {}
+    : renderContext(renderContext), asciiGrey(), selectedColor(0x0000FF20) {}
 
 bool GUIView::loadTextures(const std::vector<std::string> &texturePaths) {
   SDL_Renderer &renderer{renderContext.getRenderer()};
@@ -55,28 +55,16 @@ GUIComponent *GUIView::drawAndHitTest(GUIComponent &component,
             node.getWidth() * widthParent * screenWidth,
             node.getHeight() * heightParent * screenHeight};
 
-        if (node.getParent() && mouseX >= rect.x && mouseX <= rect.x + rect.w &&
-            mouseY >= rect.y && mouseY <= rect.y + rect.h) {
+        if (node.getParent() && node.numberOfChildren() == 0 &&
+            mouseX >= rect.x && mouseX <= rect.x + rect.w && mouseY >= rect.y &&
+            mouseY <= rect.y + rect.h) {
           hitComponent = &node;
         }
 
-        if (node.getBorder()) {
-          SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
-          SDL_RenderRect(&renderer, &rect);
-        }
-
         if (node.getBackground()) {
-          SDL_SetRenderDrawColor(&renderer, 0x60, 0x60, 0x60, 0xFF);
-          SDL_RenderFillRect(&renderer, &rect);
-        }
-
-        if (!node.getText().empty()) {
-          const auto text{(selected == node.getId() ? ">" : " ") +
-                          node.getText() + " "};
-          drawText(rect, text, node.getScale(), node.getFittingMode(),
-                   node.isCenteredLeft(), node.isCenteredTop());
-        } else if (selected == node.getId()) {
-          SDL_SetRenderDrawColor(&renderer, 0xFF, 0x40, 0x40, 0x20);
+          const auto col{node.getBgColor()};
+          SDL_SetRenderDrawColor(&renderer, col >> 24 & 0xFF, col >> 16 & 0xFF,
+                                 col >> 8 & 0xFF, col & 0xFF);
           SDL_RenderFillRect(&renderer, &rect);
         }
 
@@ -84,6 +72,26 @@ GUIComponent *GUIView::drawAndHitTest(GUIComponent &component,
           drawImage(rect, node.getImage(), node.getScale(),
                     node.getFittingMode(), node.isCenteredLeft(),
                     node.isCenteredTop());
+        }
+
+        if (!node.getText().empty()) {
+          const auto text{(selected == node.getId() ? ">" : " ") +
+                          node.getText() + " "};
+          drawText(rect, text, node.getScale(), node.getFittingMode(),
+                   node.isCenteredLeft(), node.isCenteredTop(),
+                   node.getTextColor());
+        } else if (selected == node.getId()) {
+          SDL_SetRenderDrawColor(
+              &renderer, selectedColor >> 24 & 0xFF, selectedColor >> 16 & 0xFF,
+              selectedColor >> 8 & 0xFF, selectedColor & 0xFF);
+          SDL_RenderFillRect(&renderer, &rect);
+        }
+
+        if (node.getBorder()) {
+          const auto col{node.getBdColor()};
+          SDL_SetRenderDrawColor(&renderer, col >> 24 & 0xFF, col >> 16 & 0xFF,
+                                 col >> 8 & 0xFF, col & 0xFF);
+          SDL_RenderRect(&renderer, &rect);
         }
 
         posXParentAbs = rect.x;
@@ -100,7 +108,8 @@ GUIComponent *GUIView::drawAndHitTest(GUIComponent &component,
 
 void GUIView::drawText(const SDL_FRect rect, const std::string &text,
                        const float size, GUIFittingMode fittingMode,
-                       const bool centerLeft, const bool centerTop) {
+                       const bool centerLeft, const bool centerTop,
+                       const uint32_t color) {
   auto &renderer{renderContext.getRenderer()};
 
   const auto charWidth{fittingMode == GUIFittingMode::SCALE
@@ -137,7 +146,8 @@ void GUIView::drawText(const SDL_FRect rect, const std::string &text,
 
     if (textPosX + charWidthClipped <= rect.x + rect.w &&
         textPosY + charHeightClipped <= rect.y + rect.h) {
-      SDL_SetRenderDrawColor(&renderer, 0x50, 0x50, 0x50, 0xFF);
+      SDL_SetRenderDrawColor(&renderer, color >> 24 & 0xFF, color >> 16 & 0xFF,
+                             color >> 8 & 0xFF, color & 0xFF);
       asciiGrey.render(textPosX, textPosY, &spriteCoords, charWidthClipped,
                        charHeightClipped, renderer);
     }
@@ -192,20 +202,3 @@ void GUIView::drawImage(const SDL_FRect rect, const std::string &path,
                            imgHeightClipped, renderer);
   }
 }
-
-/*GUIComponent *GUIView::getHitComponent(const float posX, const float posY) {
-  auto stop{false};
-  GUIComponent *component{nullptr};
-
-  layoutBuffer.forEach(
-      [&posX, &posY, &stop, &component](GUILayoutData &data) {
-        if (posX >= data.layout.x && posX <= data.layout.x + data.layout.w &&
-            posY >= data.layout.y && posY <= data.layout.y + data.layout.h) {
-          component = data.component;
-          stop = true;
-        }
-      },
-      stop, true);
-
-  return component;
-}*/

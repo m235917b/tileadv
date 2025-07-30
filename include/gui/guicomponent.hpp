@@ -16,6 +16,19 @@ enum class GUIElementType { CONTAINER, ELEMENT };
 
 enum class GUIFittingMode { CLIP, SCALE, HIDE };
 
+struct GUIStyle {
+  uint32_t backgroundColor;
+  uint32_t borderColor;
+  uint32_t textColor;
+  bool border;
+  bool background;
+  bool centerLeft;
+  bool centerTop;
+  GUIFittingMode fittingMode;
+  float scale;
+  float spacing;
+};
+
 class GUIComponent {
 public:
   GUIComponent(const std::string &id);
@@ -45,6 +58,10 @@ public:
   void setPosY(const float posY);
   void setWidth(const float width);
   void setHeight(const float height);
+  void setRect(SDL_FRect rect);
+  void setBgColor(uint32_t rgba);
+  void setBdColor(uint32_t rgba);
+  void setTextColor(uint32_t rgba);
   void setBorder(const bool visible);
   void setBackground(const bool visible);
   void setCenterLeft(const bool center);
@@ -52,6 +69,7 @@ public:
   void setFittingMode(const GUIFittingMode fittingMode);
   void setScale(const float scale);
   void setSpacing(const float spacing);
+  void setStyle(const GUIStyle style);
   void setText(const std::string &text);
   void setImage(const std::string &path);
   void setLayout(const GUILayout layout);
@@ -64,6 +82,11 @@ public:
   float getPosY() const;
   float getWidth() const;
   float getHeight() const;
+  const SDL_FRect &getRect() const;
+  const GUIStyle &getStyle() const;
+  uint32_t getBgColor() const;
+  uint32_t getBdColor() const;
+  uint32_t getTextColor() const;
   bool getBorder() const;
   bool getBackground() const;
   bool isCenteredLeft() const;
@@ -87,21 +110,12 @@ public:
 private:
   const std::string id;
 
-  float posX;
-  float posY;
-  float width;
-  float height;
-
-  bool border;
-  bool background;
-  bool centerLeft;
-  bool centerTop;
-  GUIFittingMode fittingMode;
-  float scale;
-  float spacing;
+  SDL_FRect rect;
 
   GUILayout layout;
   GUIElementType type;
+
+  GUIStyle style;
 
   bool visible;
   bool tempInvisible;

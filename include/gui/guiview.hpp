@@ -27,7 +27,7 @@ public:
                                const float mouseY);
   void drawText(const SDL_FRect rect, const std::string &text, const float size,
                 GUIFittingMode fittingMode, const bool centerLeft,
-                const bool centerTop);
+                const bool centerTop, const uint32_t color);
   void drawImage(const SDL_FRect rect, const std::string &path,
                  const float size, GUIFittingMode fittingMode,
                  const bool centerLeft, const bool centerTop);
@@ -36,4 +36,5 @@ private:
   const RenderContext &renderContext;
   LTexture asciiGrey;
   std::unordered_map<std::string, LTexture> images;
+  const uint32_t selectedColor;
 };

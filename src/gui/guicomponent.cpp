@@ -3,10 +3,10 @@
 #include "gui/guicomponent.hpp"
 
 GUIComponent::GUIComponent(const std::string &id)
-    : id(id), posX(0.f), posY(0.f), width(0.f), height(0.f), border(false),
-      background(false), centerLeft(false), centerTop(false),
-      fittingMode(GUIFittingMode::HIDE), scale(1.f), spacing(0.f),
-      layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
+    : id(id), rect({0.f, 0.f, 0.f, 0.f}), layout(GUILayout::FLOATING),
+      type(GUIElementType::CONTAINER),
+      style({0x606060FF, 0x303030FF, 0xFFFFFFFF, false, false, false, false,
+             GUIFittingMode::HIDE, 1.f, 0.f}),
       visible(true), tempInvisible(false), navigable(true), children(),
       updateListener(), keyListeners(), mouseButtonListeners(), text(""),
       image(""), parent(nullptr), root(this) {}
@@ -14,10 +14,10 @@ GUIComponent::GUIComponent(const std::string &id)
 GUIComponent::GUIComponent(const std::string &id, const float posX,
                            const float posY, const float width,
                            const float height)
-    : id(id), posX(posX), posY(posY), width(width), height(height),
-      border(false), background(false), centerLeft(false), centerTop(false),
-      fittingMode(GUIFittingMode::HIDE), scale(1.f), spacing(0.f),
-      layout(GUILayout::FLOATING), type(GUIElementType::CONTAINER),
+    : id(id), rect({posX, posY, width, height}), layout(GUILayout::FLOATING),
+      type(GUIElementType::CONTAINER),
+      style({0x606060FF, 0x303030FF, 0xFFFFFFFF, false, false, false, false,
+             GUIFittingMode::HIDE, 1.f, 0.f}),
       visible(true), tempInvisible(false), navigable(true), children(),
       updateListener(), keyListeners(), mouseButtonListeners(), text(""),
       image(""), parent(nullptr), root(this) {}
@@ -39,64 +39,64 @@ void GUIComponent::update() {
 }
 
 void GUIComponent::updateLayout() {
-  tempInvisible =
-      (posX < 0.f || posY < 0.f || posX + width > 1.f || posY + height > 1.f);
+  tempInvisible = (rect.x < 0.f || rect.y < 0.f || rect.x + rect.w > 1.f ||
+                   rect.y + rect.h > 1.f);
 
   if (tempInvisible) {
     return;
   }
 
   if (layout == GUILayout::VERTICAL) {
-    float offset{spacing};
+    float offset{style.spacing};
 
     auto topMargin{0.f};
 
-    if (centerLeft) {
+    if (style.centerLeft) {
       auto sum{0.f};
 
       for (const auto &[_, child] : children) {
-        sum += child->getHeight() + spacing;
+        sum += child->getHeight() + style.spacing;
       }
 
-      sum += spacing;
+      sum += style.spacing;
 
       topMargin = (1.f - sum) / 2.f;
     }
 
     for (const auto &[_, child] : children) {
-      if (centerTop) {
+      if (style.centerTop) {
         const auto leftMargin{(1.f - child->getWidth()) / 2.f};
-        child->posX = leftMargin;
+        child->rect.x = leftMargin;
       }
 
-      child->posY = offset + topMargin;
-      offset += child->getHeight() + spacing;
+      child->rect.y = offset + topMargin;
+      offset += child->getHeight() + style.spacing;
     }
   } else if (layout == GUILayout::HORIZONTAL) {
-    float offset{spacing};
+    float offset{style.spacing};
 
     auto leftMargin{0.f};
 
-    if (centerTop) {
+    if (style.centerTop) {
       auto sum{0.f};
 
       for (const auto &[_, child] : children) {
-        sum += child->getWidth() + spacing;
+        sum += child->getWidth() + style.spacing;
       }
 
-      sum += spacing;
+      sum += style.spacing;
 
       leftMargin = (1.f - sum) / 2.f;
     }
 
     for (const auto &[_, child] : children) {
-      if (centerLeft) {
+      if (style.centerLeft) {
         const auto topMargin{(1.f - child->getHeight()) / 2.f};
-        child->posY = topMargin;
+        child->rect.y = topMargin;
       }
 
-      child->posX = offset + leftMargin + spacing;
-      offset += child->getWidth() + spacing;
+      child->rect.x = offset + leftMargin + style.spacing;
+      offset += child->getWidth() + style.spacing;
     }
   }
 }
@@ -117,14 +117,6 @@ void GUIComponent::mouseButtonDownListener(const SDL_MouseButtonFlags button) {
   }
 }
 
-void GUIComponent::setPosX(const float posX) { this->posX = posX; }
-
-void GUIComponent::setPosY(const float posY) { this->posY = posY; }
-
-void GUIComponent::setWidth(const float width) { this->width = width; }
-
-void GUIComponent::setHeight(const float height) { this->height = height; }
-
 void GUIComponent::setUpdateListener(
     std::function<void(GUIComponent &component)> listener) {
   updateListener = std::move(listener);
@@ -140,21 +132,41 @@ void GUIComponent::addMouseButtonListener(const SDL_MouseButtonFlags button,
   mouseButtonListeners[button] = std::move(listener);
 }
 
-void GUIComponent::setBorder(const bool visible) { border = visible; }
+void GUIComponent::setPosX(const float posX) { rect.x = posX; }
 
-void GUIComponent::setBackground(const bool visible) { background = visible; }
+void GUIComponent::setPosY(const float posY) { rect.y = posY; }
 
-void GUIComponent::setCenterLeft(const bool center) { centerLeft = center; }
+void GUIComponent::setWidth(const float width) { rect.w = width; }
 
-void GUIComponent::setCenterTop(const bool center) { centerTop = center; }
+void GUIComponent::setHeight(const float height) { rect.h = height; }
 
-void GUIComponent::setFittingMode(const GUIFittingMode fittingMode) {
-  this->fittingMode = fittingMode;
+void GUIComponent::setRect(SDL_FRect rect) { this->rect = rect; }
+
+void GUIComponent::setBgColor(uint32_t rgba) { style.backgroundColor = rgba; }
+
+void GUIComponent::setBdColor(uint32_t rgba) { style.borderColor = rgba; }
+
+void GUIComponent::setTextColor(uint32_t rgba) { style.textColor = rgba; }
+
+void GUIComponent::setBorder(const bool visible) { style.border = visible; }
+
+void GUIComponent::setBackground(const bool visible) {
+  style.background = visible;
 }
 
-void GUIComponent::setScale(const float scale) { this->scale = scale; };
+void GUIComponent::setCenterLeft(const bool center) {
+  style.centerLeft = center;
+}
 
-void GUIComponent::setSpacing(const float spacing) { this->spacing = spacing; }
+void GUIComponent::setCenterTop(const bool center) { style.centerTop = center; }
+
+void GUIComponent::setFittingMode(const GUIFittingMode fittingMode) {
+  style.fittingMode = fittingMode;
+}
+
+void GUIComponent::setScale(const float scale) { style.scale = scale; };
+
+void GUIComponent::setSpacing(const float spacing) { style.spacing = spacing; }
 
 void GUIComponent::setText(const std::string &text) { this->text = text; }
 
@@ -172,27 +184,39 @@ void GUIComponent::setNavigable(const bool navigable) {
 
 std::string GUIComponent::getId() const { return id; }
 
-float GUIComponent::getPosX() const { return posX; }
+float GUIComponent::getPosX() const { return rect.x; }
 
-float GUIComponent::getPosY() const { return posY; }
+float GUIComponent::getPosY() const { return rect.y; }
 
-float GUIComponent::getWidth() const { return width; }
+float GUIComponent::getWidth() const { return rect.w; }
 
-float GUIComponent::getHeight() const { return height; }
+float GUIComponent::getHeight() const { return rect.h; }
 
-bool GUIComponent::getBorder() const { return border; }
+const SDL_FRect &GUIComponent::getRect() const { return rect; }
 
-bool GUIComponent::getBackground() const { return background; }
+const GUIStyle &GUIComponent::getStyle() const { return style; }
 
-bool GUIComponent::isCenteredLeft() const { return centerLeft; }
+uint32_t GUIComponent::getBgColor() const { return style.backgroundColor; }
 
-bool GUIComponent::isCenteredTop() const { return centerTop; }
+uint32_t GUIComponent::getBdColor() const { return style.borderColor; }
 
-GUIFittingMode GUIComponent::getFittingMode() const { return fittingMode; }
+uint32_t GUIComponent::getTextColor() const { return style.textColor; }
 
-float GUIComponent::getScale() const { return scale; }
+bool GUIComponent::getBorder() const { return style.border; }
 
-float GUIComponent::getSpacing() const { return spacing; }
+bool GUIComponent::getBackground() const { return style.background; }
+
+bool GUIComponent::isCenteredLeft() const { return style.centerLeft; }
+
+bool GUIComponent::isCenteredTop() const { return style.centerTop; }
+
+GUIFittingMode GUIComponent::getFittingMode() const {
+  return style.fittingMode;
+}
+
+float GUIComponent::getScale() const { return style.scale; }
+
+float GUIComponent::getSpacing() const { return style.spacing; }
 
 std::string GUIComponent::getText() const { return text; }
 

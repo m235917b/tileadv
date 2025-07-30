@@ -64,6 +64,8 @@ void GUIController::initGameMenus(const Character &player) {
       "char_menu_container_2", .55f, .1f, .4f, .3f)};
   characterMenuContainer2->setImage("guiassets/border_brown.png");
   characterMenuContainer2->setFittingMode(GUIFittingMode::SCALE);
+  characterMenuContainer2->setBackground(true);
+  characterMenuContainer2->setBgColor(0x946246FF);
 
   auto headline{
       std::make_unique<GUIComponent>("char_headline", 0.f, 0.f, 1.f, .2f)};
