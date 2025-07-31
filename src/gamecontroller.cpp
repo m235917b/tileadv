@@ -14,22 +14,36 @@ GameController::GameController(View &view, GUIController &guiController)
 }
 
 int GameController::run() {
-  if (player->getPosX() == 0 && chunk.getLeft() != "null") {
-    chunk = csvToChunk("world/" + chunk.getLeft() + ".cnk");
-    player->setPosX(chunk.getWidth() - 2);
-  } else if (player->getPosX() == chunk.getWidth() - 1 &&
-             chunk.getRight() != "null") {
-    chunk = csvToChunk("world/" + chunk.getRight() + ".cnk");
-    player->setPosX(1);
+  if (player->getPosX() < 0) {
+    if (chunk.getLeft() != "null") {
+      chunk = csvToChunk("world/" + chunk.getLeft() + ".cnk");
+      player->setPosX(chunk.getWidth() - 1);
+    } else {
+      player->move(1, 0, chunk);
+    }
+  } else if (player->getPosX() >= chunk.getWidth()) {
+    if (chunk.getRight() != "null") {
+      chunk = csvToChunk("world/" + chunk.getRight() + ".cnk");
+      player->setPosX(0);
+    } else {
+      player->move(-1, 0, chunk);
+    }
   }
 
-  if (player->getPosY() == 0 && chunk.getUp() != "null") {
-    chunk = csvToChunk("world/" + chunk.getUp() + ".cnk");
-    player->setPosY(chunk.getHeight() - 2);
-  } else if (player->getPosY() == chunk.getHeight() - 1 &&
-             chunk.getDown() != "null") {
-    chunk = csvToChunk("world/" + chunk.getDown() + ".cnk");
-    player->setPosY(1);
+  if (player->getPosY() < 0) {
+    if (chunk.getUp() != "null") {
+      chunk = csvToChunk("world/" + chunk.getUp() + ".cnk");
+      player->setPosY(chunk.getHeight() - 1);
+    } else {
+      player->move(0, 1, chunk);
+    }
+  } else if (player->getPosY() >= chunk.getHeight()) {
+    if (chunk.getDown() != "null") {
+      chunk = csvToChunk("world/" + chunk.getDown() + ".cnk");
+      player->setPosY(0);
+    } else {
+      player->move(0, -1, chunk);
+    }
   }
 
   view.drawGame(chunk, characters, *player);

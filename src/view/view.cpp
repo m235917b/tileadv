@@ -68,16 +68,18 @@ void View::drawGame(const Chunk &chunk,
        y < chunk.getHeight() && y < screenHeight / tileSize + cameraY; ++y) {
     for (int x{cameraX};
          x < chunk.getWidth() && x < screenWidth / tileSize + cameraX; ++x) {
-      const Tile &tile = chunk.getTile(x, y);
-      SDL_FRect spriteCoords{TileAtlas::getSpriteCoords(tile.type)};
+      const auto tile{chunk.getTile(x, y)};
+      if (tile) {
+        SDL_FRect spriteCoords{TileAtlas::getSpriteCoords(tile->type)};
 
-      float posX{leftMargin + static_cast<float>(x) * tileSize -
-                 cameraX * tileSize};
-      float posY{topMargin + static_cast<float>(y) * tileSize -
-                 cameraY * tileSize};
+        float posX{leftMargin + static_cast<float>(x) * tileSize -
+                   cameraX * tileSize};
+        float posY{topMargin + static_cast<float>(y) * tileSize -
+                   cameraY * tileSize};
 
-      worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize,
-                        renderer);
+        worldTiles.render(posX, posY, &spriteCoords, tileSize, tileSize,
+                          renderer);
+      }
     }
   }
 

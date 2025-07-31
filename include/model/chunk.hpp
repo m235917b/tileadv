@@ -13,7 +13,7 @@ public:
   void setNeighbors(std::string up, std::string right, std::string down,
                     std::string left);
 
-  const Tile &getTile(const int posX, const int posY) const;
+  const Tile *getTile(const int posX, const int posY) const;
   int getWidth() const;
   int getHeight() const;
   std::string getUp() const;

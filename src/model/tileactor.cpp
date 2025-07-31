@@ -5,12 +5,9 @@ TileActor::TileActor(const int posX, const int posY)
     : Actor(), posX(posX), posY(posY) {}
 
 void TileActor::move(const int dx, const int dy, const Chunk &chunk) {
-  if (posX + dx < 0 || posX + dx >= chunk.getWidth() || posY + dy < 0 ||
-      posY + dy >= chunk.getHeight()) {
-    return;
-  }
+  const auto tile{chunk.getTile(posX + dx, posY + dy)};
 
-  if (chunk.getTile(posX + dx, posY + dy).solid) {
+  if (tile && tile->solid) {
     return;
   }
 

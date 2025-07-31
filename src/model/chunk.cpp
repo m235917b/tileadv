@@ -23,8 +23,14 @@ void Chunk::setNeighbors(std::string up, std::string right, std::string down,
   this->left = left;
 }
 
-const Tile &Chunk::getTile(const int posX, const int posY) const {
-  return worldGrid[posY * sizex + posX];
+const Tile *Chunk::getTile(const int posX, const int posY) const {
+  if (posX < 0 || posY < 0 ||
+      posX >= static_cast<int>(worldGrid.size() / sizey) ||
+      posY >= static_cast<int>(worldGrid.size() / sizex)) {
+    return nullptr;
+  }
+
+  return &worldGrid[posY * sizex + posX];
 }
 
 int Chunk::getWidth() const { return sizex; }
