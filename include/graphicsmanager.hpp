@@ -1,5 +1,9 @@
 #pragma once
 
+#include <string>
+
+#include <SDL3/SDL.h>
+
 #include "utils/rendercontext.hpp"
 
 struct SDL_Window;
@@ -29,4 +33,7 @@ private:
 
   SDL_Window *window;
   SDL_Renderer *renderer;
+  SDL_Cursor *cursor;
+  SDL_Surface *cursorSurf;
+  std::string cursorTexturePath;
 };

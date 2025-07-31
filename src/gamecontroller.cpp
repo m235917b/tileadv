@@ -3,7 +3,7 @@
 
 GameController::GameController(View &view, GUIController &guiController)
     : running(false), characterMenu(false),
-      chunk(csvToChunk("world/chunk1.wrld")), view(view),
+      chunk(csvToChunk("world/chunk1.cnk")), view(view),
       guiController(guiController), actors(), characters() {
   std::unique_ptr<Character> player = std::make_unique<Character>(50, 30);
   this->player = player.get();

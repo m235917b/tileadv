@@ -22,6 +22,10 @@ Chunk csvToChunk(const std::string &filename) {
   const int sizex{std::stoi(value)};
   std::getline(ss, value, ',');
   const int sizey{std::stoi(value)};
+  std::getline(ss, value, ',');
+  std::getline(ss, value, ',');
+  std::getline(ss, value, ',');
+  std::getline(ss, value, ',');
 
   Chunk chunk(sizex, sizey);
 

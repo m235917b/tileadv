@@ -1,6 +1,8 @@
 #pragma once
 
+#include <string>
 #include <vector>
+
 
 #include "model/tile.hpp"
 
@@ -18,4 +20,8 @@ private:
   int sizex;
   int sizey;
   std::vector<Tile> worldGrid;
+  std::string up;
+  std::string right;
+  std::string left;
+  std::string down;
 };
