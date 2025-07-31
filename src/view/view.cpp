@@ -45,20 +45,23 @@ void View::drawGame(const Chunk &chunk,
   SDL_Renderer &renderer{renderContext.getRenderer()};
 
   if (player.getPosX() < cameraX + cameraMarginX) {
-    cameraX = std::max(0, cameraX - 1);
+    cameraX = std::max(0, player.getPosX() - cameraMarginX);
   }
 
   if (player.getPosX() > cameraX + screenWidth / tileSize - cameraMarginX) {
-    cameraX = std::min(chunk.getWidth() - screenWidth / tileSize, cameraX + 1);
+    cameraX =
+        std::min(chunk.getWidth() - screenWidth / tileSize,
+                 player.getPosX() - screenWidth / tileSize + cameraMarginX);
   }
 
   if (player.getPosY() < cameraY + cameraMarginY) {
-    cameraY = std::max(0, cameraY - 1);
+    cameraY = std::max(0, player.getPosY() - cameraMarginY);
   }
 
   if (player.getPosY() > cameraY + screenHeight / tileSize - cameraMarginY) {
     cameraY =
-        std::min(chunk.getHeight() - screenHeight / tileSize, cameraY + 1);
+        std::min(chunk.getHeight() - screenHeight / tileSize,
+                 player.getPosY() - screenHeight / tileSize + cameraMarginY);
   }
 
   for (int y{cameraY};
