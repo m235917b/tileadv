@@ -2,6 +2,8 @@
 
 #include "asc.hpp"
 
+#include "utils/timer.hpp"
+
 ApplicationStateController::ApplicationStateController()
     : currentState(ApplicationState::MAIN_MENU), graphicsManager(),
       view(graphicsManager), guiController(graphicsManager),
@@ -50,9 +52,8 @@ int ApplicationStateController::run() {
   SDL_Event e;
   SDL_zero(e);
 
-  while (run) {
-    Uint64 startTime{SDL_GetTicks()};
-
+  Timer timer{1000 / framerate};
+  timer.setListener([&run, &e, this]() {
     while (SDL_PollEvent(&e) == true) {
       switch (e.type) {
       case SDL_EVENT_QUIT:
@@ -97,6 +98,10 @@ int ApplicationStateController::run() {
 
         break;
 
+      case SDL_EVENT_KEY_UP:
+        gameController.keyUpListener(e.key.key);
+        break;
+
       case SDL_EVENT_MOUSE_MOTION: {
         float posX;
         float posY;
@@ -106,6 +111,8 @@ int ApplicationStateController::run() {
       }
 
       case SDL_EVENT_MOUSE_BUTTON_DOWN:
+        gameController.mouseDownListener(e.button.button, e.button.x,
+                                         e.button.y);
         guiController.mouseButtonDownListener(
             SDL_GetMouseState(nullptr, nullptr));
         break;
@@ -121,13 +128,10 @@ int ApplicationStateController::run() {
     guiController.run();
 
     graphicsManager.endFrame();
+  });
 
-    Uint64 elapsedTime{SDL_GetTicks() - startTime};
-    Uint64 waitTime{static_cast<Uint64>(1000 / framerate) - elapsedTime};
-
-    if (waitTime > 0) {
-      SDL_Delay(waitTime);
-    }
+  while (run) {
+    timer.run();
   }
 
   graphicsManager.destroy();

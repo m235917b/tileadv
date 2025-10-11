@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "model/character.hpp"
@@ -7,6 +8,7 @@
 #include "utils/rendercontext.hpp"
 
 class Chunk;
+class TileActor;
 
 class View {
 public:
@@ -15,7 +17,7 @@ public:
   View &operator=(const View &) = delete;
   ~View() = default;
 
-  void drawGame(const Chunk &chunk, const std::vector<Character *> &characters,
+  void drawGame(const Chunk &chunk, std::vector<TileActor *> &tileActors,
                 const Character &player);
 
   bool init();
@@ -31,7 +33,7 @@ private:
   int cameraMarginX;
   int cameraMarginY;
 
-  LTexture playerTexture;
+  LTexture characterTexture;
   LTexture worldTiles;
 
   bool loadTextures();

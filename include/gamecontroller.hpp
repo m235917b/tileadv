@@ -9,8 +9,11 @@
 #include "model/actor.hpp"
 #include "model/character.hpp"
 #include "model/chunk.hpp"
+#include "model/item.hpp"
+#include "model/tileactor.hpp"
 #include "staterunner.hpp"
 #include "view/view.hpp"
+
 
 class GameController : public StateRunner {
 public:
@@ -22,14 +25,24 @@ public:
   ~GameController() = default;
 
   int run() override;
+  void mouseDownListener(const SDL_MouseButtonFlags button, const float posX,
+                         const float posY);
   void keyDownListener(const SDL_Keycode key);
+  void keyUpListener(const SDL_Keycode key);
 
   void setRunning(const bool running);
   void showCharacterMenu(const bool visible);
 
+  void addTileActor(std::unique_ptr<TileActor> actor);
+
 private:
   bool running;
   bool characterMenu;
+
+  bool moveUp;
+  bool moveDown;
+  bool moveLeft;
+  bool moveRight;
 
   Chunk chunk;
 
@@ -37,6 +50,8 @@ private:
   GUIController &guiController;
 
   std::vector<std::unique_ptr<Actor>> actors;
+  std::vector<std::unique_ptr<Item>> items;
   std::vector<Character *> characters;
+  std::vector<TileActor *> tileActors;
   Character *player;
 };

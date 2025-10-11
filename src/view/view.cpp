@@ -9,7 +9,7 @@
 
 View::View(const RenderContext &renderContext)
     : renderContext(renderContext), tileSize(25), cameraX(0), cameraY(0),
-      cameraMarginX(10), cameraMarginY(10), playerTexture(), worldTiles() {
+      cameraMarginX(10), cameraMarginY(10), characterTexture(), worldTiles() {
   auto screenWidth{renderContext.getScreenWidth()};
   auto screenHeight{renderContext.getScreenHeight()};
 
@@ -22,7 +22,8 @@ View::View(const RenderContext &renderContext)
 bool View::init() {
   SDL_Renderer &renderer{renderContext.getRenderer()};
 
-  if (playerTexture.loadFromFile("assets/tiles_char.png", renderer) == false) {
+  if (characterTexture.loadFromFile("assets/tiles_char.png", renderer) ==
+      false) {
     SDL_Log("Unable to load png image!\n");
 
     return false;
@@ -37,8 +38,7 @@ bool View::init() {
   return true;
 }
 
-void View::drawGame(const Chunk &chunk,
-                    const std::vector<Character *> &characters,
+void View::drawGame(const Chunk &chunk, std::vector<TileActor *> &tileActors,
                     const Character &player) {
   auto screenWidth{renderContext.getScreenWidth()};
   auto screenHeight{renderContext.getScreenHeight()};
@@ -70,7 +70,7 @@ void View::drawGame(const Chunk &chunk,
          x < chunk.getWidth() && x < screenWidth / tileSize + cameraX; ++x) {
       const auto tile{chunk.getTile(x, y)};
       if (tile) {
-        SDL_FRect spriteCoords{TileAtlas::getSpriteCoords(tile->type)};
+        SDL_FRect spriteCoords{TileAtlas::getTileCoords(tile->type)};
 
         float posX{leftMargin + static_cast<float>(x) * tileSize -
                    cameraX * tileSize};
@@ -83,19 +83,18 @@ void View::drawGame(const Chunk &chunk,
     }
   }
 
-  for (const auto character : characters) {
-    float posX{leftMargin +
-               static_cast<float>(character->getPosX()) * tileSize -
+  for (const auto &actor : tileActors) {
+    float posX{leftMargin + static_cast<float>(actor->getPosX()) * tileSize -
                cameraX * tileSize};
-    float posY{topMargin + static_cast<float>(character->getPosY()) * tileSize -
+    float posY{topMargin + static_cast<float>(actor->getPosY()) * tileSize -
                cameraY * tileSize};
 
-    SDL_FRect spriteCoords{0, 0, 25, 25};
+    const auto spriteCoords{TileAtlas::getActorCoords(actor->getType())};
 
     if (posX >= leftMargin && posX + tileSize + leftMargin <= screenWidth &&
         posY >= topMargin && posY + tileSize + topMargin <= screenHeight) {
-      playerTexture.render(posX, posY, &spriteCoords, tileSize, tileSize,
-                           renderer);
+      characterTexture.render(posX, posY, &spriteCoords, tileSize, tileSize,
+                              renderer);
     }
   }
 }
