@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "gamecontroller.hpp"
 #include "utils/csvreader.hpp"
 
@@ -6,28 +8,23 @@
 GameController::GameController(View &view, GUIController &guiController)
     : running(false), characterMenu(false), moveUp(false), moveDown(false),
       moveLeft(false), moveRight(false), chunk(csvToChunk("world/chunk1.cnk")),
-      view(view), guiController(guiController), actors(), items(),
-      characters() {
+      view(view), guiController(guiController), actors(), tileActors(),
+      player(nullptr) {
   // create player
   std::unique_ptr<Character> player =
       std::make_unique<Character>(50, 30, TileActorType::PLAYER);
   this->player = player.get();
-  characters.push_back(this->player);
-  tileActors.push_back(this->player);
-  actors.push_back(std::move(player));
+  tileActors.push_back(std::move(player));
 
   // create targeting dummy
   std::unique_ptr<Character> dummy =
       std::make_unique<Character>(80, 20, TileActorType::DUMMY);
-  characters.push_back(dummy.get());
-  tileActors.push_back(dummy.get());
-  actors.push_back(std::move(dummy));
+  tileActors.push_back(std::move(dummy));
 
-  // create fireball item and add to player inventory
   std::unique_ptr<Item> fireball = std::make_unique<Fireball>();
-  items.push_back(std::move(fireball));
-  this->player->addItem(items.back().get());
-  this->player->equipActionItem(items.back().get());
+  const auto fireball_ptr = fireball.get();
+  this->player->addItem(std::move(fireball));
+  this->player->equipActionItem(fireball_ptr);
 
   guiController.initGameMenus(*this->player);
 }
@@ -86,8 +83,23 @@ int GameController::run() {
     }
   }
 
+  std::erase_if(tileActors, [&](const std::unique_ptr<TileActor> &tileActor) {
+    return !tileActor->isAlive();
+  });
+
+  std::sort(tileActors.begin(), tileActors.end(),
+            [](const std::unique_ptr<TileActor> &a,
+               const std::unique_ptr<TileActor> &b) {
+              return a->getLayer() < b->getLayer();
+            });
+
   for (auto &actor : actors) {
     actor->update();
+  }
+
+  for (auto &tileActor : tileActors) {
+    tileActor->update();
+    tileActor->updateInWorld(chunk, tileActors);
   }
 
   view.drawGame(chunk, tileActors, *player);
@@ -99,8 +111,9 @@ void GameController::mouseDownListener(const SDL_MouseButtonFlags button,
                                        const float posX, const float posY) {
   if (running && !characterMenu) {
     if (button == SDL_BUTTON_LEFT) {
-      player->useActionItem(static_cast<int>(posX), static_cast<int>(posY),
-                            *this);
+      const auto [tileX, tileY] =
+          view.getTileFromPixel(static_cast<int>(posX), static_cast<int>(posY));
+      player->useActionItem(tileX, tileY, *this);
     }
   }
 }
@@ -172,7 +185,6 @@ void GameController::showCharacterMenu(const bool visible) {
   characterMenu = visible;
 }
 
-void GameController::addTileActor(std::unique_ptr<TileActor> actor) {
-  actors.push_back(std::move(actor));
-  tileActors.push_back(static_cast<TileActor *>(actors.back().get()));
+void GameController::addTileActor(std::unique_ptr<TileActor> tileActor) {
+  tileActors.push_back(std::move(tileActor));
 }

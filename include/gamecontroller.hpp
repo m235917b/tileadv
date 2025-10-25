@@ -50,8 +50,6 @@ private:
   GUIController &guiController;
 
   std::vector<std::unique_ptr<Actor>> actors;
-  std::vector<std::unique_ptr<Item>> items;
-  std::vector<Character *> characters;
-  std::vector<TileActor *> tileActors;
+  std::vector<std::unique_ptr<TileActor>> tileActors;
   Character *player;
 };

@@ -1,16 +1,19 @@
 #pragma once
 
+#include <vector>
+
 #include "model/tileactor.hpp"
 
 class FireProjectile : public TileActor {
 public:
-  FireProjectile(const int posX, const int posY, const float dx,
-                 const float dy);
+  FireProjectile(const std::vector<std::pair<int, int>> &path);
   ~FireProjectile() = default;
 
-  void update() override;
+  void updateInWorld(
+      const Chunk &chunk,
+      const std::vector<std::unique_ptr<TileActor>> &tileActors) override;
 
 private:
-  const float dx;
-  const float dy;
+  const std::vector<std::pair<int, int>> path;
+  size_t currentIndex;
 };

@@ -22,7 +22,7 @@ View::View(const RenderContext &renderContext)
 bool View::init() {
   SDL_Renderer &renderer{renderContext.getRenderer()};
 
-  if (characterTexture.loadFromFile("assets/tiles_char.png", renderer) ==
+  if (characterTexture.loadFromFile("assets/tiles_actor.png", renderer) ==
       false) {
     SDL_Log("Unable to load png image!\n");
 
@@ -38,7 +38,8 @@ bool View::init() {
   return true;
 }
 
-void View::drawGame(const Chunk &chunk, std::vector<TileActor *> &tileActors,
+void View::drawGame(const Chunk &chunk,
+                    std::vector<std::unique_ptr<TileActor>> &tileActors,
                     const Character &player) {
   auto screenWidth{renderContext.getScreenWidth()};
   auto screenHeight{renderContext.getScreenHeight()};
@@ -83,13 +84,14 @@ void View::drawGame(const Chunk &chunk, std::vector<TileActor *> &tileActors,
     }
   }
 
-  for (const auto &actor : tileActors) {
-    float posX{leftMargin + static_cast<float>(actor->getPosX()) * tileSize -
+  for (const auto &tileActor : tileActors) {
+    float posX{leftMargin +
+               static_cast<float>(tileActor->getPosX()) * tileSize -
                cameraX * tileSize};
-    float posY{topMargin + static_cast<float>(actor->getPosY()) * tileSize -
+    float posY{topMargin + static_cast<float>(tileActor->getPosY()) * tileSize -
                cameraY * tileSize};
 
-    const auto spriteCoords{TileAtlas::getActorCoords(actor->getType())};
+    const auto spriteCoords{TileAtlas::getActorCoords(tileActor->getType())};
 
     if (posX >= leftMargin && posX + tileSize + leftMargin <= screenWidth &&
         posY >= topMargin && posY + tileSize + topMargin <= screenHeight) {
@@ -97,4 +99,11 @@ void View::drawGame(const Chunk &chunk, std::vector<TileActor *> &tileActors,
                               renderer);
     }
   }
+}
+
+std::pair<int, int> View::getTileFromPixel(const int x, const int y) const {
+  int tileX = (x - leftMargin) / tileSize + cameraX;
+  int tileY = (y - topMargin) / tileSize + cameraY;
+
+  return {tileX, tileY};
 }

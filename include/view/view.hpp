@@ -17,10 +17,13 @@ public:
   View &operator=(const View &) = delete;
   ~View() = default;
 
-  void drawGame(const Chunk &chunk, std::vector<TileActor *> &tileActors,
+  void drawGame(const Chunk &chunk,
+                std::vector<std::unique_ptr<TileActor>> &tileActors,
                 const Character &player);
 
   bool init();
+
+  std::pair<int, int> getTileFromPixel(const int x, const int y) const;
 
 private:
   const RenderContext &renderContext;

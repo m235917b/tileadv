@@ -16,3 +16,17 @@ void Timer::run() {
 void Timer::setListener(std::function<void()> listener) {
   this->listener = listener;
 }
+
+DeltaTimer::DeltaTimer(Uint64 intervalMs)
+    : intervalMs(intervalMs), lastCall(0) {}
+
+bool DeltaTimer::intervalElapsed() {
+  Uint64 currentTick = SDL_GetTicks();
+
+  if (currentTick - lastCall >= intervalMs) {
+    lastCall = currentTick;
+    return true;
+  }
+
+  return false;
+}

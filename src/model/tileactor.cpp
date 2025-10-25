@@ -2,27 +2,37 @@
 
 #include "model/chunk.hpp"
 #include "model/tileactor.hpp"
+#include "utils/math.hpp"
 
-TileActor::TileActor(const int posX, const int posY, const TileActorType type)
-    : Actor(), posX(posX), posY(posY), speed(0.3f), type(type) {}
+TileActor::TileActor(const int posX, const int posY, const TileActorType type,
+                     const int layer)
+    : Actor(), posX(posX), posY(posY), alive(true), speedTimer(20), type(type),
+      layer(layer) {}
 
-void TileActor::move(const float dx, const float dy, const Chunk &chunk) {
-  const auto length = std::sqrt(dx * dx + dy * dy);
-  const float ndx = (length != 0) ? (dx / length) * speed : 0;
-  const float ndy = (length != 0) ? (dy / length) * speed : 0;
+bool TileActor::move(const int dx, const int dy, const Chunk &chunk) {
+  if (!speedTimer.intervalElapsed()) {
+    return true;
+  }
 
-  const int nx = static_cast<int>(std::floor(posX + ndx));
-  const int ny = static_cast<int>(std::floor(posY + ndy));
+  const int nx = posX + sign(dx);
+  const int ny = posY + sign(dy);
 
   const auto tile{chunk.getTile(nx, ny)};
 
   if (tile && tile->solid) {
-    return;
+    return false;
   }
 
-  posX += ndx;
-  posY += ndy;
+  posX = nx;
+  posY = ny;
+
+  return true;
 }
+
+void TileActor::updateInWorld(
+    [[maybe_unused]] const Chunk &chunk,
+    [[maybe_unused]] const std::vector<std::unique_ptr<TileActor>>
+        &tileActors) {}
 
 int TileActor::getPosX() const { return static_cast<int>(std::floor(posX)); }
 
@@ -33,6 +43,10 @@ float TileActor::getRealPosX() const { return posX; }
 float TileActor::getRealPosY() const { return posY; }
 
 TileActorType TileActor::getType() const { return type; }
+
+bool TileActor::isAlive() const { return alive; }
+
+int TileActor::getLayer() const { return layer; }
 
 void TileActor::setPosX(const int posX) { this->posX = posX; }
 
