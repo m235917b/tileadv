@@ -1,6 +1,7 @@
 #pragma once
 
 #include <any>
+#include <set>
 #include <string>
 #include <type_traits>
 #include <typeindex>
@@ -24,3 +25,8 @@ struct UpsertComponent {
 template <> struct is_reserved_command<PrefabCommand> : std::true_type {};
 template <> struct is_reserved_command<PrintCommand> : std::true_type {};
 template <> struct is_reserved_command<UpsertComponent> : std::true_type {};
+
+inline std::set<std::type_index> reserved_commands{
+    std::type_index(typeid(PrefabCommand)),
+    std::type_index(typeid(PrintCommand)),
+    std::type_index(typeid(UpsertComponent))};

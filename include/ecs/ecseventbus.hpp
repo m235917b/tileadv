@@ -31,9 +31,20 @@ public:
     listeners[std::type_index(typeid(EventType))].emplace_back(std::move(wrap));
   }
 
+  void subscribe(const std::type_index &type,
+                 std::function<void(ECSContext &, const std::any &)> listener) {
+    if (inDispatch) {
+      return;
+    }
+
+    listeners[type].emplace_back(std::move(listener));
+  }
+
   template <typename EventType> void publish(EventType &&event) {
     queue.emplace(std::forward<EventType>(event));
   }
+
+  void publish(std::any event) { queue.emplace(std::move(event)); }
 
   void dispatch() {
     if (inDispatch) {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <algorithm>
 #include <any>
 #include <string>
 #include <tuple>
@@ -60,6 +61,38 @@ public:
     return nullptr;
   }
 
+  std::any *getComponent(const std::string &entityId,
+                         const std::type_index &type) {
+    auto it = componentStores.find(type);
+
+    if (it != componentStores.end()) {
+      auto &pool = it->second;
+      auto compIt = pool.find(entityId);
+
+      if (compIt != pool.end()) {
+        return &(compIt->second);
+      }
+    }
+
+    return nullptr;
+  }
+
+  const std::any *getComponent(const std::string &entityId,
+                               const std::type_index &type) const {
+    auto it = componentStores.find(type);
+
+    if (it != componentStores.end()) {
+      auto &pool = it->second;
+      auto compIt = pool.find(entityId);
+
+      if (compIt != pool.end()) {
+        return &(compIt->second);
+      }
+    }
+
+    return nullptr;
+  }
+
   template <typename... Ts, typename Func> void view(Func &&f) {
     using First = std::tuple_element_t<0, std::tuple<Ts...>>;
     auto it = componentStores.find(std::type_index(typeid(First)));
@@ -71,6 +104,38 @@ public:
     for (auto &[id, anyVal] : firstPool) {
       if ((getComponent<Ts>(id) && ...)) {
         f(id, (*getComponent<Ts>(id))...);
+      }
+    }
+  }
+
+  void
+  view(std::vector<std::type_index> types,
+       std::function<void(const std::string &, std::vector<std::any *> &)> f) {
+    auto it{componentStores.find(types.at(0))};
+
+    if (it == componentStores.end()) {
+      return;
+    }
+
+    auto &firstPool{it->second};
+
+    for (auto &[id, anyVal] : firstPool) {
+      std::vector<std::any *> components{};
+      bool ok{true};
+
+      for (const auto &t : types) {
+        auto component{getComponent(id, t)};
+
+        if (!component) {
+          ok = false;
+          break;
+        }
+
+        components.emplace_back(component);
+      }
+
+      if (ok) {
+        f(id, components);
       }
     }
   }

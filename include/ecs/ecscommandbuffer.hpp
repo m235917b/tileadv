@@ -24,16 +24,29 @@ public:
 
     static_assert(!is_reserved_command<CommandType>::value,
                   "Cannot register handler for reserved command type");
+
     auto wrap = [handler = std::move(handler)](ECSContext &context,
                                                std::any commandAny) {
       handler(context, std::move(std::any_cast<CommandType>(commandAny)));
     };
+
     handlers[std::type_index(typeid(CommandType))] = std::move(wrap);
+  }
+
+  void registerHandler(const std::type_index &type,
+                       std::function<void(ECSContext &, std::any)> handler) {
+    if (inFlush || reserved_commands.contains(type)) {
+      return;
+    }
+
+    handlers[type] = std::move(handler);
   }
 
   template <typename CommandType> void enqueue(CommandType &&command) {
     queue.emplace(std::forward<CommandType>(command));
   }
+
+  void enqueue(std::any command) { queue.emplace(std::move(command)); }
 
   void flush() {
     if (inFlush) {
@@ -68,11 +81,26 @@ private:
   template <typename CommandType>
   void registerHandlerInternal(
       std::function<void(ECSContext &, CommandType)> handler) {
+    if (inFlush) {
+      return;
+    }
+
     auto wrap = [handler = std::move(handler)](ECSContext &context,
                                                std::any commandAny) {
       handler(context, std::move(std::any_cast<CommandType>(commandAny)));
     };
+
     handlers[std::type_index(typeid(CommandType))] = std::move(wrap);
+  }
+
+  void
+  registerHandlerInternal(const std::type_index &type,
+                          std::function<void(ECSContext &, std::any)> handler) {
+    if (inFlush) {
+      return;
+    }
+
+    handlers[type] = std::move(handler);
   }
 
   friend class ECSContext;

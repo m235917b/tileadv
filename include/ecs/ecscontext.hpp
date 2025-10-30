@@ -17,13 +17,14 @@ public:
 
   void destroyEntity(const std::string &entityId);
 
-  template <typename T>
-  void upsertComponent(const std::string &entityId, T component) {
-    store.upsertComponent(entityId, std::move(component));
-  }
-
   template <typename... Ts, typename Func> void view(Func &&f) {
     store.view<Ts...>(std::forward<Func>(f));
+  }
+
+  void
+  view(std::vector<std::type_index> types,
+       std::function<void(const std::string &, std::vector<std::any *> &)> f) {
+    store.view(std::move(types), std::move(f));
   }
 
 private:
