@@ -1,8 +1,8 @@
 #include <iostream>
 
 #include "asc.hpp"
-#include "ecs/ecscontext.hpp"
 #include "ecs/ecscommandtypes.hpp"
+#include "ecs/ecscontext.hpp"
 
 struct Position {
   float x;
@@ -27,9 +27,12 @@ int main() {
 
   ECSContext ecsContext{};
 
-  ecsContext.addComponent("entity1", Position{0.0f, 0.0f});
-  ecsContext.addComponent("entity1", Velocity{1.0f, 2.0f});
-  ecsContext.addComponent("entity2", Position{10.0f, 10.0f});
+  ecsContext.getCommandBuffer().enqueue(
+      AddComponent{"entity1", Position{0.0f, 0.0f}});
+  ecsContext.getCommandBuffer().enqueue(
+      AddComponent{"entity1", Velocity{1.0f, 2.0f}});
+  ecsContext.getCommandBuffer().enqueue(
+      AddComponent{"entity2", Position{10.0f, 10.0f}});
 
   ecsContext.getScheduler().addPhasePre("UpdatePositions");
   ecsContext.getScheduler().addPhasePost("PrintIds");
@@ -68,10 +71,11 @@ int main() {
         });
       });
 
+  ecsContext.getScheduler().bootstrap();
   ecsContext.getScheduler().update(0.0f);
   std::cout << "-----" << std::endl;
-  ecsContext.getCommandBuffer().enqueue<PrintCommand>({"Hello World!"});
-  ecsContext.getEventBus().publish<SetPosEvent>({"entity1", 100, 200});
+  ecsContext.getCommandBuffer().enqueue(PrintCommand{"Hello World!"});
+  ecsContext.getEventBus().publish(SetPosEvent{"entity1", 100, 200});
   ecsContext.getScheduler().update(0.1f);
   std::cout << "-----" << std::endl;
   ecsContext.getScheduler().update(0.2f);

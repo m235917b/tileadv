@@ -17,13 +17,12 @@ public:
   ~ECSCommandBuffer() = default;
 
   template <typename CommandType>
-  void registerHandler(
-      std::function<void(ECSContext &, const CommandType &)> handler) {
+  void registerHandler(std::function<void(ECSContext &, CommandType)> handler) {
     static_assert(!is_reserved_command<CommandType>::value,
                   "Cannot register handler for reserved command type");
     auto wrap = [handler = std::move(handler)](ECSContext &context,
-                                               const std::any &commandAny) {
-      handler(context, std::any_cast<const CommandType &>(commandAny));
+                                               std::any commandAny) {
+      handler(context, std::move(std::any_cast<CommandType>(commandAny)));
     };
     handlers[std::type_index(typeid(CommandType))] = std::move(wrap);
   }
@@ -32,14 +31,14 @@ public:
     queue.emplace(std::forward<CommandType>(command));
   }
 
-  void process() {
+  void flush() {
     while (!queue.empty()) {
-      const auto &command = queue.front();
+      auto command = std::move(queue.front());
       const auto commandType = std::type_index(command.type());
 
       auto it = handlers.find(commandType);
       if (it != handlers.end()) {
-        it->second(context, command);
+        it->second(context, std::move(command));
       }
 
       queue.pop();
@@ -50,15 +49,15 @@ private:
   ECSContext &context;
   std::queue<std::any> queue;
   std::unordered_map<std::type_index,
-                     std::function<void(ECSContext &, const std::any &)>>
+                     std::function<void(ECSContext &, std::any)>>
       handlers;
 
   template <typename CommandType>
   void registerHandlerInternal(
-      std::function<void(ECSContext &, const CommandType &)> handler) {
+      std::function<void(ECSContext &, CommandType)> handler) {
     auto wrap = [handler = std::move(handler)](ECSContext &context,
-                                               const std::any &commandAny) {
-      handler(context, std::any_cast<const CommandType &>(commandAny));
+                                               std::any commandAny) {
+      handler(context, std::move(std::any_cast<CommandType>(commandAny)));
     };
     handlers[std::type_index(typeid(CommandType))] = std::move(wrap);
   }

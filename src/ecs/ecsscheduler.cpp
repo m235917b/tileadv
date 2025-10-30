@@ -8,7 +8,7 @@ ECSScheduler::ECSScheduler(ECSContext &context)
 
 void ECSScheduler::bootstrap() {
   context.getEventBus().dispatch();
-  context.getCommandBuffer().process();
+  context.getCommandBuffer().flush();
 }
 
 void ECSScheduler::update(float dt) {
@@ -32,7 +32,7 @@ void ECSScheduler::update(float dt) {
     }
   }
 
-  context.getCommandBuffer().process();
+  context.getCommandBuffer().flush();
 }
 
 void ECSScheduler::addPhasePre(std::string phase) {

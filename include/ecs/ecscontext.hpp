@@ -19,7 +19,7 @@ public:
 
   template <typename T>
   void addComponent(const std::string &entityId, T component) {
-    store.addComponent(entityId, component);
+    store.addComponent(entityId, std::move(component));
   }
 
   template <typename... Ts, typename Func> void view(Func &&f) {

@@ -3,9 +3,9 @@
 #include <any>
 #include <string>
 #include <tuple>
-#include <utility>
 #include <typeindex>
 #include <unordered_map>
+#include <utility>
 
 class ECSStore {
 public:
@@ -22,6 +22,11 @@ public:
   void addComponent(const std::string &entityId, T component) {
     auto &pool = componentStores[std::type_index(typeid(T))];
     pool[entityId] = std::make_any<T>(std::move(component));
+  }
+
+  void addComponent(const std::string &entityId, std::any component) {
+    auto &pool = componentStores[std::type_index(component.type())];
+    pool[entityId] = std::move(component);
   }
 
   template <typename T>

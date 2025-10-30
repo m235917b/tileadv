@@ -5,13 +5,18 @@
 ECSContext::ECSContext()
     : store(), scheduler(*this), commandBuffer(*this), eventBus(*this) {
   commandBuffer.registerHandlerInternal<PrintCommand>(
-      []([[maybe_unused]] ECSContext &context, const PrintCommand &command) {
+      []([[maybe_unused]] ECSContext &context, PrintCommand command) {
         std::cout << command.text << std::endl;
       });
 
   commandBuffer.registerHandlerInternal<PrefabCommand>(
       []([[maybe_unused]] ECSContext &context,
-         [[maybe_unused]] const PrefabCommand &command) {});
+         [[maybe_unused]] PrefabCommand command) {});
+
+  commandBuffer.registerHandlerInternal<AddComponent>(
+      [this]([[maybe_unused]] ECSContext &context, AddComponent command) {
+        this->store.addComponent(command.entityId, std::move(command.payload));
+      });
 }
 
 ECSScheduler &ECSContext::getScheduler() { return scheduler; }

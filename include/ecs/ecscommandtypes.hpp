@@ -18,7 +18,6 @@ struct PrintCommand {
 
 struct AddComponent {
   std::string entityId;
-  std::type_index componentType;
   std::any payload;
 };
 
