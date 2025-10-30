@@ -27,7 +27,7 @@ public:
                               const SDL_MouseButtonFlags button,
                               std::function<void()> listener);
 
-  void addComponent(std::unique_ptr<GUIComponent> component);
+  void upsertComponent(std::unique_ptr<GUIComponent> component);
   bool removeComponent(const std::string &id);
 
   void setComponentVisible(const std::string &id, const bool visible = true);

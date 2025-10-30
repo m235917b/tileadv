@@ -13,23 +13,22 @@ class ECSContext;
 class ECSEventBus {
 public:
   ECSEventBus(ECSContext &context)
-      : context(context), queue(), listeners(), pending(), inDispatch(false) {}
+      : context(context), queue(), listeners(), inDispatch(false) {}
   ~ECSEventBus() = default;
 
   template <typename EventType>
   void
   subscribe(std::function<void(ECSContext &, const EventType &)> listener) {
+    if (inDispatch) {
+      return;
+    }
+
     auto wrap = [listener = std::move(listener)](ECSContext &context,
                                                  const std::any &eventAny) {
       listener(context, std::any_cast<const EventType &>(eventAny));
     };
 
-    if (inDispatch) {
-      pending[std::type_index(typeid(EventType))].emplace_back(std::move(wrap));
-    } else {
-      listeners[std::type_index(typeid(EventType))].emplace_back(
-          std::move(wrap));
-    }
+    listeners[std::type_index(typeid(EventType))].emplace_back(std::move(wrap));
   }
 
   template <typename EventType> void publish(EventType &&event) {
@@ -57,16 +56,6 @@ public:
       queue.pop();
     }
 
-    for (auto &[key, val] : pending) {
-      auto &dst = listeners[key];
-      auto &src = val;
-      dst.reserve(dst.size() + src.size());
-      dst.insert(dst.end(), std::make_move_iterator(src.begin()),
-                 std::make_move_iterator(src.end()));
-    }
-
-    pending.clear();
-
     inDispatch = false;
   }
 
@@ -77,9 +66,5 @@ private:
       std::type_index,
       std::vector<std::function<void(ECSContext &, const std::any &)>>>
       listeners;
-  std::unordered_map<
-      std::type_index,
-      std::vector<std::function<void(ECSContext &, const std::any &)>>>
-      pending;
   bool inDispatch;
 };

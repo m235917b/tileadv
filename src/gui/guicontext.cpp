@@ -127,7 +127,7 @@ void GUIContext::addMouseButtonListener(const std::string &id,
   }
 }
 
-void GUIContext::addComponent(std::unique_ptr<GUIComponent> component) {
+void GUIContext::upsertComponent(std::unique_ptr<GUIComponent> component) {
   GUITreeWalker::traverse(*component, [this](GUIComponent &node) {
     this->lookup.emplace(node.getId(), &node);
     return true;

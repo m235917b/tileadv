@@ -44,7 +44,7 @@ GUIController::GUIController(const RenderContext &renderContext)
   mainMenu->addChild(std::move(line1));
   mainMenu->addChild(std::move(line2));
 
-  guiContext.addComponent(std::move(mainMenu));
+  guiContext.upsertComponent(std::move(mainMenu));
 }
 
 bool GUIController::init() { return guiContext.init(); }
@@ -159,7 +159,7 @@ void GUIController::initGameMenus(const Character &player) {
   characterMenu->addChild(std::move(characterMenuContainer2));
   characterMenu->addChild(std::move(characterMenuContainer3));
 
-  guiContext.addComponent(std::move(characterMenu));
+  guiContext.upsertComponent(std::move(characterMenu));
 
   auto statusBar{
       std::make_unique<GUIComponent>("statusbar", 0.f, .97f, 1.f, .03f)};
@@ -187,7 +187,7 @@ void GUIController::initGameMenus(const Character &player) {
   status2->setFittingMode(GUIFittingMode::CLIP);
   status2->setNavigable(false);
   statusBar->addChild(std::move(status2));
-  guiContext.addComponent(std::move(statusBar));
+  guiContext.upsertComponent(std::move(statusBar));
   guiContext.setComponentVisible("statusbar");
 }
 

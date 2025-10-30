@@ -28,11 +28,11 @@ int main() {
   ECSContext ecsContext{};
 
   ecsContext.getCommandBuffer().enqueue(
-      AddComponent{"entity1", Position{0.0f, 0.0f}});
+      UpsertComponent{"entity1", Position{0.0f, 0.0f}});
   ecsContext.getCommandBuffer().enqueue(
-      AddComponent{"entity1", Velocity{1.0f, 2.0f}});
+      UpsertComponent{"entity1", Velocity{1.0f, 2.0f}});
   ecsContext.getCommandBuffer().enqueue(
-      AddComponent{"entity2", Position{10.0f, 10.0f}});
+      UpsertComponent{"entity2", Position{10.0f, 10.0f}});
 
   ecsContext.getScheduler().addPhasePre("UpdatePositions");
   ecsContext.getScheduler().addPhasePost("PrintIds");

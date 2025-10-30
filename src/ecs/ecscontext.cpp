@@ -13,9 +13,10 @@ ECSContext::ECSContext()
       []([[maybe_unused]] ECSContext &context,
          [[maybe_unused]] PrefabCommand command) {});
 
-  commandBuffer.registerHandlerInternal<AddComponent>(
-      [this]([[maybe_unused]] ECSContext &context, AddComponent command) {
-        this->store.addComponent(command.entityId, std::move(command.payload));
+  commandBuffer.registerHandlerInternal<UpsertComponent>(
+      [this]([[maybe_unused]] ECSContext &context, UpsertComponent command) {
+        this->store.upsertComponent(command.entityId,
+                                    std::move(command.payload));
       });
 }
 

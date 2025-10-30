@@ -18,8 +18,8 @@ public:
   void destroyEntity(const std::string &entityId);
 
   template <typename T>
-  void addComponent(const std::string &entityId, T component) {
-    store.addComponent(entityId, std::move(component));
+  void upsertComponent(const std::string &entityId, T component) {
+    store.upsertComponent(entityId, std::move(component));
   }
 
   template <typename... Ts, typename Func> void view(Func &&f) {

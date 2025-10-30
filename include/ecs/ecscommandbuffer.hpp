@@ -13,11 +13,15 @@ class ECSContext;
 class ECSCommandBuffer {
 public:
   ECSCommandBuffer(ECSContext &context)
-      : context(context), queue(), handlers() {}
+      : context(context), queue(), handlers(), inFlush(false) {}
   ~ECSCommandBuffer() = default;
 
   template <typename CommandType>
   void registerHandler(std::function<void(ECSContext &, CommandType)> handler) {
+    if (inFlush) {
+      return;
+    }
+
     static_assert(!is_reserved_command<CommandType>::value,
                   "Cannot register handler for reserved command type");
     auto wrap = [handler = std::move(handler)](ECSContext &context,
@@ -32,6 +36,12 @@ public:
   }
 
   void flush() {
+    if (inFlush) {
+      return;
+    }
+
+    inFlush = true;
+
     while (!queue.empty()) {
       auto command = std::move(queue.front());
       const auto commandType = std::type_index(command.type());
@@ -43,6 +53,8 @@ public:
 
       queue.pop();
     }
+
+    inFlush = false;
   }
 
 private:
@@ -51,6 +63,7 @@ private:
   std::unordered_map<std::type_index,
                      std::function<void(ECSContext &, std::any)>>
       handlers;
+  bool inFlush;
 
   template <typename CommandType>
   void registerHandlerInternal(

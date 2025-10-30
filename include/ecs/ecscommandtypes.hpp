@@ -16,10 +16,11 @@ struct PrintCommand {
   std::string text;
 };
 
-struct AddComponent {
+struct UpsertComponent {
   std::string entityId;
   std::any payload;
 };
 
 template <> struct is_reserved_command<PrefabCommand> : std::true_type {};
 template <> struct is_reserved_command<PrintCommand> : std::true_type {};
+template <> struct is_reserved_command<UpsertComponent> : std::true_type {};
