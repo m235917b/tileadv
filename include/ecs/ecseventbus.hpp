@@ -12,7 +12,8 @@ class ECSContext;
 
 class ECSEventBus {
 public:
-  ECSEventBus(ECSContext &context) : context(context), queue(), listeners() {}
+  ECSEventBus(ECSContext &context)
+      : context(context), queue(), listeners(), pending(), inDispatch(false) {}
   ~ECSEventBus() = default;
 
   template <typename EventType>
@@ -22,7 +23,13 @@ public:
                                                  const std::any &eventAny) {
       listener(context, std::any_cast<const EventType &>(eventAny));
     };
-    listeners[std::type_index(typeid(EventType))].emplace_back(std::move(wrap));
+
+    if (inDispatch) {
+      pending[std::type_index(typeid(EventType))].emplace_back(std::move(wrap));
+    } else {
+      listeners[std::type_index(typeid(EventType))].emplace_back(
+          std::move(wrap));
+    }
   }
 
   template <typename EventType> void publish(EventType &&event) {
@@ -30,6 +37,12 @@ public:
   }
 
   void dispatch() {
+    if (inDispatch) {
+      return;
+    }
+
+    inDispatch = true;
+
     while (!queue.empty()) {
       const auto &event = queue.front();
       const auto eventType = std::type_index(event.type());
@@ -43,6 +56,18 @@ public:
 
       queue.pop();
     }
+
+    for (auto &[key, val] : pending) {
+      auto &dst = listeners[key];
+      auto &src = val;
+      dst.reserve(dst.size() + src.size());
+      dst.insert(dst.end(), std::make_move_iterator(src.begin()),
+                 std::make_move_iterator(src.end()));
+    }
+
+    pending.clear();
+
+    inDispatch = false;
   }
 
 private:
@@ -52,4 +77,9 @@ private:
       std::type_index,
       std::vector<std::function<void(ECSContext &, const std::any &)>>>
       listeners;
+  std::unordered_map<
+      std::type_index,
+      std::vector<std::function<void(ECSContext &, const std::any &)>>>
+      pending;
+  bool inDispatch;
 };
