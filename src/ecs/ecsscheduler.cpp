@@ -1,12 +1,18 @@
 #include <algorithm>
 
+#include "ecs/ecscontext.hpp"
 #include "ecs/ecsscheduler.hpp"
 
 ECSScheduler::ECSScheduler(ECSContext &context)
-    : context(context), phases(), systems() {}
+    : context(context), phasesPre(), phasesPost(), systems() {}
+
+void ECSScheduler::bootstrap() {
+  context.getEventBus().dispatch();
+  context.getCommandBuffer().process();
+}
 
 void ECSScheduler::update(float dt) {
-  for (auto &phase : phases) {
+  for (auto &phase : phasesPre) {
     auto it = systems.find(phase);
     if (it != systems.end()) {
       for (auto &system : it->second) {
@@ -14,14 +20,34 @@ void ECSScheduler::update(float dt) {
       }
     }
   }
+
+  context.getEventBus().dispatch();
+
+  for (auto &phase : phasesPost) {
+    auto it = systems.find(phase);
+    if (it != systems.end()) {
+      for (auto &system : it->second) {
+        system.second(context, dt);
+      }
+    }
+  }
+
+  context.getCommandBuffer().process();
 }
 
-void ECSScheduler::addPhase(std::string phase) {
-  phases.push_back(std::move(phase));
+void ECSScheduler::addPhasePre(std::string phase) {
+  phasesPre.push_back(std::move(phase));
+}
+
+void ECSScheduler::addPhasePost(std::string phase) {
+  phasesPost.push_back(std::move(phase));
 }
 
 void ECSScheduler::removePhase(const std::string &phase) {
-  phases.erase(std::remove(phases.begin(), phases.end(), phase), phases.end());
+  phasesPre.erase(std::remove(phasesPre.begin(), phasesPre.end(), phase),
+                  phasesPre.end());
+  phasesPost.erase(std::remove(phasesPost.begin(), phasesPost.end(), phase),
+                   phasesPost.end());
 }
 
 void ECSScheduler::addSystem(const std::string &phase, std::string systemId,

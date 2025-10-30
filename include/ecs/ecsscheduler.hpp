@@ -15,8 +15,10 @@ public:
   ECSScheduler(ECSContext &context);
   ~ECSScheduler() = default;
 
+  void bootstrap();
   void update(float dt);
-  void addPhase(std::string phase);
+  void addPhasePre(std::string phase);
+  void addPhasePost(std::string phase);
   void removePhase(const std::string &phase);
   void addSystem(const std::string &phase, std::string systemId,
                  SystemFn system);
@@ -24,7 +26,8 @@ public:
 
 private:
   ECSContext &context;
-  std::vector<std::string> phases;
+  std::vector<std::string> phasesPre;
+  std::vector<std::string> phasesPost;
   std::unordered_map<std::string, std::vector<std::pair<std::string, SystemFn>>>
       systems;
 };
