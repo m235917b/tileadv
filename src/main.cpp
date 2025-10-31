@@ -41,12 +41,12 @@ int main() {
   ecsContext.getScheduler().addPhasePre("UpdatePositions");
   ecsContext.getScheduler().addPhasePost("PrintIds");
 
-  ecsApi.addViewSystem<Position, Velocity>(
+  ecsApi.addViewSystem<Position>(
       "UpdatePositions", "MoveSystem",
       [](ECSContext &, const float dt, const std::string &id,
-         const Position &pos, const Velocity &vel) {
-        std::cout << "Updated Positions:" << id << " " << pos.x << ", " << pos.y
-                  << ", " << vel.vx << ", " << dt << std::endl;
+         const Position &pos) {
+        std::cout << "Positions View: " << id << " " << pos.x << ", " << pos.y
+                  << ", " << dt << std::endl;
       });
 
   ecsContext.getScheduler().addSystem(
@@ -54,8 +54,8 @@ int main() {
         context.view<Position, Velocity>([](const std::string &id,
                                             const Position &pos,
                                             const Velocity &vel) {
-          std::cout << "Updated Positions:" << id << " " << pos.x << ", "
-                    << pos.y << ", " << vel.vx << std::endl;
+          std::cout << "Positions: " << id << " " << pos.x << ", " << pos.y
+                    << ", " << vel.vx << std::endl;
         });
       });
 
@@ -107,7 +107,14 @@ int main() {
   ecsApi.subscribeViewListener<SetPosEvent, Position>(
       [](ECSContext &, const SetPosEvent &event, const std::string &id,
          const Position &pos) {
-        std::cout << id << ", " << pos.x << ", " << event.entityId << std::endl;
+        std::cout << id << ", " << pos.x << ", " << pos.y << ", "
+                  << event.entityId << std::endl;
+      });
+
+  ecsContext.getEventBus().subscribe<SetPosEvent>(
+      [](ECSContext &context, const SetPosEvent &) {
+        context.getCommandBuffer().enqueue<UpsertComponent>(
+            UpsertComponent{"entity1", Position{100.0f, 200.0f}});
       });
 
   /*ecsContext.getEventBus().subscribe(
