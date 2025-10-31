@@ -19,9 +19,10 @@ public:
                          const std::type_index &type);
   const std::any *getComponent(const std::string &entityId,
                                const std::type_index &type) const;
-  void view(const std::vector<std::type_index> &types,
-            const std::function<void(const std::string &,
-                                     const std::vector<std::any *> &)> &f);
+  void
+  view(const std::vector<std::type_index> &types,
+       const std::function<void(const std::string &,
+                                const std::vector<const std::any *> &)> &f);
 
   template <typename T>
   void upsertComponent(const std::string &entityId, T component) {
@@ -39,18 +40,19 @@ public:
 
   template <typename... Ts, typename Func> void view(Func &&f) {
     static_assert(sizeof...(Ts) > 0);
+
     std::vector<std::type_index> types;
     types.reserve(sizeof...(Ts));
     (types.emplace_back(std::type_index(typeid(std::decay_t<Ts>))), ...);
 
-    const auto wrap{
-        [f = std::move(f)](const std::string &entityId,
-                           const std::vector<std::any *> &components) {
-          auto apply = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
-            f(entityId, (*std::any_cast<Ts>(components[Is]))...);
-          };
-          apply(std::make_index_sequence<sizeof...(Ts)>{});
-        }};
+    const auto wrap{[f = std::forward<Func>(f)](
+                        const std::string &entityId,
+                        const std::vector<const std::any *> &components) {
+      auto apply{[&]<std::size_t... Is>(std::index_sequence<Is...>) {
+        f(entityId, (std::any_cast<const Ts &>(*components[Is]))...);
+      }};
+      apply(std::make_index_sequence<sizeof...(Ts)>{});
+    }};
 
     view(types, wrap);
   }

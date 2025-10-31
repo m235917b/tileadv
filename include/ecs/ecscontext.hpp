@@ -15,17 +15,13 @@ public:
   ECSEventBus &getEventBus();
   const ECSStore &getStore() const noexcept;
 
-  void destroyEntity(const std::string &entityId);
+  void
+  view(const std::vector<std::type_index> &types,
+       const std::function<void(const std::string &,
+                                const std::vector<const std::any *> &)> &f);
 
   template <typename... Ts, typename Func> void view(Func &&f) {
     store.view<Ts...>(std::forward<Func>(f));
-  }
-
-  void
-  view(std::vector<std::type_index> types,
-       std::function<void(const std::string &, const std::vector<std::any *> &)>
-           f) {
-    store.view(std::move(types), std::move(f));
   }
 
 private:
@@ -33,4 +29,8 @@ private:
   ECSScheduler scheduler;
   ECSCommandBuffer commandBuffer;
   ECSEventBus eventBus;
+
+  ECSStore &getStore();
+
+  friend class ECSAPI;
 };

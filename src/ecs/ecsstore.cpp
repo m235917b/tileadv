@@ -40,7 +40,7 @@ const std::any *ECSStore::getComponent(const std::string &entityId,
 void ECSStore::view(
     const std::vector<std::type_index> &types,
     const std::function<void(const std::string &,
-                             const std::vector<std::any *> &)> &f) {
+                             const std::vector<const std::any *> &)> &f) {
   if (types.size() == 0) {
     return;
   }
@@ -51,7 +51,7 @@ void ECSStore::view(
     return;
   }
 
-  std::vector<std::any *> components{};
+  std::vector<const std::any *> components{};
   components.reserve(types.size());
 
   for (const auto &[id, _] : *smallest) {

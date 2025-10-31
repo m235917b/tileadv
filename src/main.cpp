@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "asc.hpp"
+#include "ecs/ecsapi.hpp"
 #include "ecs/ecscommandtypes.hpp"
 #include "ecs/ecscontext.hpp"
 
@@ -26,6 +27,7 @@ int main() {
   // appStateController.run();
 
   ECSContext ecsContext{};
+  ECSAPI ecsApi{ecsContext};
 
   ecsContext.getCommandBuffer().enqueue(
       UpsertComponent{"entity1", Position{0.0f, 0.0f}});
@@ -39,19 +41,29 @@ int main() {
   ecsContext.getScheduler().addPhasePre("UpdatePositions");
   ecsContext.getScheduler().addPhasePost("PrintIds");
 
+  ecsApi.addViewSystem<Position, Velocity>(
+      "UpdatePositions", "MoveSystem",
+      [](const std::string &id, const Position &pos, const Velocity &vel) {
+        std::cout << "Updated Positions:" << id << " " << pos.x << ", " << pos.y
+                  << ", " << vel.vx << std::endl;
+      });
+
   ecsContext.getScheduler().addSystem(
       "UpdatePositions", "MoveSystem",
       [](ECSContext &context, [[maybe_unused]] float dt) {
         context.view<Position, Velocity>(
-            []([[maybe_unused]] const std::string &id, Position &pos,
-               Velocity &vel) {
-              pos.x += vel.vx;
-              pos.y += vel.vy;
-
+            []([[maybe_unused]] const std::string &id, const Position &pos,
+               const Velocity &vel) {
               std::cout << "Updated Positions:" << id << " " << pos.x << ", "
-                        << pos.y << std::endl;
+                        << pos.y << ", " << vel.vx << std::endl;
             });
       });
+
+  /*ecsContext.view<Position, Velocity>(
+      [](const std::string &id, const Position &pos, const Velocity &vel) {
+        std::cout << "Updated Positions:" << id << " " << pos.x << ", " << pos.y
+                  << ", " << vel.vx << std::endl;
+      });*/
 
   /*ecsContext.getScheduler().addSystem(
       "UpdatePositions", "MoveSystem",
@@ -73,46 +85,42 @@ int main() {
         });
       });*/
 
-  ecsContext.getScheduler().addSystem(
+  /*ecsContext.getScheduler().addSystem(
       "PrintIds", "PrintSystem",
       [](ECSContext &context, [[maybe_unused]] float dt) {
         context.view<Position>(
-            []([[maybe_unused]] const std::string &id, Position &pos) {
-              std::cout << "Positions:" << id << " " << pos.x << ", " << pos.y
+            []([[maybe_unused]] const std::string &id, const Position &pos)
+     { std::cout << "Positions:" << id << " " << pos.x << ", " << pos.y
                         << std::endl;
             });
-      });
+      });*/
 
   ecsContext.getEventBus().subscribe<SetPosEvent>(
       [](ECSContext &context, const SetPosEvent &event) {
-        context.view<Position>([&event](const std::string &id, Position &pos) {
-          if (id == event.entityId) {
-            pos.x = event.x;
-            pos.y = event.y;
-          }
-        });
+        std::cout << "SetPosEvent:" << std::endl;
+        context.view<Position>(
+            [&event](const std::string &id, const Position &pos) {
+              std::cout << id << ", " << event.x << ", " << pos.x << std::endl;
+            });
       });
 
   /*ecsContext.getEventBus().subscribe(
       std::type_index(typeid(SetPosEvent)),
       [](ECSContext &context, const std::any &event) {
-        context.view<Position>([&event](const std::string &id, Position &pos) {
-          if (id == std::any_cast<SetPosEvent>(event).entityId) {
-            pos.x = std::any_cast<SetPosEvent>(event).x;
-            pos.y = std::any_cast<SetPosEvent>(event).y;
-          }
-        });
+        context.view<Position>(
+            [&event](const std::string &id, const Position &pos) {
+              std::cout << "SetPosEvent: " << id << ", "
+                        << std::any_cast<SetPosEvent>(event).x << ", " << pos.x
+                        << std::endl;
+            });
       });*/
 
   ecsContext.getScheduler().bootstrap();
+
   ecsContext.getScheduler().update(0.0f);
   std::cout << "-----" << std::endl;
   ecsContext.getCommandBuffer().enqueue(PrintCommand{"Hello World!"});
-  /*ecsContext.getCommandBuffer().enqueue(
-      std::make_any<PrintCommand>(PrintCommand{"Hello World!"}));*/
   ecsContext.getEventBus().publish(SetPosEvent{"entity1", 100, 200});
-  /*ecsContext.getEventBus().publish(
-      std::make_any<SetPosEvent>(SetPosEvent{"entity1", 100, 200}));*/
   ecsContext.getScheduler().update(0.1f);
   std::cout << "-----" << std::endl;
   ecsContext.getScheduler().update(0.2f);

@@ -52,7 +52,7 @@ void ECSScheduler::removePhase(const std::string &phase) {
 
 void ECSScheduler::addSystem(
     const std::string &phase, std::string systemId,
-    std::function<void(ECSContext &, const float dt)> system) {
+    std::function<void(ECSContext &, const float)> system) {
   systems[phase].emplace_back(std::move(systemId), std::move(system));
 }
 
