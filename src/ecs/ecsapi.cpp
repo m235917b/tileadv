@@ -12,13 +12,38 @@ void ECSAPI::view(
 void ECSAPI::addViewSystem(
     const std::string &phase, std::string systemId,
     std::vector<std::type_index> types,
-    std::function<void(const std::string &,
+    std::function<void(ECSContext &, const float, const std::string &,
                        const std::vector<const std::any *> &)>
         system) {
-  const auto sysFunc{[this, types = std::move(types),
-                      system = std::move(system)](ECSContext &, const float) {
-    this->context.getStore().view(types, system);
-  }};
+  const auto sysFunc{
+      [this, types = std::move(types),
+       system = std::move(system)](ECSContext &context, const float dt) {
+        const auto sysFuncView{
+            [&](const std::string &entityId,
+                const std::vector<const std::any *> &components) {
+              system(context, dt, entityId, components);
+            }};
+        this->context.getStore().view(types, sysFuncView);
+      }};
 
   context.getScheduler().addSystem(phase, systemId, sysFunc);
+}
+
+void ECSAPI::subscribeViewEventListener(
+    const std::type_index &type, std::vector<std::type_index> types,
+    std::function<void(ECSContext &, const std::any &, const std::string &,
+                       const std::vector<const std::any *> &)>
+        listener) {
+  const auto listenerFunc{
+      [this, types = std::move(types), listener = std::move(listener)](
+          ECSContext &context, const std::any &event) {
+        const auto listenerView{
+            [&](const std::string &entityId,
+                const std::vector<const std::any *> &components) {
+              listener(context, event, entityId, components);
+            }};
+        this->context.getStore().view(types, listenerView);
+      }};
+
+  context.getEventBus().subscribe(type, listenerFunc);
 }

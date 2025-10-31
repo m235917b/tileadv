@@ -43,20 +43,20 @@ int main() {
 
   ecsApi.addViewSystem<Position, Velocity>(
       "UpdatePositions", "MoveSystem",
-      [](const std::string &id, const Position &pos, const Velocity &vel) {
+      [](ECSContext &, const float dt, const std::string &id,
+         const Position &pos, const Velocity &vel) {
         std::cout << "Updated Positions:" << id << " " << pos.x << ", " << pos.y
-                  << ", " << vel.vx << std::endl;
+                  << ", " << vel.vx << ", " << dt << std::endl;
       });
 
   ecsContext.getScheduler().addSystem(
-      "UpdatePositions", "MoveSystem",
-      [](ECSContext &context, [[maybe_unused]] float dt) {
-        context.view<Position, Velocity>(
-            []([[maybe_unused]] const std::string &id, const Position &pos,
-               const Velocity &vel) {
-              std::cout << "Updated Positions:" << id << " " << pos.x << ", "
-                        << pos.y << ", " << vel.vx << std::endl;
-            });
+      "UpdatePositions", "MoveSystem", [](ECSContext &context, float) {
+        context.view<Position, Velocity>([](const std::string &id,
+                                            const Position &pos,
+                                            const Velocity &vel) {
+          std::cout << "Updated Positions:" << id << " " << pos.x << ", "
+                    << pos.y << ", " << vel.vx << std::endl;
+        });
       });
 
   /*ecsContext.view<Position, Velocity>(
@@ -95,13 +95,19 @@ int main() {
             });
       });*/
 
-  ecsContext.getEventBus().subscribe<SetPosEvent>(
+  /*ecsContext.getEventBus().subscribe<SetPosEvent>(
       [](ECSContext &context, const SetPosEvent &event) {
         std::cout << "SetPosEvent:" << std::endl;
         context.view<Position>(
             [&event](const std::string &id, const Position &pos) {
               std::cout << id << ", " << event.x << ", " << pos.x << std::endl;
             });
+      });*/
+
+  ecsApi.subscribeViewListener<SetPosEvent, Position>(
+      [](ECSContext &, const SetPosEvent &event, const std::string &id,
+         const Position &pos) {
+        std::cout << id << ", " << pos.x << ", " << event.entityId << std::endl;
       });
 
   /*ecsContext.getEventBus().subscribe(
