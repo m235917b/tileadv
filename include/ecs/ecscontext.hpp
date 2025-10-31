@@ -23,7 +23,8 @@ public:
 
   void
   view(std::vector<std::type_index> types,
-       std::function<void(const std::string &, std::vector<std::any *> &)> f) {
+       std::function<void(const std::string &, const std::vector<std::any *> &)>
+           f) {
     store.view(std::move(types), std::move(f));
   }
 

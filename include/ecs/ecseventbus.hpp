@@ -12,62 +12,27 @@ class ECSContext;
 
 class ECSEventBus {
 public:
-  ECSEventBus(ECSContext &context)
-      : context(context), queue(), listeners(), inDispatch(false) {}
+  ECSEventBus(ECSContext &context);
   ~ECSEventBus() = default;
+
+  void subscribe(const std::type_index &type,
+                 std::function<void(ECSContext &, const std::any &)> listener);
+  void publish(std::any event);
+  void dispatch();
 
   template <typename EventType>
   void
   subscribe(std::function<void(ECSContext &, const EventType &)> listener) {
-    if (inDispatch) {
-      return;
-    }
-
-    auto wrap = [listener = std::move(listener)](ECSContext &context,
-                                                 const std::any &eventAny) {
+    const auto wrap{[listener = std::move(listener)](ECSContext &context,
+                                                     const std::any &eventAny) {
       listener(context, std::any_cast<const EventType &>(eventAny));
-    };
+    }};
 
-    listeners[std::type_index(typeid(EventType))].emplace_back(std::move(wrap));
+    subscribe(std::type_index(typeid(EventType)), std::move(wrap));
   }
 
-  void subscribe(const std::type_index &type,
-                 std::function<void(ECSContext &, const std::any &)> listener) {
-    if (inDispatch) {
-      return;
-    }
-
-    listeners[type].emplace_back(std::move(listener));
-  }
-
-  template <typename EventType> void publish(EventType &&event) {
-    queue.emplace(std::forward<EventType>(event));
-  }
-
-  void publish(std::any event) { queue.emplace(std::move(event)); }
-
-  void dispatch() {
-    if (inDispatch) {
-      return;
-    }
-
-    inDispatch = true;
-
-    while (!queue.empty()) {
-      const auto &event = queue.front();
-      const auto eventType = std::type_index(event.type());
-
-      auto it = listeners.find(eventType);
-      if (it != listeners.end()) {
-        for (const auto &listener : it->second) {
-          listener(context, event);
-        }
-      }
-
-      queue.pop();
-    }
-
-    inDispatch = false;
+  template <typename EventType> void publish(EventType event) {
+    publish(std::move(std::make_any<EventType>(event)));
   }
 
 private:

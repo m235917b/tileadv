@@ -13,134 +13,60 @@ public:
   ECSStore() = default;
   ~ECSStore() = default;
 
-  void destroyEntity(const std::string &entityId) {
-    for (auto &pool : componentStores) {
-      pool.second.erase(entityId);
-    }
-  }
+  void destroyEntity(const std::string &entityId);
+  void upsertComponent(const std::string &entityId, std::any component);
+  std::any *getComponent(const std::string &entityId,
+                         const std::type_index &type);
+  const std::any *getComponent(const std::string &entityId,
+                               const std::type_index &type) const;
+  void view(const std::vector<std::type_index> &types,
+            const std::function<void(const std::string &,
+                                     const std::vector<std::any *> &)> &f);
 
   template <typename T>
   void upsertComponent(const std::string &entityId, T component) {
-    auto &pool = componentStores[std::type_index(typeid(T))];
-    pool[entityId] = std::make_any<T>(std::move(component));
-  }
-
-  void upsertComponent(const std::string &entityId, std::any component) {
-    auto &pool = componentStores[std::type_index(component.type())];
-    pool[entityId] = std::move(component);
+    upsertComponent(entityId, std::move(std::make_any<T>(component)));
   }
 
   template <typename T>
   const T *getComponent(const std::string &entityId) const {
-    auto it = componentStores.find(std::type_index(typeid(T)));
-
-    if (it != componentStores.end()) {
-      const auto &pool = it->second;
-      const auto compIt = pool.find(entityId);
-
-      if (compIt != pool.end()) {
-        return std::any_cast<T>(&(compIt->second));
-      }
-    }
-
-    return nullptr;
+    return getComponent(entityId, std::type_index(typeid(T)));
   }
 
   template <typename T> T *getComponent(const std::string &entityId) {
-    auto it = componentStores.find(std::type_index(typeid(T)));
-
-    if (it != componentStores.end()) {
-      auto &pool = it->second;
-      auto compIt = pool.find(entityId);
-
-      if (compIt != pool.end()) {
-        return std::any_cast<T>(&(compIt->second));
-      }
-    }
-
-    return nullptr;
-  }
-
-  std::any *getComponent(const std::string &entityId,
-                         const std::type_index &type) {
-    auto it = componentStores.find(type);
-
-    if (it != componentStores.end()) {
-      auto &pool = it->second;
-      auto compIt = pool.find(entityId);
-
-      if (compIt != pool.end()) {
-        return &(compIt->second);
-      }
-    }
-
-    return nullptr;
-  }
-
-  const std::any *getComponent(const std::string &entityId,
-                               const std::type_index &type) const {
-    auto it = componentStores.find(type);
-
-    if (it != componentStores.end()) {
-      auto &pool = it->second;
-      auto compIt = pool.find(entityId);
-
-      if (compIt != pool.end()) {
-        return &(compIt->second);
-      }
-    }
-
-    return nullptr;
+    return getComponent(entityId, std::type_index(typeid(T)));
   }
 
   template <typename... Ts, typename Func> void view(Func &&f) {
-    using First = std::tuple_element_t<0, std::tuple<Ts...>>;
-    auto it = componentStores.find(std::type_index(typeid(First)));
-    if (it == componentStores.end()) {
-      return;
-    }
+    static_assert(sizeof...(Ts) > 0);
+    std::vector<std::type_index> types;
+    types.reserve(sizeof...(Ts));
+    (types.emplace_back(std::type_index(typeid(std::decay_t<Ts>))), ...);
 
-    auto &firstPool = it->second;
-    for (auto &[id, anyVal] : firstPool) {
-      if ((getComponent<Ts>(id) && ...)) {
-        f(id, (*getComponent<Ts>(id))...);
-      }
-    }
-  }
+    const auto wrap{
+        [f = std::move(f)](const std::string &entityId,
+                           const std::vector<std::any *> &components) {
+          auto apply = [&]<std::size_t... Is>(std::index_sequence<Is...>) {
+            f(entityId, (*std::any_cast<Ts>(components[Is]))...);
+          };
+          apply(std::make_index_sequence<sizeof...(Ts)>{});
+        }};
 
-  void
-  view(std::vector<std::type_index> types,
-       std::function<void(const std::string &, std::vector<std::any *> &)> f) {
-    auto it{componentStores.find(types.at(0))};
-
-    if (it == componentStores.end()) {
-      return;
-    }
-
-    auto &firstPool{it->second};
-
-    for (auto &[id, anyVal] : firstPool) {
-      std::vector<std::any *> components{};
-      bool ok{true};
-
-      for (const auto &t : types) {
-        auto component{getComponent(id, t)};
-
-        if (!component) {
-          ok = false;
-          break;
-        }
-
-        components.emplace_back(component);
-      }
-
-      if (ok) {
-        f(id, components);
-      }
-    }
+    view(types, wrap);
   }
 
 private:
   std::unordered_map<std::type_index, std::unordered_map<std::string, std::any>>
       componentStores;
+
+  std::unordered_map<std::string, std::any> *
+  getSmallestContainer(const std::vector<std::type_index> &types);
+
+  template <typename... Ts>
+  std::unordered_map<std::string, std::any> *getSmallestContainer() {
+    std::vector<std::type_index> types;
+    types.reserve(sizeof...(Ts));
+    (types.emplace_back(std::type_index(typeid(std::decay_t<Ts>))), ...);
+    return getSmallestContainer(types);
+  }
 };
