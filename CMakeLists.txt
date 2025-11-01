@@ -31,19 +31,32 @@ else()
   target_compile_options(tileadv PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 
-list(REMOVE_ITEM GAME_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
-
-add_executable(run_tests
-    tests/test1.cpp
-    tests/catch_amalgamated.cpp
-    ${GAME_SOURCES}
+file(GLOB_RECURSE GAME_SOURCES
+     "${PROJECT_SOURCE_DIR}/src/*.cpp"
 )
 
-target_include_directories(run_tests PRIVATE include include/thirdparty)
+list(REMOVE_ITEM GAME_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 
-target_link_libraries(run_tests PRIVATE stdc++fs SDL3::SDL3 SDL3_image::SDL3_image)
+file(GLOB TEST_SOURCES "${PROJECT_SOURCE_DIR}/tests/*.cpp")
+
+foreach(test_src ${TEST_SOURCES})
+    get_filename_component(test_name ${test_src} NAME_WE)
+
+    add_executable(${test_name}_tests ${PROJECT_SOURCE_DIR}/testsrc/catch_amalgamated.cpp ${test_src} ${GAME_SOURCES})
+    target_include_directories(${test_name}_tests PRIVATE include include/thirdparty)
+    target_link_libraries(${test_name}_tests PRIVATE stdc++fs SDL3::SDL3 SDL3_image::SDL3_image)
+
+    add_test(NAME ${test_name} COMMAND ${test_name}_tests)
+endforeach()
+
+# add_executable(run_tests
+#    ${TEST_SOURCES}
+#    ${GAME_SOURCES}
+#)
+#target_include_directories(run_tests PRIVATE include include/thirdparty)
+#target_link_libraries(run_tests PRIVATE stdc++fs SDL3::SDL3 SDL3_image::SDL3_image)
 
 include(CTest)
 enable_testing()
 
-add_test(NAME RunECSTests COMMAND run_tests)
+# add_test(NAME RunECSTests COMMAND run_tests)

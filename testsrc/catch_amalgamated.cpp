@@ -218,7 +218,7 @@ namespace Catch {
                     double sb = stddev.point;
                     double mn = mean.point / n;
                     double mg_min = mn / 2.;
-                    double sg = (std::min)( mg_min / 4., sb / std::sqrt( n ) );
+                    double sg = std::min<double>( mg_min / 4., sb / std::sqrt( n ) );
                     double sg2 = sg * sg;
                     double sb2 = sb * sb;
 

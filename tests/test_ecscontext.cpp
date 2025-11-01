@@ -1,4 +1,3 @@
-/*#define CATCH_CONFIG_MAIN
 #include "ecs/ecscontext.hpp"
 #include "thirdparty/catch_amalgamated.hpp"
 
@@ -23,8 +22,4 @@ TEST_CASE("ECS Upsert adds and retrieves components") {
     }
   });
   REQUIRE(found);
-}*/
-
-#include <thirdparty/catch_amalgamated.hpp>
-
-TEST_CASE("example test") { REQUIRE(1 + 1 == 2); }
+}
