@@ -32,11 +32,11 @@ public:
 
   template <typename T>
   const T *getComponent(const std::string &entityId) const {
-    return getComponent(entityId, std::type_index(typeid(T)));
+    return std::any_cast<T>(getComponent(entityId, std::type_index(typeid(T))));
   }
 
   template <typename T> T *getComponent(const std::string &entityId) {
-    return getComponent(entityId, std::type_index(typeid(T)));
+    return std::any_cast<T>(getComponent(entityId, std::type_index(typeid(T))));
   }
 
   template <typename... Ts, typename Func> void view(Func &&f) const {
