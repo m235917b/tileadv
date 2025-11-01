@@ -23,8 +23,6 @@ file(GLOB_RECURSE HEADERS
 
 add_executable(tileadv ${SOURCES})
 
-target_sources(tileadv PRIVATE ${HEADERS})
-
 target_link_libraries(tileadv PRIVATE SDL3::SDL3 SDL3_image::SDL3_image)
 
 if(MSVC)
@@ -33,5 +31,19 @@ else()
   target_compile_options(tileadv PRIVATE -Wall -Wextra -Wpedantic -Werror)
 endif()
 
+list(REMOVE_ITEM GAME_SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
+
+add_executable(run_tests
+    tests/test1.cpp
+    tests/catch_amalgamated.cpp
+    ${GAME_SOURCES}
+)
+
+target_include_directories(run_tests PRIVATE include include/thirdparty)
+
+target_link_libraries(run_tests PRIVATE stdc++fs SDL3::SDL3 SDL3_image::SDL3_image)
+
 include(CTest)
 enable_testing()
+
+add_test(NAME RunECSTests COMMAND run_tests)
