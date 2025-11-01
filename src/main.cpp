@@ -29,14 +29,26 @@ int main() {
   ECSContext ecsContext{};
   ECSAPI ecsApi{ecsContext};
 
-  ecsContext.getCommandBuffer().enqueue(
-      UpsertComponent{"entity1", Position{0.0f, 0.0f}});
+  ecsApi.getPrefab().registerRecipe<Position>(Position{-1.0, -2.0});
+  ecsApi.getPrefab().registerRecipe<Position, Velocity>(
+      "npc", Position{-3.0, -4.0}, Velocity{7.0, 8.0});
+
+  ecsApi.instantiateEntity("entity1", "npc")
+      .set<float, Position>(&Position::x, 10.5f)
+      .set<float, Velocity>(&Velocity::vx, 11.1f)
+      .finish();
+  ecsApi.createEntity("entity2")
+      .set<float, Position>(&Position::y, 22.22f)
+      .finish();
+
   /*ecsContext.getCommandBuffer().enqueue(std::make_any<UpsertComponent>(
       UpsertComponent{"entity1", Position{0.0f, 0.0f}}));*/
+  /*ecsContext.getCommandBuffer().enqueue(
+      UpsertComponent{"entity1", Position{0.0f, 0.0f}});
   ecsContext.getCommandBuffer().enqueue(
       UpsertComponent{"entity1", Velocity{1.0f, 2.0f}});
   ecsContext.getCommandBuffer().enqueue(
-      UpsertComponent{"entity2", Position{10.0f, 10.0f}});
+      UpsertComponent{"entity2", Position{10.0f, 10.0f}});*/
 
   ecsContext.getScheduler().addPhasePre("UpdatePositions");
   ecsContext.getScheduler().addPhasePost("PrintIds");
@@ -51,9 +63,9 @@ int main() {
 
   ecsContext.getScheduler().addSystem(
       "UpdatePositions", "MoveSystem", [](ECSContext &context, float) {
-        context.view<Position, Velocity>([](const std::string &id,
-                                            const Position &pos,
-                                            const Velocity &vel) {
+        context.getStore().view<Position, Velocity>([](const std::string &id,
+                                                       const Position &pos,
+                                                       const Velocity &vel) {
           std::cout << "Positions: " << id << " " << pos.x << ", " << pos.y
                     << ", " << vel.vx << std::endl;
         });

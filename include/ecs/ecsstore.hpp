@@ -19,10 +19,10 @@ public:
                          const std::type_index &type);
   const std::any *getComponent(const std::string &entityId,
                                const std::type_index &type) const;
-  void
-  view(const std::vector<std::type_index> &types,
-       const std::function<void(const std::string &,
-                                const std::vector<const std::any *> &)> &f);
+  void view(const std::vector<std::type_index> &types,
+            const std::function<void(const std::string &,
+                                     const std::vector<const std::any *> &)> &f)
+      const;
 
   template <typename T>
   void upsertComponent(const std::string &entityId, T component) {
@@ -38,7 +38,7 @@ public:
     return getComponent(entityId, std::type_index(typeid(T)));
   }
 
-  template <typename... Ts, typename Func> void view(Func &&f) {
+  template <typename... Ts, typename Func> void view(Func &&f) const {
     static_assert(sizeof...(Ts) > 0);
 
     std::vector<std::type_index> types;
@@ -61,11 +61,12 @@ private:
   std::unordered_map<std::type_index, std::unordered_map<std::string, std::any>>
       componentStores;
 
-  std::unordered_map<std::string, std::any> *
-  getSmallestContainer(const std::vector<std::type_index> &types);
+  const std::unordered_map<std::string, std::any> *
+  getSmallestContainer(const std::vector<std::type_index> &types) const;
 
   template <typename... Ts>
-  std::unordered_map<std::string, std::any> *getSmallestContainer() {
+  const std::unordered_map<std::string, std::any> *
+  getSmallestContainer() const {
     std::vector<std::type_index> types;
     types.reserve(sizeof...(Ts));
     (types.emplace_back(std::type_index(typeid(std::decay_t<Ts>))), ...);

@@ -27,12 +27,3 @@ ECSCommandBuffer &ECSContext::getCommandBuffer() { return commandBuffer; }
 ECSEventBus &ECSContext::getEventBus() { return eventBus; }
 
 const ECSStore &ECSContext::getStore() const noexcept { return store; }
-
-ECSStore &ECSContext::getStore() { return store; }
-
-void ECSContext::view(
-    const std::vector<std::type_index> &types,
-    const std::function<void(const std::string &,
-                             const std::vector<const std::any *> &)> &f) {
-  store.view(std::move(types), std::move(f));
-};

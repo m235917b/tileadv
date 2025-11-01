@@ -1,16 +1,27 @@
 #pragma once
 
-#include "ecs/ecscontext.hpp"
+#include <any>
+#include <functional>
+#include <string>
+#include <typeindex>
+#include <vector>
+
+#include "ecs/ecsentitybuilder.hpp"
+#include "ecs/ecsprefab.hpp"
+
+class ECSContext;
 
 class ECSAPI {
 public:
   ECSAPI(ECSContext &context);
   ~ECSAPI() = default;
 
-  void
-  view(const std::vector<std::type_index> &types,
-       const std::function<void(const std::string &,
-                                const std::vector<const std::any *> &)> &f);
+  ECSPrefab &getPrefab();
+
+  ECSEntityBuilder createEntity(std::string entityId);
+  ECSEntityBuilder instantiateEntity(std::string entityId,
+                                     std::string recipeId);
+
   void addViewSystem(
       const std::string &phase, std::string systemId,
       std::vector<std::type_index> types,
@@ -22,10 +33,6 @@ public:
       std::function<void(ECSContext &, const std::any &, const std::string &,
                          const std::vector<const std::any *> &)>
           listener);
-
-  template <typename... Ts, typename Func> void view(Func &&f) {
-    context.getStore().view<Ts...>(std::forward<Func>(f));
-  }
 
   template <typename... Ts, typename Func>
   void addViewSystem(const std::string &phase, std::string systemId,
@@ -72,4 +79,5 @@ public:
 
 private:
   ECSContext &context;
+  ECSPrefab prefab;
 };

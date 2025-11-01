@@ -40,7 +40,7 @@ const std::any *ECSStore::getComponent(const std::string &entityId,
 void ECSStore::view(
     const std::vector<std::type_index> &types,
     const std::function<void(const std::string &,
-                             const std::vector<const std::any *> &)> &f) {
+                             const std::vector<const std::any *> &)> &f) const {
   if (types.size() == 0) {
     return;
   }
@@ -76,9 +76,9 @@ void ECSStore::view(
   }
 }
 
-std::unordered_map<std::string, std::any> *
-ECSStore::getSmallestContainer(const std::vector<std::type_index> &types) {
-  std::unordered_map<std::string, std::any> *smallest{nullptr};
+const std::unordered_map<std::string, std::any> *ECSStore::getSmallestContainer(
+    const std::vector<std::type_index> &types) const {
+  const std::unordered_map<std::string, std::any> *smallest{nullptr};
   for (const auto &type : types) {
     const auto it{componentStores.find(type)};
 

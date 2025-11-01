@@ -1,12 +1,19 @@
 #include "ecs/ecsapi.hpp"
+#include "ecs/ecscontext.hpp"
+#include "ecs/ecsentitybuilder.hpp"
 
-ECSAPI::ECSAPI(ECSContext &context) : context(context) {}
+ECSAPI::ECSAPI(ECSContext &context) : context(context), prefab() {}
 
-void ECSAPI::view(
-    const std::vector<std::type_index> &types,
-    const std::function<void(const std::string &,
-                             const std::vector<const std::any *> &)> &f) {
-  context.getStore().view(std::move(types), std::move(f));
+ECSPrefab &ECSAPI::getPrefab() { return prefab; }
+
+ECSEntityBuilder ECSAPI::createEntity(std::string entityId) {
+  return ECSEntityBuilder(context, prefab, std::move(entityId));
+}
+
+ECSEntityBuilder ECSAPI::instantiateEntity(std::string entityId,
+                                           std::string recipeId) {
+  return ECSEntityBuilder(context, prefab, std::move(entityId),
+                          std::move(recipeId));
 }
 
 void ECSAPI::addViewSystem(
