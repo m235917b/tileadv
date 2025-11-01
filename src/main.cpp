@@ -33,12 +33,22 @@ int main() {
   ecsApi.getPrefab().registerRecipe<Position, Velocity>(
       "npc", Position{-3.0, -4.0}, Velocity{7.0, 8.0});
 
-  ecsApi.instantiateEntity("entity1", "npc")
+  /*ecsApi.instantiateEntity("entity1", "npc")
       .set<float, Position>(&Position::x, 10.5f)
       .set<float, Velocity>(&Velocity::vx, 11.1f)
       .finish();
   ecsApi.createEntity("entity2")
       .set<float, Position>(&Position::y, 22.22f)
+      .finish();*/
+  /*ecsApi.instantiateEntity("entity1", "npc").finish();
+  ecsApi.createEntity("entity2").add<Position>().finish();*/
+  ecsApi.instantiateEntity("entity1", "npc")
+      .set(&Position::x, 5.5f)
+      .set(&Velocity::vx, 0.3f)
+      .finish();
+  ecsApi.createEntity("entity2")
+      .add<Position>()
+      .set(&Position::y, 0.03f)
       .finish();
 
   /*ecsContext.getCommandBuffer().enqueue(std::make_any<UpsertComponent>(
@@ -66,8 +76,8 @@ int main() {
         context.getStore().view<Position, Velocity>([](const std::string &id,
                                                        const Position &pos,
                                                        const Velocity &vel) {
-          std::cout << "Positions: " << id << " " << pos.x << ", " << pos.y
-                    << ", " << vel.vx << std::endl;
+          std::cout << "Positions + Velocities: " << id << " " << pos.x << ", "
+                    << pos.y << ", " << vel.vx << ", " << vel.vy << std::endl;
         });
       });
 

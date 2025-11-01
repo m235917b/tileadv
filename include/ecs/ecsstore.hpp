@@ -14,7 +14,7 @@ public:
   ~ECSStore() = default;
 
   void destroyEntity(const std::string &entityId);
-  void upsertComponent(const std::string &entityId, std::any component);
+  void upsertComponent(std::string entityId, std::any component);
   std::any *getComponent(const std::string &entityId,
                          const std::type_index &type);
   const std::any *getComponent(const std::string &entityId,
@@ -25,8 +25,9 @@ public:
       const;
 
   template <typename T>
-  void upsertComponent(const std::string &entityId, T component) {
-    upsertComponent(entityId, std::move(std::make_any<T>(component)));
+  void upsertComponent(std::string entityId, T component) {
+    upsertComponent(std::move(entityId),
+                    std::move(std::make_any<T>(component)));
   }
 
   template <typename T>

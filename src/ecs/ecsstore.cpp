@@ -10,10 +10,9 @@ void ECSStore::destroyEntity(const std::string &entityId) {
   }
 }
 
-void ECSStore::upsertComponent(const std::string &entityId,
-                               std::any component) {
+void ECSStore::upsertComponent(std::string entityId, std::any component) {
   auto &pool{componentStores[std::type_index(component.type())]};
-  pool[entityId] = std::move(component);
+  pool[std::move(entityId)] = std::move(component);
 }
 
 std::any *ECSStore::getComponent(const std::string &entityId,

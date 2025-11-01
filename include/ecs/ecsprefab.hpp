@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <vector>
 
+class ECSEntityBuilder;
+
 class ECSPrefab {
 public:
   ECSPrefab() = default;
@@ -15,9 +17,9 @@ public:
   void registerRecipe(std::string recipeId,
                       std::vector<std::any> defaultComponents);
   void registerRecipe(std::type_index componentType, std::any defaultComponent);
-  const std::any *getRecipeDefault(std::type_index componentType,
-                                   std::string recipeId) const;
-  const std::any *getDefault(std::type_index componentType) const;
+  const std::any *getRecipeDefault(const std::type_index &componentType,
+                                   const std::string &recipeId) const;
+  const std::any *getDefault(const std::type_index &componentType) const;
 
   template <typename... Ts>
   void registerRecipe(std::string recipeId, Ts... defaultComponents) {
@@ -34,7 +36,7 @@ public:
   }
 
   template <typename ComponentType>
-  const ComponentType *getRecipeDefault(std::string recipeId) const {
+  const ComponentType *getRecipeDefault(const std::string &recipeId) const {
     const std::any *anyRec{
         getRecipeDefault(std::type_index(typeid(ComponentType)), recipeId)};
     return anyRec ? &std::any_cast<const ComponentType &>(*anyRec) : nullptr;
@@ -48,4 +50,9 @@ public:
 private:
   std::unordered_map<std::string, std::vector<std::any>> recipes;
   std::unordered_map<std::type_index, std::any> defaults;
+
+  const std::vector<std::any> *
+  getRecipeDefaults(const std::string &recipeId) const;
+
+  friend class ECSEntityBuilder;
 };

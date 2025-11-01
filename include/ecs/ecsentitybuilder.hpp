@@ -18,11 +18,18 @@ public:
   ~ECSEntityBuilder() = default;
 
   ECSEntityBuilder &add(std::any component);
+  ECSEntityBuilder &add(std::type_index componentType);
   void finish();
 
   template <typename ComponentType>
   ECSEntityBuilder &add(ComponentType component) {
     add(std::make_any<ComponentType>(std::move(component)));
+
+    return *this;
+  }
+
+  template <typename ComponentType> ECSEntityBuilder &add() {
+    add(std::type_index(typeid(ComponentType)));
 
     return *this;
   }
