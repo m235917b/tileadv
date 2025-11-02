@@ -2,7 +2,7 @@
 
 #include "ecs/ecscontext.hpp"
 #include "gui/guicontext.hpp"
-#include "view/ecsview.hpp"
+#include "view/view.hpp"
 
 std::string registerRenderSystem(const std::string &phase, ECSContext &context,
                                  const RenderContext &renderContext,

@@ -5,7 +5,7 @@
 #include "ecs/ecsapi.hpp"
 #include "ecs/ecscontext.hpp"
 #include "gui/guicontext.hpp"
-#include "view/ecsview.hpp"
+#include "view/view.hpp"
 
 constexpr int framerate{144};
 

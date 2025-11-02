@@ -1,4 +1,4 @@
-#include "ecsasc.hpp"
+#include "asc.hpp"
 
 #include <any>
 
@@ -7,7 +7,7 @@
 #include "resources/applicationstateresource.hpp"
 #include "systems/keyinputsystem.hpp"
 #include "systems/rendersystem.hpp"
-#include "view/ecsview.hpp"
+#include "view/view.hpp"
 
 ECSASC::ECSASC()
     : ecsContext(), ecsApi(ecsContext), renderContext(),

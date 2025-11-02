@@ -1,4 +1,4 @@
-#include "view/ecsview.hpp"
+#include "view/view.hpp"
 
 GUIRenderContextWrapper::GUIRenderContextWrapper(
     const RenderContext &renderContext)
