@@ -20,7 +20,12 @@ struct UpsertComponent {
   std::any payload;
 };
 
+struct UpsertResource {
+  std::any payload;
+};
+
 inline std::set<std::type_index> reserved_commands{
     std::type_index(typeid(PrefabCommand)),
     std::type_index(typeid(PrintCommand)),
-    std::type_index(typeid(UpsertComponent))};
+    std::type_index(typeid(UpsertComponent)),
+    std::type_index(typeid(UpsertResource))};
