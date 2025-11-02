@@ -2,11 +2,11 @@
 #include <sstream>
 #include <vector>
 
-#include "components/chunk.hpp"
+#include "resources/chunkresource.hpp"
 #include "utils/csvreader.hpp"
 
-Chunk csvToChunk(const std::string &) {
-  /*std::ifstream file(filename);
+Chunk csvToChunk(const std::string &filename) {
+  std::ifstream file(filename);
 
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file: " + filename);
@@ -30,24 +30,22 @@ Chunk csvToChunk(const std::string &) {
   std::string left;
   std::getline(ss, left, ',');
 
-  Chunk chunk(sizex, sizey);
-  chunk.setNeighbors(up, right, down, left);
-
   int posX{0};
   int posY{0};
+  auto worldGrid{std::vector<Tile>(sizex * sizey, {TileType::EMPTY})};
 
   while (std::getline(file, line)) {
     std::stringstream ss(line);
     std::string value;
     while (std::getline(ss, value, ',')) {
-      const Tile tile{TileFactory::fromInt(std::stoi(value))};
-      chunk.setTile(posX, posY, tile);
+      const auto tileVal{std::stoi(value)};
+      const auto tile{Tile{static_cast<TileType>(tileVal), tileVal >= 100}};
+      worldGrid[posY * sizex + posX] = tile;
       posX++;
     }
     posY++;
     posX = 0;
   }
 
-  return chunk;*/
-  return Chunk{};
+  return Chunk{sizex, sizey, std::move(worldGrid), up, right, down, left};
 }

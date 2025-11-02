@@ -14,9 +14,7 @@ public:
   ECSASC();
   ~ECSASC() = default;
 
-  void init();
   void run();
-  void destroy();
 
 private:
   ECSContext ecsContext;
@@ -24,4 +22,12 @@ private:
   RenderContext renderContext;
   GUIRenderContextWrapper renderContextWrapper;
   GUIContext guiContext;
+
+  void initSDL();
+  void initResources();
+  void initPhases();
+  void initSystems();
+  void initEventListeners();
+  void initCommandHandlers();
+  void destroy();
 };

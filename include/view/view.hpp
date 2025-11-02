@@ -11,6 +11,8 @@ constexpr int screenWidth{2560};
 constexpr int screenHeight{1440};
 const std::string cursorTexturePath{"guiassets/cursor.png"};
 
+class ECSContext;
+
 struct RenderContext {
   int screenWidth;
   int screenHeight;
@@ -35,5 +37,9 @@ private:
 };
 
 bool initView(RenderContext &renderContext);
+
+bool loadTextures(RenderContext &renderContext, ECSContext &ecsContext);
+
+void destroyTextures(ECSContext &ecsContext);
 
 int destroyView(RenderContext &renderContext);

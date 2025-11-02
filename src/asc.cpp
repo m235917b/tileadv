@@ -5,6 +5,7 @@
 #include "ecs/ecs.hpp"
 #include "eventhandler/keydowneventhandler.hpp"
 #include "resources/applicationstateresource.hpp"
+#include "resources/chunkresource.hpp"
 #include "resources/guicontextresource.hpp"
 #include "resources/rendercontextresource.hpp"
 #include "systems/keyinputsystem.hpp"
@@ -15,35 +16,53 @@ ECSASC::ECSASC()
     : ecsContext(), ecsApi(ecsContext), renderContext(),
       renderContextWrapper(renderContext), guiContext(renderContextWrapper) {};
 
-void ECSASC::init() {
+void ECSASC::initSDL() {
   initView(renderContext);
+  loadTextures(renderContext, ecsContext);
+}
 
+void ECSASC::initResources() {
   const auto appState{std::make_any<ApplicationStateResource>(
       ApplicationStateResource{ApplicationState::RUNNING})};
   const auto resAny{UpsertResource{appState}};
   ecsContext.getCommandBuffer().enqueue<UpsertResource>(resAny);
+
   const auto rc{std::make_any<RenderContextResource>(
       RenderContextResource{&renderContext})};
   const auto rcAny{UpsertResource{rc}};
   ecsContext.getCommandBuffer().enqueue<UpsertResource>(rcAny);
+
   const auto guic{
       std::make_any<GUIContextResource>(GUIContextResource{&guiContext})};
   const auto guicAny{UpsertResource{guic}};
   ecsContext.getCommandBuffer().enqueue<UpsertResource>(guicAny);
 
-  ecsContext.getScheduler().addPhasePre("input");
-  ecsContext.getScheduler().addPhasePost("rendering");
-
-  registerRenderSystem("rendering", ecsContext);
-  registerKeyInputSystem("input", ecsContext);
-
-  subscribeKeyDownEventHandler(ecsContext);
-
-  ecsContext.getScheduler().bootstrap();
+  initChunkResource(ecsContext);
 }
 
+void ECSASC::initPhases() {
+  ecsContext.getScheduler().addPhasePre("input");
+  ecsContext.getScheduler().addPhasePost("rendering");
+}
+
+void ECSASC::initSystems() {
+  registerRenderSystem("rendering", ecsContext);
+  registerKeyInputSystem("input", ecsContext);
+}
+
+void ECSASC::initEventListeners() { subscribeKeyDownEventHandler(ecsContext); }
+
+void ECSASC::initCommandHandlers() {}
+
 void ECSASC::run() {
-  init();
+  initSDL();
+  initResources();
+  initPhases();
+  initSystems();
+  initEventListeners();
+  initCommandHandlers();
+
+  ecsContext.getScheduler().bootstrap();
 
   bool run{true};
 
@@ -60,4 +79,7 @@ void ECSASC::run() {
   destroy();
 }
 
-void ECSASC::destroy() { destroyView(renderContext); }
+void ECSASC::destroy() {
+  destroyTextures(ecsContext);
+  destroyView(renderContext);
+}

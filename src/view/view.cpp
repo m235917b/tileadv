@@ -1,5 +1,8 @@
 #include "view/view.hpp"
 
+#include "ecs/ecscontext.hpp"
+#include "resources/textureresource.hpp"
+
 GUIRenderContextWrapper::GUIRenderContextWrapper(
     const RenderContext &renderContext)
     : renderContext(renderContext) {}
@@ -85,6 +88,54 @@ bool initView(RenderContext &renderContext) {
   renderContext.cursorTexturePath = cursorTexturePath;
 
   return true;
+}
+
+SDL_Texture *loadTextureFromFile(const std::string &path,
+                                 SDL_Renderer &renderer) {
+  SDL_Texture *texture;
+
+  SDL_Surface *loadedSurface{IMG_Load(path.c_str())};
+
+  if (!loadedSurface) {
+    return nullptr;
+  }
+
+  if (SDL_SetSurfaceColorKey(
+          loadedSurface, true,
+          SDL_MapSurfaceRGB(loadedSurface, 0xFF, 0x00, 0xFF)) == false) {
+    return nullptr;
+  }
+
+  texture = SDL_CreateTextureFromSurface(&renderer, loadedSurface);
+
+  SDL_DestroySurface(loadedSurface);
+
+  return texture;
+}
+
+bool loadTextures(RenderContext &renderContext, ECSContext &ecsContext) {
+  auto *texture{
+      loadTextureFromFile("assets/tiles_world.png", *renderContext.renderer)};
+
+  if (!texture) {
+    return false;
+  }
+
+  const auto textureRes{
+      std::make_any<TextureResource>(TextureResource{texture})};
+  const auto textureResAny{UpsertResource{textureRes}};
+  ecsContext.getCommandBuffer().enqueue<UpsertResource>(textureResAny);
+
+  return true;
+}
+
+void destroyTextures(ECSContext &ecsContext) {
+  // TODO: Destroy via a mutating command!
+  const auto &textures{
+      ecsContext.getResourceManager().getResource<TextureResource>()};
+  SDL_DestroyTexture(textures->tiles);
+  /*SDL_DestroyTexture(texture);
+  texture = nullptr;*/
 }
 
 int destroyView(RenderContext &renderContext) {

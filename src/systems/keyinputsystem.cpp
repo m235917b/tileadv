@@ -8,6 +8,7 @@
 std::string registerKeyInputSystem(const std::string &phase,
                                    ECSContext &ecsContext) {
   std::string id{"key_input"};
+
   ecsContext.getScheduler().registerSystem(
       phase, id, [](ECSContext &context, const float) {
         SDL_Event e;
@@ -20,5 +21,6 @@ std::string registerKeyInputSystem(const std::string &phase,
           }
         }
       });
+
   return id;
 }

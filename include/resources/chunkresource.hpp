@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 
+class ECSContext;
+
 enum class TileType {
   EMPTY = 0,
   GRASS = 1,
@@ -28,3 +30,5 @@ struct Chunk {
   std::string down;
   std::string left;
 };
+
+void initChunkResource(ECSContext &ecsContext);
