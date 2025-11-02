@@ -2,12 +2,10 @@
 
 #include <string>
 
-#include "view/ecsview.hpp"
-
 class ECSContext;
-class RenderContext;
 class GUIContext;
+struct RenderContext;
 
 std::string registerRenderSystem(const std::string &phase, ECSContext &context,
-                                 const ecsview::RenderContext &renderContext,
+                                 const RenderContext &renderContext,
                                  const GUIContext &guiContext);

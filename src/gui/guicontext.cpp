@@ -3,10 +3,10 @@
 
 #include "gui/asciiatlas.hpp"
 #include "gui/guicontext.hpp"
+#include "gui/guirendercontext.hpp"
 #include "gui/guitreewalker.hpp"
-#include "utils/rendercontext.hpp"
 
-GUIContext::GUIContext(const utils::RenderContext &renderContext)
+GUIContext::GUIContext(const GUIRenderContext &renderContext)
     : guiView(renderContext), components(), focusBuffer(), lookup() {}
 
 bool GUIContext::init() {

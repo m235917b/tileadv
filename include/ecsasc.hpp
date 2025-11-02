@@ -21,7 +21,7 @@ public:
 private:
   ECSContext ecsContext;
   ECSAPI ecsApi;
-  ecsview::RenderContext renderContext;
-  ecsview::GUIRenderContextWrapper renderContextWrapper;
+  RenderContext renderContext;
+  GUIRenderContextWrapper renderContextWrapper;
   GUIContext guiContext;
 };

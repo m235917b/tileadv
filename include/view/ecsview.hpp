@@ -5,9 +5,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
-#include "utils/rendercontext.hpp"
-
-namespace ecsview {
+#include "gui/guirendercontext.hpp"
 
 constexpr int screenWidth{2560};
 constexpr int screenHeight{1440};
@@ -23,9 +21,9 @@ struct RenderContext {
   std::string cursorTexturePath;
 };
 
-class GUIRenderContextWrapper : public utils::RenderContext {
+class GUIRenderContextWrapper : public GUIRenderContext {
 public:
-  GUIRenderContextWrapper(const ecsview::RenderContext &renderContext);
+  GUIRenderContextWrapper(const RenderContext &renderContext);
   ~GUIRenderContextWrapper() = default;
 
   SDL_Renderer &getRenderer() const;
@@ -33,11 +31,9 @@ public:
   int getScreenHeight() const;
 
 private:
-  const ecsview::RenderContext &renderContext;
+  const RenderContext &renderContext;
 };
 
-bool init(ecsview::RenderContext &renderContext);
+bool initView(RenderContext &renderContext);
 
-int destroy(ecsview::RenderContext &renderContext);
-
-} // namespace ecsview
+int destroyView(RenderContext &renderContext);

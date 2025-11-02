@@ -1,22 +1,22 @@
 #include "view/ecsview.hpp"
 
-ecsview::GUIRenderContextWrapper::GUIRenderContextWrapper(
-    const ecsview::RenderContext &renderContext)
+GUIRenderContextWrapper::GUIRenderContextWrapper(
+    const RenderContext &renderContext)
     : renderContext(renderContext) {}
 
-SDL_Renderer &ecsview::GUIRenderContextWrapper::getRenderer() const {
+SDL_Renderer &GUIRenderContextWrapper::getRenderer() const {
   return *renderContext.renderer;
 }
 
-int ecsview::GUIRenderContextWrapper::getScreenWidth() const {
+int GUIRenderContextWrapper::getScreenWidth() const {
   return renderContext.screenWidth;
 }
 
-int ecsview::GUIRenderContextWrapper::getScreenHeight() const {
+int GUIRenderContextWrapper::getScreenHeight() const {
   return renderContext.screenHeight;
 }
 
-bool ecsview::init(ecsview::RenderContext &renderContext) {
+bool initView(RenderContext &renderContext) {
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Cursor *cursor;
@@ -27,9 +27,8 @@ bool ecsview::init(ecsview::RenderContext &renderContext) {
     return false;
   }
 
-  if (!SDL_CreateWindowAndRenderer("TileADV", ecsview::screenWidth,
-                                   ecsview::screenHeight, 0, &window,
-                                   &renderer)) {
+  if (!SDL_CreateWindowAndRenderer("TileADV", screenWidth, screenHeight, 0,
+                                   &window, &renderer)) {
     SDL_Log("Window could not be created! SDL error: %s\n", SDL_GetError());
     return false;
   }
@@ -44,7 +43,7 @@ bool ecsview::init(ecsview::RenderContext &renderContext) {
     return false;
   }*/
 
-  cursorSurf = IMG_Load(ecsview::cursorTexturePath.c_str());
+  cursorSurf = IMG_Load(cursorTexturePath.c_str());
 
   if (cursorSurf == nullptr) {
     SDL_Log("Could not load cursor image! SDL error: %s\n", SDL_GetError());
@@ -77,18 +76,18 @@ bool ecsview::init(ecsview::RenderContext &renderContext) {
   }
   */
 
-  renderContext.screenWidth = ecsview::screenWidth;
-  renderContext.screenHeight = ecsview::screenHeight;
+  renderContext.screenWidth = screenWidth;
+  renderContext.screenHeight = screenHeight;
   renderContext.window = window;
   renderContext.renderer = renderer;
   renderContext.cursor = cursor;
   renderContext.cursorSurf = cursorSurf;
-  renderContext.cursorTexturePath = ecsview::cursorTexturePath;
+  renderContext.cursorTexturePath = cursorTexturePath;
 
   return true;
 }
 
-int ecsview::destroy(ecsview::RenderContext &renderContext) {
+int destroyView(RenderContext &renderContext) {
   SDL_DestroyCursor(renderContext.cursor);
   renderContext.cursor = nullptr;
   SDL_DestroySurface(renderContext.cursorSurf);

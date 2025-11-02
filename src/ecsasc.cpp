@@ -14,7 +14,7 @@ ECSASC::ECSASC()
       renderContextWrapper(renderContext), guiContext(renderContextWrapper) {};
 
 void ECSASC::init() {
-  ecsview::init(renderContext);
+  initView(renderContext);
 
   const auto appState{std::make_any<ApplicationStateResource>(
       ApplicationStateResource{ApplicationState::RUNNING})};
@@ -50,4 +50,4 @@ void ECSASC::run() {
   destroy();
 }
 
-void ECSASC::destroy() { ecsview::destroy(renderContext); }
+void ECSASC::destroy() { destroyView(renderContext); }

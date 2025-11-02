@@ -5,7 +5,7 @@
 #include "view/ecsview.hpp"
 
 std::string registerRenderSystem(const std::string &phase, ECSContext &context,
-                                 const ecsview::RenderContext &renderContext,
+                                 const RenderContext &renderContext,
                                  const GUIContext &) {
   const std::string id{"render"};
   context.getScheduler().registerSystem(

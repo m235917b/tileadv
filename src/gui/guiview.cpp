@@ -2,11 +2,11 @@
 
 #include "gui/asciiatlas.hpp"
 #include "gui/guicomponent.hpp"
+#include "gui/guirendercontext.hpp"
 #include "gui/guitreewalker.hpp"
 #include "gui/guiview.hpp"
-#include "utils/rendercontext.hpp"
 
-GUIView::GUIView(const utils::RenderContext &renderContext)
+GUIView::GUIView(const GUIRenderContext &renderContext)
     : renderContext(renderContext), asciiGrey(), selectedColor(0x0000FF20) {}
 
 bool GUIView::loadTextures(const std::vector<std::string> &texturePaths) {

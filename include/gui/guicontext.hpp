@@ -10,11 +10,11 @@
 #include "gui/guicomponent.hpp"
 #include "gui/guiview.hpp"
 
-class RenderContext;
+class GUIRenderContext;
 
 class GUIContext {
 public:
-  GUIContext(const utils::RenderContext &renderContext);
+  GUIContext(const GUIRenderContext &renderContext);
 
   bool init();
 
