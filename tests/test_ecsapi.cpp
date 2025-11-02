@@ -101,7 +101,7 @@ TEST_CASE("ECS scheduler runs view systems") {
 
   int found{0};
 
-  ecsContext.getScheduler().addSystem(
+  ecsContext.getScheduler().registerSystem(
       "UpdatePositions", "MoveSystem", [&](ECSContext &context, float) {
         context.getStore().view<Position>(
             [&](const std::string &id, const Position &pos) {
@@ -118,8 +118,8 @@ TEST_CASE("ECS scheduler runs view systems") {
             });
       });
 
-  ecsContext.getScheduler().addSystem(
-      "UpdatePositions", "MoveSystem", [&](ECSContext &context, float) {
+  ecsContext.getScheduler().registerSystem(
+      "UpdatePositions", "MoveSystem2", [&](ECSContext &context, float) {
         context.getStore().view<Position, Velocity>([&](const std::string &id,
                                                         const Position &pos,
                                                         const Velocity &vel) {

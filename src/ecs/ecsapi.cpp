@@ -33,7 +33,7 @@ void ECSAPI::addViewSystem(
         this->context.getStore().view(types, sysFuncView);
       }};
 
-  context.getScheduler().addSystem(phase, systemId, sysFunc);
+  context.getScheduler().registerSystem(phase, systemId, sysFunc);
 }
 
 void ECSAPI::subscribeViewEventListener(

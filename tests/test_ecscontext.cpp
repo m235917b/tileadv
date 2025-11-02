@@ -87,11 +87,11 @@ TEST_CASE("ECS scheduler runs systems in different phases") {
 
   int testNum{0};
 
-  ecsContext.getScheduler().addSystem(
+  ecsContext.getScheduler().registerSystem(
       "PrintIds", "MoveSystem",
       [&](ECSContext &context, float) { testNum /= 2; });
 
-  ecsContext.getScheduler().addSystem(
+  ecsContext.getScheduler().registerSystem(
       "UpdatePositions", "MoveSystem",
       [&](ECSContext &context, float) { testNum = 10; });
 
@@ -119,7 +119,7 @@ TEST_CASE("ECS scheduler runs systems with view calls") {
 
   int found{0};
 
-  ecsContext.getScheduler().addSystem(
+  ecsContext.getScheduler().registerSystem(
       "UpdatePositions", "MoveSystem", [&](ECSContext &context, float) {
         context.getStore().view<Position>(
             [&](const std::string &id, const Position &pos) {
@@ -136,8 +136,8 @@ TEST_CASE("ECS scheduler runs systems with view calls") {
             });
       });
 
-  ecsContext.getScheduler().addSystem(
-      "UpdatePositions", "MoveSystem", [&](ECSContext &context, float) {
+  ecsContext.getScheduler().registerSystem(
+      "UpdatePositions", "MoveSystem2", [&](ECSContext &context, float) {
         context.getStore().view<Position, Velocity>([&](const std::string &id,
                                                         const Position &pos,
                                                         const Velocity &vel) {
@@ -173,7 +173,7 @@ TEST_CASE("ECS scheduler runs systems with view calls in multiple updates") {
 
   int found{0};
 
-  ecsContext.getScheduler().addSystem(
+  ecsContext.getScheduler().registerSystem(
       "UpdatePositions", "MoveSystem", [&](ECSContext &context, float) {
         context.getStore().view<Position>(
             [&](const std::string &id, const Position &pos) {
@@ -190,8 +190,8 @@ TEST_CASE("ECS scheduler runs systems with view calls in multiple updates") {
             });
       });
 
-  ecsContext.getScheduler().addSystem(
-      "UpdatePositions", "MoveSystem", [&](ECSContext &context, float) {
+  ecsContext.getScheduler().registerSystem(
+      "UpdatePositions", "MoveSystem2", [&](ECSContext &context, float) {
         context.getStore().view<Position, Velocity>([&](const std::string &id,
                                                         const Position &pos,
                                                         const Velocity &vel) {
@@ -220,12 +220,12 @@ TEST_CASE("ECS scheduler runs commands correctly at end of scheduler update") {
 
   int testNum{0};
 
-  ecsContext.getScheduler().addSystem(
+  ecsContext.getScheduler().registerSystem(
       "PrintIds", "MoveSystem",
       [&](ECSContext &context, float) { testNum /= 2; });
 
-  ecsContext.getScheduler().addSystem(
-      "UpdatePositions", "MoveSystem",
+  ecsContext.getScheduler().registerSystem(
+      "UpdatePositions", "MoveSystem2",
       [&](ECSContext &context, float) { testNum = 10; });
 
   ecsContext.getCommandBuffer().registerHandler<SetValCommand>(
@@ -250,12 +250,12 @@ TEST_CASE("ECS scheduler runs events correctly between pre and post systems") {
 
   int testNum{0};
 
-  ecsContext.getScheduler().addSystem(
+  ecsContext.getScheduler().registerSystem(
       "PrintIds", "MoveSystem",
       [&](ECSContext &context, float) { testNum -= 2; });
 
-  ecsContext.getScheduler().addSystem(
-      "UpdatePositions", "MoveSystem",
+  ecsContext.getScheduler().registerSystem(
+      "UpdatePositions", "MoveSystem2",
       [&](ECSContext &context, float) { testNum = 10; });
 
   ecsContext.getEventBus().subscribe<SetValEvent>(
@@ -281,14 +281,14 @@ TEST_CASE(
 
   int testNum{0};
 
-  ecsContext.getScheduler().addSystem("PrintIds", "MoveSystem",
+  ecsContext.getScheduler().registerSystem("PrintIds", "MoveSystem",
                                       [&](ECSContext &context, float) {
                                         REQUIRE(testNum == 5);
                                         testNum -= 2;
                                       });
 
-  ecsContext.getScheduler().addSystem(
-      "UpdatePositions", "MoveSystem", [&](ECSContext &context, float) {
+  ecsContext.getScheduler().registerSystem(
+      "UpdatePositions", "MoveSystem2", [&](ECSContext &context, float) {
         testNum = 10;
         context.getEventBus().publish<SetValEvent>(SetValEvent{2});
         REQUIRE(testNum == 10);
@@ -316,14 +316,14 @@ TEST_CASE(
 
   int testNum{0};
 
-  ecsContext.getScheduler().addSystem("PrintIds", "MoveSystem",
+  ecsContext.getScheduler().registerSystem("PrintIds", "MoveSystem",
                                       [&](ECSContext &context, float) {
                                         REQUIRE(testNum == 10);
                                         testNum /= 2;
                                       });
 
-  ecsContext.getScheduler().addSystem(
-      "UpdatePositions", "MoveSystem", [&](ECSContext &context, float) {
+  ecsContext.getScheduler().registerSystem(
+      "UpdatePositions", "MoveSystem2", [&](ECSContext &context, float) {
         testNum = 10;
         ecsContext.getCommandBuffer().enqueue<SetValCommand>(SetValCommand{2});
         REQUIRE(testNum == 10);

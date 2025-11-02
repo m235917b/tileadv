@@ -18,9 +18,11 @@ public:
   void addPhasePre(std::string phase);
   void addPhasePost(std::string phase);
   void removePhase(const std::string &phase);
-  void addSystem(const std::string &phase, std::string systemId,
+  void registerSystem(const std::string &phase, std::string systemId,
                  std::function<void(ECSContext &, const float dt)> system);
-  void removeSystem(const std::string &phase, const std::string &systemId);
+  void removeSystem(const std::string &systemId);
+  void enableSystem(const std::string &id);
+  void disableSystem(const std::string &id);
 
 private:
   ECSContext &context;
@@ -28,7 +30,9 @@ private:
   std::vector<std::string> phasesPost;
   std::unordered_map<
       std::string,
-      std::vector<std::pair<std::string,
-                            std::function<void(ECSContext &, const float dt)>>>>
+      std::unordered_map<std::string,
+                         std::function<void(ECSContext &, const float dt)>>>
       systems;
+  std::unordered_map<std::string, bool> enabled;
+  std::unordered_map<std::string, std::string> idToPhase;
 };

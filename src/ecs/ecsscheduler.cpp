@@ -4,7 +4,8 @@
 #include "ecs/ecsscheduler.hpp"
 
 ECSScheduler::ECSScheduler(ECSContext &context)
-    : context(context), phasesPre(), phasesPost(), systems() {}
+    : context(context), phasesPre(), phasesPost(), systems(), enabled(),
+      idToPhase() {}
 
 void ECSScheduler::bootstrap() {
   context.getEventBus().dispatch();
@@ -15,8 +16,10 @@ void ECSScheduler::update(const float dt) {
   for (const auto &phase : phasesPre) {
     const auto it{systems.find(phase)};
     if (it != systems.end()) {
-      for (const auto &system : it->second) {
-        system.second(context, dt);
+      for (const auto &[id, system] : it->second) {
+        if (enabled[id]) {
+          system(context, dt);
+        }
       }
     }
   }
@@ -26,8 +29,10 @@ void ECSScheduler::update(const float dt) {
   for (const auto &phase : phasesPost) {
     const auto it{systems.find(phase)};
     if (it != systems.end()) {
-      for (const auto &system : it->second) {
-        system.second(context, dt);
+      for (const auto &[id, system] : it->second) {
+        if (enabled[id]) {
+          system(context, dt);
+        }
       }
     }
   }
@@ -50,21 +55,58 @@ void ECSScheduler::removePhase(const std::string &phase) {
                    phasesPost.end());
 }
 
-void ECSScheduler::addSystem(
+void ECSScheduler::registerSystem(
     const std::string &phase, std::string systemId,
     std::function<void(ECSContext &, const float)> system) {
-  systems[phase].emplace_back(std::move(systemId), std::move(system));
+  const auto itPre{std::find_if(
+      phasesPre.begin(), phasesPre.end(),
+      [&phaseExt = phase](const auto &phase) { return phase == phaseExt; })};
+
+  const auto itPost{std::find_if(
+      phasesPost.begin(), phasesPost.end(),
+      [&phaseExt = phase](const auto &phase) { return phase == phaseExt; })};
+
+  if (itPre == phasesPre.end() && itPost == phasesPost.end()) {
+    return;
+  }
+
+  enabled[systemId] = true;
+  idToPhase[systemId] = phase;
+  systems[phase][std::move(systemId)] = std::move(system);
 }
 
-void ECSScheduler::removeSystem(const std::string &phase,
-                                const std::string &systemId) {
-  const auto it{systems.find(phase)};
+void ECSScheduler::removeSystem(const std::string &systemId) {
+  const auto it{idToPhase.find(systemId)};
 
-  if (it != systems.end()) {
-    auto &sysVec{it->second};
-    sysVec.erase(
-        std::remove_if(sysVec.begin(), sysVec.end(),
-                       [&](const auto &p) { return p.first == systemId; }),
-        sysVec.end());
+  if (it == idToPhase.end()) {
+    return;
   }
+
+  enabled.erase(enabled.find(systemId), enabled.end());
+  idToPhase.erase(idToPhase.find(systemId), idToPhase.end());
+  auto &phaseList{systems[systemId]};
+  phaseList.erase(phaseList.find(systemId), phaseList.end());
+
+  std::erase_if(systems,
+                [](const auto &phaseList) { return phaseList.second.empty(); });
+}
+
+void ECSScheduler::enableSystem(const std::string &id) {
+  const auto it{enabled.find(id)};
+
+  if (it == enabled.end()) {
+    return;
+  }
+
+  it->second = true;
+}
+
+void ECSScheduler::disableSystem(const std::string &id) {
+  const auto it{enabled.find(id)};
+
+  if (it == enabled.end()) {
+    return;
+  }
+
+  it->second = false;
 }
