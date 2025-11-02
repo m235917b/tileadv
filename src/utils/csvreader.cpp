@@ -2,12 +2,11 @@
 #include <sstream>
 #include <vector>
 
-/*#include "model/chunk.hpp"
-#include "model/tile.hpp"
-#include "utils/csvreader.hpp"*/
+#include "components/chunk.hpp"
+#include "utils/csvreader.hpp"
 
-/*Chunk csvToChunk(const std::string &filename) {
-  std::ifstream file(filename);
+Chunk csvToChunk(const std::string &) {
+  /*std::ifstream file(filename);
 
   if (!file.is_open()) {
     throw std::runtime_error("Could not open file: " + filename);
@@ -49,5 +48,6 @@
     posX = 0;
   }
 
-  return chunk;
-}*/
+  return chunk;*/
+  return Chunk{};
+}

@@ -5,6 +5,8 @@
 #include "ecs/ecs.hpp"
 #include "eventhandler/keydowneventhandler.hpp"
 #include "resources/applicationstateresource.hpp"
+#include "resources/guicontextresource.hpp"
+#include "resources/rendercontextresource.hpp"
 #include "systems/keyinputsystem.hpp"
 #include "systems/rendersystem.hpp"
 #include "view/view.hpp"
@@ -20,11 +22,19 @@ void ECSASC::init() {
       ApplicationStateResource{ApplicationState::RUNNING})};
   const auto resAny{UpsertResource{appState}};
   ecsContext.getCommandBuffer().enqueue<UpsertResource>(resAny);
+  const auto rc{std::make_any<RenderContextResource>(
+      RenderContextResource{&renderContext})};
+  const auto rcAny{UpsertResource{rc}};
+  ecsContext.getCommandBuffer().enqueue<UpsertResource>(rcAny);
+  const auto guic{
+      std::make_any<GUIContextResource>(GUIContextResource{&guiContext})};
+  const auto guicAny{UpsertResource{guic}};
+  ecsContext.getCommandBuffer().enqueue<UpsertResource>(guicAny);
 
   ecsContext.getScheduler().addPhasePre("input");
   ecsContext.getScheduler().addPhasePost("rendering");
 
-  registerRenderSystem("rendering", ecsContext, renderContext, guiContext);
+  registerRenderSystem("rendering", ecsContext);
   registerKeyInputSystem("input", ecsContext);
 
   subscribeKeyDownEventHandler(ecsContext);
