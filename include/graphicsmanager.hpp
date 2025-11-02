@@ -9,7 +9,7 @@
 struct SDL_Window;
 struct SDL_Renderer;
 
-class GraphicsManmager : public RenderContext {
+class GraphicsManmager : public utils::RenderContext {
 public:
   GraphicsManmager();
   GraphicsManmager(const GraphicsManmager &) = delete;

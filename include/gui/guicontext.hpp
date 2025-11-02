@@ -14,7 +14,7 @@ class RenderContext;
 
 class GUIContext {
 public:
-  GUIContext(const RenderContext &renderContext);
+  GUIContext(const utils::RenderContext &renderContext);
 
   bool init();
 

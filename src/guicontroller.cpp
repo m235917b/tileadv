@@ -6,7 +6,7 @@
 
 #include "model/character.hpp"
 
-GUIController::GUIController(const RenderContext &renderContext)
+GUIController::GUIController(const utils::RenderContext &renderContext)
     : guiContext(renderContext) {
   // Initialize main menu elements
   auto mainMenu{

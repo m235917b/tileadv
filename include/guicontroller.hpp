@@ -10,7 +10,7 @@ class Character;
 
 class GUIController : public StateRunner {
 public:
-  GUIController(const RenderContext &renderContext);
+  GUIController(const utils::RenderContext &renderContext);
 
   bool init();
 

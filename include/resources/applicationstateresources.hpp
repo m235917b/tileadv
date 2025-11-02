@@ -1,0 +1,1 @@
+enum class ApplicationState { MAIN_MENU, GAMEPLAY };

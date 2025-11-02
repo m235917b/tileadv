@@ -6,7 +6,7 @@
 #include "gui/guiview.hpp"
 #include "utils/rendercontext.hpp"
 
-GUIView::GUIView(const RenderContext &renderContext)
+GUIView::GUIView(const utils::RenderContext &renderContext)
     : renderContext(renderContext), asciiGrey(), selectedColor(0x0000FF20) {}
 
 bool GUIView::loadTextures(const std::vector<std::string> &texturePaths) {

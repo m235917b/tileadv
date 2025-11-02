@@ -7,7 +7,7 @@
 #include "view/tileatlas.hpp"
 #include "view/view.hpp"
 
-View::View(const RenderContext &renderContext)
+View::View(const utils::RenderContext &renderContext)
     : renderContext(renderContext), tileSize(25), cameraX(0), cameraY(0),
       cameraMarginX(10), cameraMarginY(10), characterTexture(), worldTiles() {
   auto screenWidth{renderContext.getScreenWidth()};

@@ -12,7 +12,7 @@ class TileActor;
 
 class View {
 public:
-  View(const RenderContext &renderContext);
+  View(const utils::RenderContext &renderContext);
   View(const View &) = delete;
   View &operator=(const View &) = delete;
   ~View() = default;
@@ -26,7 +26,7 @@ public:
   std::pair<int, int> getTileFromPixel(const int x, const int y) const;
 
 private:
-  const RenderContext &renderContext;
+  const utils::RenderContext &renderContext;
 
   int topMargin;
   int leftMargin;

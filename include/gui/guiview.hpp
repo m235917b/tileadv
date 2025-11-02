@@ -18,7 +18,7 @@ enum class GUIFittingMode;
 
 class GUIView {
 public:
-  GUIView(const RenderContext &renderContext);
+  GUIView(const utils::RenderContext &renderContext);
 
   bool loadTextures(const std::vector<std::string> &texturePaths);
 
@@ -33,7 +33,7 @@ public:
                  const bool centerLeft, const bool centerTop);
 
 private:
-  const RenderContext &renderContext;
+  const utils::RenderContext &renderContext;
   LTexture asciiGrey;
   std::unordered_map<std::string, LTexture> images;
   const uint32_t selectedColor;

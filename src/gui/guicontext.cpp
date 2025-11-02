@@ -6,7 +6,7 @@
 #include "gui/guitreewalker.hpp"
 #include "utils/rendercontext.hpp"
 
-GUIContext::GUIContext(const RenderContext &renderContext)
+GUIContext::GUIContext(const utils::RenderContext &renderContext)
     : guiView(renderContext), components(), focusBuffer(), lookup() {}
 
 bool GUIContext::init() {
