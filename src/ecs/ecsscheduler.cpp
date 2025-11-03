@@ -4,7 +4,7 @@
 #include "ecs/ecsscheduler.hpp"
 
 ECSScheduler::ECSScheduler(ECSContext &context)
-    : context(context), phases(), lookUp() {}
+    : context(context), phases(), lookUpByEntity(), lookUpByPhase() {}
 
 void ECSScheduler::bootstrap() {
   context.getEventBus().dispatch();
@@ -13,9 +13,11 @@ void ECSScheduler::bootstrap() {
 
 void ECSScheduler::update(const float dt) {
   for (const auto &phase : phases) {
-    for (const auto &system : phase.systems) {
-      if (system.enabled) {
-        system.system(context, dt);
+    if (phase.enabled) {
+      for (const auto &system : phase.systems) {
+        if (system.enabled) {
+          system.system(context, dt);
+        }
       }
     }
 
@@ -29,10 +31,48 @@ void ECSScheduler::update(const float dt) {
   }
 }
 
+void ECSScheduler::updateOneShotPhase(const std::string &phase, float dt) {
+  const auto it{oneShotPhases.find(phase)};
+
+  if (it == oneShotPhases.end()) {
+    return;
+  }
+
+  for (const auto &system : it->second.systems) {
+    if (system.enabled) {
+      system.system(context, dt);
+    }
+  }
+
+  if (it->second.dispatchAfter) {
+    context.getEventBus().dispatch();
+  }
+
+  if (it->second.flushAfter) {
+    context.getCommandBuffer().flush();
+  }
+}
+
 void ECSScheduler::addPhase(std::string phase, bool dispatchAfter,
                             bool flushAfter) {
-  phases.push_back(PhaseSlot{std::move(phase), std::vector<SystemSlot>(),
-                             dispatchAfter, flushAfter});
+  auto &phaseSlot{phases.emplace_back(PhaseSlot{
+      phase, std::vector<SystemSlot>(), dispatchAfter, flushAfter, true})};
+
+  rebuildLookUpByEntity();
+  rebuildLookUpByPhase();
+
+  lookUpByPhase[std::move(phase)] = &phaseSlot;
+}
+
+void ECSScheduler::addOneShotPhase(std::string phase, bool dispatchAfter,
+                                   bool flushAfter) {
+  auto [it, _]{oneShotPhases.emplace(
+      phase, PhaseSlot{phase, {}, dispatchAfter, flushAfter, true})};
+
+  rebuildLookUpByEntity();
+  rebuildLookUpByPhase();
+
+  lookUpByPhase[phase] = &it->second;
 }
 
 void ECSScheduler::removePhase(const std::string &phase) {
@@ -42,29 +82,34 @@ void ECSScheduler::removePhase(const std::string &phase) {
                               }),
                phases.end());
 
-  rebuildLookUp();
+  oneShotPhases.erase(phase);
+
+  rebuildLookUpByEntity();
+  rebuildLookUpByPhase();
 }
 
 void ECSScheduler::registerSystem(
     const std::string &phase, std::string systemId,
     std::function<void(ECSContext &, const float)> system) {
-  const auto it{std::find_if(phases.begin(), phases.end(),
-                             [&phaseExt = phase](const auto &phase) {
-                               return phase.phaseId == phaseExt;
-                             })};
+  auto it{lookUpByPhase.find(phase)};
 
-  if (it == phases.end()) {
+  if (it == lookUpByPhase.end()) {
     return;
   }
 
-  it->systems.push_back(SystemSlot{systemId, std::move(system), true});
-  lookUp[std::move(systemId)] = std::make_pair(&(*it), &it->systems.back());
+  auto sysSlot{it->second->systems.emplace_back(
+      SystemSlot{systemId, std::move(system), true})};
+
+  rebuildLookUpByEntity();
+
+  lookUpByEntity[std::move(systemId)] =
+      std::make_pair(&(*it->second), &sysSlot);
 }
 
 void ECSScheduler::removeSystem(const std::string &systemId) {
-  const auto it{lookUp.find(systemId)};
+  const auto it{lookUpByEntity.find(systemId)};
 
-  if (it == lookUp.end()) {
+  if (it == lookUpByEntity.end()) {
     return;
   }
 
@@ -76,13 +121,13 @@ void ECSScheduler::removeSystem(const std::string &systemId) {
                      [&sysPtr](auto &system) { return &system == sysPtr; }),
       systems.end());
 
-  rebuildLookUp();
+  rebuildLookUpByEntity();
 }
 
 void ECSScheduler::enableSystem(const std::string &id) {
-  const auto it{lookUp.find(id)};
+  const auto it{lookUpByEntity.find(id)};
 
-  if (it == lookUp.end()) {
+  if (it == lookUpByEntity.end()) {
     return;
   }
 
@@ -90,21 +135,59 @@ void ECSScheduler::enableSystem(const std::string &id) {
 }
 
 void ECSScheduler::disableSystem(const std::string &id) {
-  const auto it{lookUp.find(id)};
+  const auto it{lookUpByEntity.find(id)};
 
-  if (it == lookUp.end()) {
+  if (it == lookUpByEntity.end()) {
     return;
   }
 
   it->second.second->enabled = false;
 }
 
-void ECSScheduler::rebuildLookUp() {
-  lookUp.clear();
+void ECSScheduler::enablePhase(const std::string &id) {
+  const auto it{lookUpByPhase.find(id)};
+
+  if (it == lookUpByPhase.end()) {
+    return;
+  }
+
+  it->second->enabled = true;
+}
+
+void ECSScheduler::disablePhase(const std::string &id) {
+  const auto it{lookUpByPhase.find(id)};
+
+  if (it == lookUpByPhase.end()) {
+    return;
+  }
+
+  it->second->enabled = false;
+}
+
+void ECSScheduler::rebuildLookUpByEntity() {
+  lookUpByEntity.clear();
 
   for (auto &phase : phases) {
     for (auto &system : phase.systems) {
-      lookUp[system.systemId] = std::make_pair(&phase, &system);
+      lookUpByEntity[system.systemId] = std::make_pair(&phase, &system);
     }
+  }
+
+  for (auto &[_, phase] : oneShotPhases) {
+    for (auto &system : phase.systems) {
+      lookUpByEntity[system.systemId] = std::make_pair(&phase, &system);
+    }
+  }
+}
+
+void ECSScheduler::rebuildLookUpByPhase() {
+  lookUpByPhase.clear();
+
+  for (auto &phase : phases) {
+    lookUpByPhase[phase.phaseId] = &phase;
+  }
+
+  for (auto &[_, phase] : oneShotPhases) {
+    lookUpByPhase[phase.phaseId] = &phase;
   }
 }

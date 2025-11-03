@@ -24,6 +24,7 @@ private:
   GUIContext guiContext;
 
   void initSDL();
+  void initPrefabs();
   void initResources();
   void initPhases();
   void initSystems();

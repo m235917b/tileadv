@@ -11,9 +11,6 @@ ECSContext::ECSContext()
         std::cout << command.text << std::endl;
       });
 
-  commandBuffer.registerHandlerInternal<PrefabCommand>(
-      [](ECSContext &, PrefabCommand) {});
-
   commandBuffer.registerHandlerInternal<UpsertComponent>(
       [this](ECSContext &, UpsertComponent command) {
         this->store.upsertComponent(command.entityId,

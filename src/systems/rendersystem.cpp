@@ -2,17 +2,18 @@
 
 #include <cmath>
 
+#include "components/actor.hpp"
+#include "components/position.hpp"
 #include "ecs/ecscontext.hpp"
 #include "gui/gui.hpp"
 #include "resources/chunkresource.hpp"
+#include "resources/playeridresource.hpp"
 #include "resources/rendercontextresource.hpp"
 #include "resources/textureresource.hpp"
 #include "view/view.hpp"
 
 const int cameraMarginX{10};
 const int cameraMarginY{10};
-const int playerPosX{100};
-const int playerPosY{200};
 const int tileSize{25};
 const int leftMargin{10};
 const int topMargin{10};
@@ -25,11 +26,11 @@ const SDL_FRect getTileCoords(const TileType type) {
           tileSpriteSize};
 }
 
-/*const SDL_FRect getActorCoords(const TileActorType type) {
+const SDL_FRect getActorCoords(const ActorType type) {
   const auto xFactor{static_cast<int>(type)};
 
   return {xFactor * tileSpriteSize, 0.f, tileSpriteSize, tileSpriteSize};
-}*/
+}
 
 std::string registerRenderSystem(const std::string &phase,
                                  ECSContext &context) {
@@ -46,7 +47,13 @@ std::string registerRenderSystem(const std::string &phase,
         const auto &chunk{context.getResourceManager().getResource<Chunk>()};
         const auto &textures{
             context.getResourceManager().getResource<TextureResource>()};
+        const auto &playerId{
+            context.getResourceManager().getResource<PlayerIDResource>()};
+        const auto &playerPos{
+            context.getStore().getComponent<Position>(playerId->id)};
 
+        const int playerPosX{playerPos->x};
+        const int playerPosY{playerPos->y};
         int cameraX{0};
         int cameraY{0};
 

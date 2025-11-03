@@ -6,12 +6,15 @@
 
 #include "ecs/ecs.hpp"
 #include "eventhandler/keydowneventhandler.hpp"
+#include "prefabs/playerprefab.hpp"
 #include "resources/applicationstateresource.hpp"
 #include "resources/chunkresource.hpp"
 #include "resources/guicontextresource.hpp"
+#include "resources/playeridresource.hpp"
 #include "resources/rendercontextresource.hpp"
 #include "systems/keyinputsystem.hpp"
 #include "systems/rendersystem.hpp"
+#include "systems/spawnplayersystem.hpp"
 #include "view/view.hpp"
 
 ECSASC::ECSASC()
@@ -23,22 +26,30 @@ void ECSASC::initSDL() {
   loadTextures(renderContext, ecsContext);
 }
 
+void ECSASC::initPrefabs() { registerPlayerPrefab(ecsApi); }
+
 void ECSASC::initResources() {
   initRenderContextResource(ecsContext, renderContext);
   initGUIContextResource(ecsContext, guiContext);
 
   initApplicationStateResource(ecsContext);
   initChunkResource(ecsContext);
+  initPlayerIDResource(ecsContext);
 }
 
 void ECSASC::initPhases() {
+  ecsContext.getScheduler().addOneShotPhase("spawnPlayer", false, true);
   ecsContext.getScheduler().addPhase("input", true, false);
-  ecsContext.getScheduler().addPhase("rendering", true, true);
+  ecsContext.getScheduler().addPhase("logic", true, true);
+  ecsContext.getScheduler().addPhase("post_logic", true, true);
+  ecsContext.getScheduler().addPhase("rendering_preparation", true, false);
+  ecsContext.getScheduler().addPhase("rendering", false, false);
 }
 
 void ECSASC::initSystems() {
   registerRenderSystem("rendering", ecsContext);
   registerKeyInputSystem("input", ecsContext);
+  registerSpawnPlayerSystem("spawnPlayer", ecsContext, ecsApi);
 }
 
 void ECSASC::initEventListeners() { subscribeKeyDownEventHandler(ecsContext); }
@@ -47,6 +58,7 @@ void ECSASC::initCommandHandlers() {}
 
 void ECSASC::run() {
   initSDL();
+  initPrefabs();
   initResources();
   initPhases();
   initSystems();
@@ -54,6 +66,8 @@ void ECSASC::run() {
   initCommandHandlers();
 
   ecsContext.getScheduler().bootstrap();
+
+  ecsContext.getScheduler().updateOneShotPhase("spawnPlayer", 0.f);
 
   bool run{true};
   auto previousTick{SDL_GetTicks()};
