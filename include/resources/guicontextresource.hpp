@@ -1,7 +1,11 @@
 #pragma once
 
+class ECSContext;
 class GUIContext;
 
 struct GUIContextResource {
-  GUIContext *context;
+  const GUIContext *context;
 };
+
+void initGUIContextResource(ECSContext &ecsContext,
+                            const GUIContext &guiContext);

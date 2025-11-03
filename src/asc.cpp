@@ -22,21 +22,10 @@ void ECSASC::initSDL() {
 }
 
 void ECSASC::initResources() {
-  const auto appState{std::make_any<ApplicationStateResource>(
-      ApplicationStateResource{ApplicationState::RUNNING})};
-  const auto resAny{UpsertResource{appState}};
-  ecsContext.getCommandBuffer().enqueue<UpsertResource>(resAny);
+  initRenderContextResource(ecsContext, renderContext);
+  initGUIContextResource(ecsContext, guiContext);
 
-  const auto rc{std::make_any<RenderContextResource>(
-      RenderContextResource{&renderContext})};
-  const auto rcAny{UpsertResource{rc}};
-  ecsContext.getCommandBuffer().enqueue<UpsertResource>(rcAny);
-
-  const auto guic{
-      std::make_any<GUIContextResource>(GUIContextResource{&guiContext})};
-  const auto guicAny{UpsertResource{guic}};
-  ecsContext.getCommandBuffer().enqueue<UpsertResource>(guicAny);
-
+  initApplicationStateResource(ecsContext);
   initChunkResource(ecsContext);
 }
 

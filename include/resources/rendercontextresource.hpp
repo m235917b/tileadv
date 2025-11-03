@@ -1,7 +1,11 @@
 #pragma once
 
+class ECSContext;
 struct RenderContext;
 
 struct RenderContextResource {
-  RenderContext *context;
+  const RenderContext *context;
 };
+
+void initRenderContextResource(ECSContext &ecsContext,
+                               const RenderContext &renderContext);

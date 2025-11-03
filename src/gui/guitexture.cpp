@@ -1,18 +1,18 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
-#include "utils/ltexture.hpp"
+#include "gui/guitexture.hpp"
 
-LTexture::LTexture() : texture{nullptr}, width{0}, height{0} {}
+GUITexture::GUITexture() : texture{nullptr}, width{0}, height{0} {}
 
-LTexture::LTexture(LTexture &&other) noexcept
+GUITexture::GUITexture(GUITexture &&other) noexcept
     : texture(other.texture), width(other.width), height(other.height) {
   other.texture = nullptr;
   other.width = 0;
   other.height = 0;
 }
 
-LTexture &LTexture::operator=(LTexture &&other) noexcept {
+GUITexture &GUITexture::operator=(GUITexture &&other) noexcept {
   if (this != &other) {
     destroy();
     texture = other.texture;
@@ -25,9 +25,9 @@ LTexture &LTexture::operator=(LTexture &&other) noexcept {
   return *this;
 }
 
-LTexture::~LTexture() { destroy(); }
+GUITexture::~GUITexture() { destroy(); }
 
-bool LTexture::loadFromFile(const std::string &path, SDL_Renderer &renderer) {
+bool GUITexture::loadFromFile(const std::string &path, SDL_Renderer &renderer) {
   destroy();
 
   if (SDL_Surface *loadedSurface{IMG_Load(path.c_str())};
@@ -56,14 +56,14 @@ bool LTexture::loadFromFile(const std::string &path, SDL_Renderer &renderer) {
   return texture != nullptr;
 }
 
-void LTexture::destroy() {
+void GUITexture::destroy() {
   SDL_DestroyTexture(texture);
   texture = nullptr;
   width = 0;
   height = 0;
 }
 
-void LTexture::render(const float x, const float y, const SDL_FRect *clip,
+void GUITexture::render(const float x, const float y, const SDL_FRect *clip,
                       const float width, const float height,
                       SDL_Renderer &renderer) {
   const SDL_FRect dstRect{x, y, width > 0 ? width : clip->w,
@@ -72,8 +72,8 @@ void LTexture::render(const float x, const float y, const SDL_FRect *clip,
   SDL_RenderTexture(&renderer, texture, clip, &dstRect);
 }
 
-int LTexture::getWidth() const { return width; }
+int GUITexture::getWidth() const { return width; }
 
-int LTexture::getHeight() const { return height; }
+int GUITexture::getHeight() const { return height; }
 
-bool LTexture::isLoaded() const { return texture != nullptr; }
+bool GUITexture::isLoaded() const { return texture != nullptr; }

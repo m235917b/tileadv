@@ -6,16 +6,16 @@ struct SDL_Renderer;
 struct SDL_Texture;
 struct SDL_FRect;
 
-class LTexture {
+class GUITexture {
 public:
   static constexpr float kOriginalSize = -1.f;
 
-  LTexture();
-  LTexture(const LTexture &) = delete;
-  LTexture &operator=(const LTexture &) = delete;
-  LTexture(LTexture &&) noexcept;
-  LTexture &operator=(LTexture &&) noexcept;
-  ~LTexture();
+  GUITexture();
+  GUITexture(const GUITexture &) = delete;
+  GUITexture &operator=(const GUITexture &) = delete;
+  GUITexture(GUITexture &&) noexcept;
+  GUITexture &operator=(GUITexture &&) noexcept;
+  ~GUITexture();
 
   bool loadFromFile(const std::string &path, SDL_Renderer &renderer);
 

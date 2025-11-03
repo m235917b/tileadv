@@ -8,7 +8,7 @@
 #include <SDL3/SDL.h>
 
 #include "gui/guirendercontext.hpp"
-#include "utils/ltexture.hpp"
+#include "gui/guitexture.hpp"
 
 
 struct SDL_Renderer;
@@ -35,7 +35,7 @@ public:
 
 private:
   const GUIRenderContext &renderContext;
-  LTexture asciiGrey;
-  std::unordered_map<std::string, LTexture> images;
+  GUITexture asciiGrey;
+  std::unordered_map<std::string, GUITexture> images;
   const uint32_t selectedColor;
 };
