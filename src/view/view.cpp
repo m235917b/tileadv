@@ -1,6 +1,6 @@
 #include "view/view.hpp"
 
-#include "ecs/ecscontext.hpp"
+#include "ecs/ecs.hpp"
 #include "resources/textureresource.hpp"
 
 GUIRenderContextWrapper::GUIRenderContextWrapper(

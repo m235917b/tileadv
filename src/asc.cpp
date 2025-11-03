@@ -1,5 +1,7 @@
 #include "asc.hpp"
 
+#include <iostream>
+
 #include <any>
 
 #include "ecs/ecs.hpp"
@@ -30,8 +32,8 @@ void ECSASC::initResources() {
 }
 
 void ECSASC::initPhases() {
-  ecsContext.getScheduler().addPhasePre("input");
-  ecsContext.getScheduler().addPhasePost("rendering");
+  ecsContext.getScheduler().addPhase("input", true, false);
+  ecsContext.getScheduler().addPhase("rendering", true, true);
 }
 
 void ECSASC::initSystems() {
@@ -54,15 +56,26 @@ void ECSASC::run() {
   ecsContext.getScheduler().bootstrap();
 
   bool run{true};
+  auto previousTick{SDL_GetTicks()};
 
   while (run) {
-    ecsContext.getScheduler().update(0.0f);
+    const auto dt{(SDL_GetTicks() - previousTick) / 1000.f};
+    previousTick = SDL_GetTicks();
+
+    ecsContext.getScheduler().update(dt);
 
     if (ecsContext.getResourceManager()
             .getResource<ApplicationStateResource>()
             ->state == ApplicationState::QUIT) {
       run = false;
     }
+
+    const auto remaining{(1000.f / float(framerate)) -
+                         float(SDL_GetTicks() - previousTick)};
+    if (remaining > 0.f) {
+      SDL_Delay(remaining);
+    }
+    std::cout << 1000.f / float(SDL_GetTicks() - previousTick) << std::endl;
   }
 
   destroy();

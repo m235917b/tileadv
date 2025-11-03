@@ -96,8 +96,8 @@ TEST_CASE("ECS scheduler runs view systems") {
 
   ecsContext.getScheduler().bootstrap();
 
-  ecsContext.getScheduler().addPhasePre("UpdatePositions");
-  ecsContext.getScheduler().addPhasePost("PrintIds");
+  ecsContext.getScheduler().addPhase("UpdatePositions", true, false);
+  ecsContext.getScheduler().addPhase("PrintIds", true, true);
 
   int found{0};
 

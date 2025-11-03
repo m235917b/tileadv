@@ -5,7 +5,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
-#include "gui/guirendercontext.hpp"
+#include "gui/gui.hpp"
 
 constexpr int screenWidth{2560};
 constexpr int screenHeight{1440};

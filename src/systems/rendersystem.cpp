@@ -3,7 +3,7 @@
 #include <cmath>
 
 #include "ecs/ecscontext.hpp"
-#include "gui/guicontext.hpp"
+#include "gui/gui.hpp"
 #include "resources/chunkresource.hpp"
 #include "resources/rendercontextresource.hpp"
 #include "resources/textureresource.hpp"

@@ -82,8 +82,8 @@ TEST_CASE("ECS view iterates over entities correctly") {
 TEST_CASE("ECS scheduler runs systems in different phases") {
   ECSContext ecsContext{};
 
-  ecsContext.getScheduler().addPhasePre("UpdatePositions");
-  ecsContext.getScheduler().addPhasePost("PrintIds");
+  ecsContext.getScheduler().addPhase("UpdatePositions", true, false);
+  ecsContext.getScheduler().addPhase("PrintIds", true, true);
 
   int testNum{0};
 
@@ -114,8 +114,8 @@ TEST_CASE("ECS scheduler runs systems with view calls") {
 
   ecsContext.getScheduler().bootstrap();
 
-  ecsContext.getScheduler().addPhasePre("UpdatePositions");
-  ecsContext.getScheduler().addPhasePost("PrintIds");
+  ecsContext.getScheduler().addPhase("UpdatePositions", true, false);
+  ecsContext.getScheduler().addPhase("PrintIds", true, true);
 
   int found{0};
 
@@ -168,8 +168,8 @@ TEST_CASE("ECS scheduler runs systems with view calls in multiple updates") {
 
   ecsContext.getScheduler().bootstrap();
 
-  ecsContext.getScheduler().addPhasePre("UpdatePositions");
-  ecsContext.getScheduler().addPhasePost("PrintIds");
+  ecsContext.getScheduler().addPhase("UpdatePositions", true, false);
+  ecsContext.getScheduler().addPhase("PrintIds", true, true);
 
   int found{0};
 
@@ -215,8 +215,8 @@ TEST_CASE("ECS scheduler runs systems with view calls in multiple updates") {
 TEST_CASE("ECS scheduler runs commands correctly at end of scheduler update") {
   ECSContext ecsContext{};
 
-  ecsContext.getScheduler().addPhasePre("UpdatePositions");
-  ecsContext.getScheduler().addPhasePost("PrintIds");
+  ecsContext.getScheduler().addPhase("UpdatePositions", true, false);
+  ecsContext.getScheduler().addPhase("PrintIds", true, true);
 
   int testNum{0};
 
@@ -245,8 +245,8 @@ TEST_CASE("ECS scheduler runs commands correctly at end of scheduler update") {
 TEST_CASE("ECS scheduler runs events correctly between pre and post systems") {
   ECSContext ecsContext{};
 
-  ecsContext.getScheduler().addPhasePre("UpdatePositions");
-  ecsContext.getScheduler().addPhasePost("PrintIds");
+  ecsContext.getScheduler().addPhase("UpdatePositions", true, false);
+  ecsContext.getScheduler().addPhase("PrintIds", true, true);
 
   int testNum{0};
 
@@ -276,16 +276,16 @@ TEST_CASE(
     "ECS scheduler submits and executes event correctly from pre systems") {
   ECSContext ecsContext{};
 
-  ecsContext.getScheduler().addPhasePre("UpdatePositions");
-  ecsContext.getScheduler().addPhasePost("PrintIds");
+  ecsContext.getScheduler().addPhase("UpdatePositions", true, false);
+  ecsContext.getScheduler().addPhase("PrintIds", true, true);
 
   int testNum{0};
 
   ecsContext.getScheduler().registerSystem("PrintIds", "MoveSystem",
-                                      [&](ECSContext &context, float) {
-                                        REQUIRE(testNum == 5);
-                                        testNum -= 2;
-                                      });
+                                           [&](ECSContext &context, float) {
+                                             REQUIRE(testNum == 5);
+                                             testNum -= 2;
+                                           });
 
   ecsContext.getScheduler().registerSystem(
       "UpdatePositions", "MoveSystem2", [&](ECSContext &context, float) {
@@ -311,16 +311,16 @@ TEST_CASE(
     "ECS scheduler submits and executes command correctly from pre systems") {
   ECSContext ecsContext{};
 
-  ecsContext.getScheduler().addPhasePre("UpdatePositions");
-  ecsContext.getScheduler().addPhasePost("PrintIds");
+  ecsContext.getScheduler().addPhase("UpdatePositions", true, false);
+  ecsContext.getScheduler().addPhase("PrintIds", true, true);
 
   int testNum{0};
 
   ecsContext.getScheduler().registerSystem("PrintIds", "MoveSystem",
-                                      [&](ECSContext &context, float) {
-                                        REQUIRE(testNum == 10);
-                                        testNum /= 2;
-                                      });
+                                           [&](ECSContext &context, float) {
+                                             REQUIRE(testNum == 10);
+                                             testNum /= 2;
+                                           });
 
   ecsContext.getScheduler().registerSystem(
       "UpdatePositions", "MoveSystem2", [&](ECSContext &context, float) {

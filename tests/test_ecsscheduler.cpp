@@ -4,8 +4,8 @@
 TEST_CASE("ECS scheduler correctly enables/disables systems") {
   ECSContext ecsContext{};
 
-  ecsContext.getScheduler().addPhasePre("UpdatePositions");
-  ecsContext.getScheduler().addPhasePost("PrintIds");
+  ecsContext.getScheduler().addPhase("UpdatePositions", true, false);
+  ecsContext.getScheduler().addPhase("PrintIds", true, true);
 
   int testNum1{0};
   int testNum2{0};
