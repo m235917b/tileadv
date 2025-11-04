@@ -6,6 +6,7 @@
 #include "components/position.hpp"
 #include "ecs/ecscontext.hpp"
 #include "gui/gui.hpp"
+#include "resources/cameraresource.hpp"
 #include "resources/chunkresource.hpp"
 #include "resources/playeridresource.hpp"
 #include "resources/rendercontextresource.hpp"
@@ -58,11 +59,13 @@ std::string registerRenderSystem(const std::string &phase,
             context.getResourceManager().getResource<PlayerIDResource>()};
         const auto &playerPos{
             context.getStore().getComponent<Position>(playerId->id)};
+        const auto &camera{
+            context.getResourceManager().getResource<CameraResource>()};
 
         const int playerPosX{playerPos->x};
         const int playerPosY{playerPos->y};
-        int cameraX{0};
-        int cameraY{0};
+        int cameraX{camera->posX};
+        int cameraY{camera->posY};
 
         SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
         SDL_RenderClear(renderer);
@@ -88,9 +91,9 @@ std::string registerRenderSystem(const std::string &phase,
         }
 
         for (int y{cameraY};
-             y < chunk->sizeX && y < screenHeight / tileSize + cameraY; ++y) {
+             y < chunk->sizeY && y < screenHeight / tileSize + cameraY; ++y) {
           for (int x{cameraX};
-               x < chunk->sizeY && x < screenWidth / tileSize + cameraX; ++x) {
+               x < chunk->sizeX && x < screenWidth / tileSize + cameraX; ++x) {
             float posX{leftMargin + static_cast<float>(x) * tileSize -
                        cameraX * tileSize};
             float posY{topMargin + static_cast<float>(y) * tileSize -
@@ -122,6 +125,9 @@ std::string registerRenderSystem(const std::string &phase,
             });
 
         SDL_RenderPresent(renderer);
+
+        context.getCommandBuffer().upsertResource(
+            CameraResource{cameraX, cameraY});
       });
 
   return id;

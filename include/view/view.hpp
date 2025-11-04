@@ -36,10 +36,6 @@ private:
   const RenderContext &renderContext;
 };
 
-bool initView(RenderContext &renderContext);
+bool initView(RenderContext &renderContext, ECSContext &ecsContext);
 
-bool loadTextures(RenderContext &renderContext, ECSContext &ecsContext);
-
-void destroyTextures(ECSContext &ecsContext);
-
-int destroyView(RenderContext &renderContext);
+int destroyView(RenderContext &renderContext, ECSContext &ecsContext);

@@ -1,6 +1,7 @@
 #include "view/view.hpp"
 
 #include "ecs/ecs.hpp"
+#include "resources/cameraresource.hpp"
 #include "resources/textureresource.hpp"
 
 GUIRenderContextWrapper::GUIRenderContextWrapper(
@@ -19,7 +20,51 @@ int GUIRenderContextWrapper::getScreenHeight() const {
   return renderContext.screenHeight;
 }
 
-bool initView(RenderContext &renderContext) {
+SDL_Texture *loadTextureFromFile(const std::string &path,
+                                 SDL_Renderer &renderer) {
+  SDL_Texture *texture;
+
+  SDL_Surface *loadedSurface{IMG_Load(path.c_str())};
+
+  if (!loadedSurface) {
+    return nullptr;
+  }
+
+  if (SDL_SetSurfaceColorKey(
+          loadedSurface, true,
+          SDL_MapSurfaceRGB(loadedSurface, 0xFF, 0x00, 0xFF)) == false) {
+    return nullptr;
+  }
+
+  texture = SDL_CreateTextureFromSurface(&renderer, loadedSurface);
+
+  SDL_DestroySurface(loadedSurface);
+
+  return texture;
+}
+
+bool loadTextures(RenderContext &renderContext, ECSContext &ecsContext) {
+  auto *tileTexture{
+      loadTextureFromFile("assets/tiles_world.png", *renderContext.renderer)};
+
+  if (!tileTexture) {
+    return false;
+  }
+
+  auto *actorTexture{
+      loadTextureFromFile("assets/tiles_actor.png", *renderContext.renderer)};
+
+  if (!actorTexture) {
+    return false;
+  }
+
+  ecsContext.getCommandBuffer().upsertResource(
+      TextureResource{tileTexture, actorTexture});
+
+  return true;
+}
+
+bool initView(RenderContext &renderContext, ECSContext &ecsContext) {
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Cursor *cursor;
@@ -87,49 +132,9 @@ bool initView(RenderContext &renderContext) {
   renderContext.cursorSurf = cursorSurf;
   renderContext.cursorTexturePath = cursorTexturePath;
 
-  return true;
-}
+  loadTextures(renderContext, ecsContext);
 
-SDL_Texture *loadTextureFromFile(const std::string &path,
-                                 SDL_Renderer &renderer) {
-  SDL_Texture *texture;
-
-  SDL_Surface *loadedSurface{IMG_Load(path.c_str())};
-
-  if (!loadedSurface) {
-    return nullptr;
-  }
-
-  if (SDL_SetSurfaceColorKey(
-          loadedSurface, true,
-          SDL_MapSurfaceRGB(loadedSurface, 0xFF, 0x00, 0xFF)) == false) {
-    return nullptr;
-  }
-
-  texture = SDL_CreateTextureFromSurface(&renderer, loadedSurface);
-
-  SDL_DestroySurface(loadedSurface);
-
-  return texture;
-}
-
-bool loadTextures(RenderContext &renderContext, ECSContext &ecsContext) {
-  auto *tileTexture{
-      loadTextureFromFile("assets/tiles_world.png", *renderContext.renderer)};
-
-  if (!tileTexture) {
-    return false;
-  }
-
-  auto *actorTexture{
-      loadTextureFromFile("assets/tiles_actor.png", *renderContext.renderer)};
-
-  if (!actorTexture) {
-    return false;
-  }
-
-  ecsContext.getCommandBuffer().upsertResource(
-      TextureResource{tileTexture, actorTexture});
+  initCameraResource(ecsContext);
 
   return true;
 }
@@ -143,7 +148,9 @@ void destroyTextures(ECSContext &ecsContext) {
   texture = nullptr;*/
 }
 
-int destroyView(RenderContext &renderContext) {
+int destroyView(RenderContext &renderContext, ECSContext &ecsContext) {
+  destroyTextures(ecsContext);
+
   SDL_DestroyCursor(renderContext.cursor);
   renderContext.cursor = nullptr;
   SDL_DestroySurface(renderContext.cursorSurf);

@@ -2,8 +2,9 @@
 
 #include <string>
 
+enum class Direction { UP, LEFT, DOWN, RIGHT };
+
 struct MoveIntentEvent {
   std::string entityId;
-  int up;
-  int left;
+  Direction dir;
 };

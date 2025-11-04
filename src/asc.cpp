@@ -25,10 +25,7 @@ ECSASC::ECSASC()
     : ecsContext(), ecsApi(ecsContext), renderContext(),
       renderContextWrapper(renderContext), guiContext(renderContextWrapper) {};
 
-void ECSASC::initSDL() {
-  initView(renderContext);
-  loadTextures(renderContext, ecsContext);
-}
+void ECSASC::initSDL() { initView(renderContext, ecsContext); }
 
 void ECSASC::initPrefabs() { registerPlayerPrefab(ecsApi); }
 
@@ -106,7 +103,4 @@ void ECSASC::run() {
   destroy();
 }
 
-void ECSASC::destroy() {
-  destroyTextures(ecsContext);
-  destroyView(renderContext);
-}
+void ECSASC::destroy() { destroyView(renderContext, ecsContext); }

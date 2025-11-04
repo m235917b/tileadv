@@ -13,29 +13,32 @@ void subscribeMoveIntentEventHandler(ECSContext &ecsContext) {
         const auto &pos{
             context.getStore().getComponent<Position>(event.entityId)};
         const auto &chunk{context.getResourceManager().getResource<Chunk>()};
-        Position position{pos->x, pos->y};
 
-        if (event.up > 0) {
+        switch (event.dir) {
+        case Direction::UP:
           if (!getTileAt(*chunk, pos->x, pos->y - 1).solid) {
-            position.y -= 1;
+            context.getCommandBuffer().patchComponent<Position>(
+                event.entityId, &Position::y, pos->y - 1);
           }
-        }
-        if (event.left > 0) {
+          break;
+        case Direction::LEFT:
           if (!getTileAt(*chunk, pos->x - 1, pos->y).solid) {
-            position.x -= 1;
+            context.getCommandBuffer().patchComponent<Position>(
+                event.entityId, &Position::x, pos->x - 1);
           }
-        }
-        if (event.up < 0) {
+          break;
+        case Direction::DOWN:
           if (!getTileAt(*chunk, pos->x, pos->y + 1).solid) {
-            position.y += 1;
+            context.getCommandBuffer().patchComponent<Position>(
+                event.entityId, &Position::y, pos->y + 1);
           }
-        }
-        if (event.left < 0) {
+          break;
+        case Direction::RIGHT:
           if (!getTileAt(*chunk, pos->x + 1, pos->y).solid) {
-            position.x += 1;
+            context.getCommandBuffer().patchComponent<Position>(
+                event.entityId, &Position::x, pos->x + 1);
           }
+          break;
         }
-
-        context.getCommandBuffer().upsertComponent(event.entityId, position);
       });
 }

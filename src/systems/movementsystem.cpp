@@ -24,30 +24,27 @@ std::string registerMovementSystem(const std::string &phase,
             *ecsContext.getStore().getComponent<MoveCooldown>(playerId->id)};
 
         playerMoveCooldown.timeLeft -= dt;
-        int up = 0;
-        int left = 0;
 
         if (playerMoveCooldown.timeLeft <= 0) {
           if (keyMap->w) {
-            up += 1;
             playerMoveCooldown.timeLeft = 1000 / playerCharAttrib->speed;
+            ecsContext.getEventBus().publish<MoveIntentEvent>(
+                MoveIntentEvent{playerId->id, Direction::UP});
           }
           if (keyMap->a) {
-            left += 1;
             playerMoveCooldown.timeLeft = 1000 / playerCharAttrib->speed;
+            ecsContext.getEventBus().publish<MoveIntentEvent>(
+                MoveIntentEvent{playerId->id, Direction::LEFT});
           }
           if (keyMap->s) {
-            up -= 1;
             playerMoveCooldown.timeLeft = 1000 / playerCharAttrib->speed;
+            ecsContext.getEventBus().publish<MoveIntentEvent>(
+                MoveIntentEvent{playerId->id, Direction::DOWN});
           }
           if (keyMap->d) {
-            left -= 1;
             playerMoveCooldown.timeLeft = 1000 / playerCharAttrib->speed;
-          }
-
-          if (keyMap->w || keyMap->a || keyMap->s || keyMap->d) {
             ecsContext.getEventBus().publish<MoveIntentEvent>(
-                MoveIntentEvent{playerId->id, up, left});
+                MoveIntentEvent{playerId->id, Direction::RIGHT});
           }
         }
 
