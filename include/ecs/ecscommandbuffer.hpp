@@ -47,7 +47,7 @@ public:
   }
 
   template <typename ComponentType, typename FieldType>
-  void patchComponent(std::string entityId, ComponentType FieldType::*field,
+  void patchComponent(std::string entityId, FieldType ComponentType::*field,
                       FieldType val) {
     auto setter{[v = std::move(val), field](std::any &comp) {
       std::any_cast<ComponentType &>(comp).*field = std::move(v);
@@ -58,7 +58,7 @@ public:
   }
 
   template <typename ComponentType, typename FieldType>
-  void patchResource(ComponentType FieldType::*field, FieldType val) {
+  void patchResource(FieldType ComponentType::*field, FieldType val) {
     auto setter{[v = std::move(val), field](std::any &res) {
       std::any_cast<ComponentType &>(res).*field = std::move(v);
     }};
