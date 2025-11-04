@@ -2,6 +2,6 @@
 
 #include <string>
 
-#include "resources/chunkresource.hpp"
+#include "chunk/resources.hpp"
 
 Chunk csvToChunk(const std::string &filename);

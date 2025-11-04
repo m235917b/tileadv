@@ -1,9 +1,9 @@
 #include <iostream>
 
-#include "asc.hpp"
+#include "asc/asc.hpp"
 
 int main() {
-  ECSASC asc{};
+  ASC asc{};
 
   asc.run();
 

@@ -1,24 +1,7 @@
 #include "view/view.hpp"
 
 #include "ecs/ecs.hpp"
-#include "resources/cameraresource.hpp"
-#include "resources/textureresource.hpp"
-
-GUIRenderContextWrapper::GUIRenderContextWrapper(
-    const RenderContext &renderContext)
-    : renderContext(renderContext) {}
-
-SDL_Renderer &GUIRenderContextWrapper::getRenderer() const {
-  return *renderContext.renderer;
-}
-
-int GUIRenderContextWrapper::getScreenWidth() const {
-  return renderContext.screenWidth;
-}
-
-int GUIRenderContextWrapper::getScreenHeight() const {
-  return renderContext.screenHeight;
-}
+#include "view/resources.hpp"
 
 SDL_Texture *loadTextureFromFile(const std::string &path,
                                  SDL_Renderer &renderer) {
@@ -43,7 +26,7 @@ SDL_Texture *loadTextureFromFile(const std::string &path,
   return texture;
 }
 
-bool loadTextures(RenderContext &renderContext, ECSContext &ecsContext) {
+bool loadTextures(ECSContext &ecsContext, RenderContext &renderContext) {
   auto *tileTexture{
       loadTextureFromFile("assets/tiles_world.png", *renderContext.renderer)};
 
@@ -64,7 +47,7 @@ bool loadTextures(RenderContext &renderContext, ECSContext &ecsContext) {
   return true;
 }
 
-bool initView(RenderContext &renderContext, ECSContext &ecsContext) {
+bool initView(ECSContext &ecsContext, RenderContext &renderContext) {
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Cursor *cursor;
@@ -132,9 +115,8 @@ bool initView(RenderContext &renderContext, ECSContext &ecsContext) {
   renderContext.cursorSurf = cursorSurf;
   renderContext.cursorTexturePath = cursorTexturePath;
 
-  loadTextures(renderContext, ecsContext);
-
-  initCameraResource(ecsContext);
+  initViewResources(ecsContext, renderContext);
+  loadTextures(ecsContext, renderContext);
 
   return true;
 }
@@ -148,7 +130,7 @@ void destroyTextures(ECSContext &ecsContext) {
   texture = nullptr;*/
 }
 
-int destroyView(RenderContext &renderContext, ECSContext &ecsContext) {
+int destroyView(ECSContext &ecsContext, RenderContext &renderContext) {
   destroyTextures(ecsContext);
 
   SDL_DestroyCursor(renderContext.cursor);

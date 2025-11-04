@@ -2,7 +2,7 @@
 #include <sstream>
 #include <vector>
 
-#include "resources/chunkresource.hpp"
+#include "chunk/resources.hpp"
 #include "utils/csvreader.hpp"
 
 Chunk csvToChunk(const std::string &filename) {

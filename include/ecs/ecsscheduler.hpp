@@ -6,11 +6,13 @@
 #include <utility>
 #include <vector>
 
+#include "ecs/ecsfunctionaliases.hpp"
+
 class ECSContext;
 
 struct SystemSlot {
   std::string systemId;
-  std::function<void(ECSContext &, const float dt)> system;
+  SystemFn system;
   bool enabled;
 };
 
@@ -34,7 +36,7 @@ public:
   void addOneShotPhase(std::string phase, bool dispathcAfter, bool flushAfter);
   void removePhase(const std::string &phase);
   void registerSystem(const std::string &phase, std::string systemId,
-                      std::function<void(ECSContext &, const float dt)> system);
+                      SystemFn system);
   void removeSystem(const std::string &systemId);
   void enableSystem(const std::string &id);
   void disableSystem(const std::string &id);

@@ -88,9 +88,8 @@ void ECSScheduler::removePhase(const std::string &phase) {
   rebuildLookUpByPhase();
 }
 
-void ECSScheduler::registerSystem(
-    const std::string &phase, std::string systemId,
-    std::function<void(ECSContext &, const float)> system) {
+void ECSScheduler::registerSystem(const std::string &phase,
+                                  std::string systemId, SystemFn system) {
   auto it{lookUpByPhase.find(phase)};
 
   if (it == lookUpByPhase.end()) {

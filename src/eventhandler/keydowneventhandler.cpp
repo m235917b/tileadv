@@ -4,12 +4,11 @@
 
 #include <SDL3/SDL.h>
 
+#include "asc/resources.hpp"
 #include "ecs/ecs.hpp"
 #include "events/keydownevent.hpp"
 #include "events/moveIntentEvent.hpp"
-#include "resources/applicationstateresource.hpp"
-#include "resources/keymapresource.hpp"
-#include "resources/playeridresource.hpp"
+#include "player/resources.hpp"
 
 void subscribeKeyDownEventHandler(ECSContext &context) {
   context.getEventBus().subscribe<KeyDownEvent>([](ECSContext &context,

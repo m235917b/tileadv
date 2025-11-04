@@ -20,12 +20,12 @@ struct UpsertResource {
 struct PatchComponent {
   std::string entityId;
   std::type_index componentType;
-  std::function<void(std::any &)> setter;
+  MemberSetter setter;
 };
 
 struct PatchResource {
   std::type_index resourceType;
-  std::function<void(std::any &)> setter;
+  MemberSetter setter;
 };
 
 ECSCommandBuffer::ECSCommandBuffer(ECSContext &context)
@@ -78,9 +78,8 @@ ECSCommandBuffer::ECSCommandBuffer(ECSContext &context)
       });
 }
 
-void ECSCommandBuffer::registerHandler(
-    const std::type_index &type,
-    std::function<void(ECSContext &, const std::any &)> handler) {
+void ECSCommandBuffer::registerHandler(const std::type_index &type,
+                                       CommandHandlerAny handler) {
   if (inFlush || reservedCommands.contains(type)) {
     return;
   }
@@ -115,9 +114,8 @@ void ECSCommandBuffer::flush() {
   inFlush = false;
 }
 
-void ECSCommandBuffer::registerHandlerInternal(
-    const std::type_index &type,
-    std::function<void(ECSContext &, std::any)> handler) {
+void ECSCommandBuffer::registerHandlerInternal(const std::type_index &type,
+                                               CommandHandlerAny handler) {
   if (inFlush) {
     return;
   }
@@ -141,12 +139,12 @@ void ECSCommandBuffer::upsertResource(std::any component) {
 
 void ECSCommandBuffer::patchComponent(std::string entityId,
                                       std::type_index type,
-                                      std::function<void(std::any &)> setter) {
+                                      MemberSetter setter) {
   enqueue(std::make_any<PatchComponent>(
       PatchComponent{std::move(entityId), type, std::move(setter)}));
 }
 
 void ECSCommandBuffer::patchResource(std::type_index type,
-                                     std::function<void(std::any &)> setter) {
+                                     MemberSetter setter) {
   enqueue(std::make_any<PatchResource>(PatchResource{type, std::move(setter)}));
 }

@@ -3,9 +3,8 @@
 ECSEventBus::ECSEventBus(ECSContext &context)
     : context(context), queue(), listeners(), inDispatch(false) {}
 
-void ECSEventBus::subscribe(
-    const std::type_index &type,
-    std::function<void(ECSContext &, const std::any &)> listener) {
+void ECSEventBus::subscribe(const std::type_index &type,
+                            EventListenerAny listener) {
   if (inDispatch) {
     return;
   }

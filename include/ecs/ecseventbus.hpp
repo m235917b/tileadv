@@ -8,6 +8,8 @@
 #include <utility>
 #include <vector>
 
+#include "ecs/ecsfunctionaliases.hpp"
+
 class ECSContext;
 
 class ECSEventBus {
@@ -15,14 +17,12 @@ public:
   ECSEventBus(ECSContext &context);
   ~ECSEventBus() = default;
 
-  void subscribe(const std::type_index &type,
-                 std::function<void(ECSContext &, const std::any &)> listener);
+  void subscribe(const std::type_index &type, EventListenerAny listener);
   void publish(std::any event);
   void dispatch();
 
   template <typename EventType>
-  void
-  subscribe(std::function<void(ECSContext &, const EventType &)> listener) {
+  void subscribe(EventHandler<EventType> listener) {
     const auto wrap{[listener = std::move(listener)](ECSContext &context,
                                                      const std::any &eventAny) {
       listener(context, std::any_cast<const EventType &>(eventAny));
@@ -38,9 +38,6 @@ public:
 private:
   ECSContext &context;
   std::queue<std::any> queue;
-  std::unordered_map<
-      std::type_index,
-      std::vector<std::function<void(ECSContext &, const std::any &)>>>
-      listeners;
+  std::unordered_map<std::type_index, std::vector<EventListenerAny>> listeners;
   bool inDispatch;
 };

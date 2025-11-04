@@ -5,8 +5,6 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 
-#include "gui/gui.hpp"
-
 constexpr int screenWidth{2560};
 constexpr int screenHeight{1440};
 const std::string cursorTexturePath{"guiassets/cursor.png"};
@@ -23,19 +21,6 @@ struct RenderContext {
   std::string cursorTexturePath;
 };
 
-class GUIRenderContextWrapper : public GUIRenderContext {
-public:
-  GUIRenderContextWrapper(const RenderContext &renderContext);
-  ~GUIRenderContextWrapper() = default;
+bool initView(ECSContext &ecsContext, RenderContext &renderContext);
 
-  SDL_Renderer &getRenderer() const;
-  int getScreenWidth() const;
-  int getScreenHeight() const;
-
-private:
-  const RenderContext &renderContext;
-};
-
-bool initView(RenderContext &renderContext, ECSContext &ecsContext);
-
-int destroyView(RenderContext &renderContext, ECSContext &ecsContext);
+int destroyView(ECSContext &ecsContext, RenderContext &renderContext);

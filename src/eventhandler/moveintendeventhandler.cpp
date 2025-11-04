@@ -2,10 +2,10 @@
 
 #include <any>
 
-#include "components/position.hpp"
+#include "actor/components.hpp"
+#include "chunk/resources.hpp"
 #include "ecs/ecs.hpp"
 #include "events/moveIntentEvent.hpp"
-#include "resources/chunkresource.hpp"
 
 void subscribeMoveIntentEventHandler(ECSContext &ecsContext) {
   ecsContext.getEventBus().subscribe<MoveIntentEvent>(

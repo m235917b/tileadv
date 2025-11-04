@@ -7,6 +7,8 @@
 #include <typeindex>
 #include <unordered_map>
 
+#include "ecs/ecsfunctionaliases.hpp"
+
 class ECSContext;
 
 class ECSCommandBuffer {
@@ -14,9 +16,7 @@ public:
   ECSCommandBuffer(ECSContext &context);
   ~ECSCommandBuffer() = default;
 
-  void
-  registerHandler(const std::type_index &type,
-                  std::function<void(ECSContext &, const std::any &)> handler);
+  void registerHandler(const std::type_index &type, CommandHandlerAny handler);
   void enqueue(std::any command);
   void flush();
   void print(std::string text);
@@ -24,7 +24,7 @@ public:
   void upsertResource(std::any component);
 
   template <typename CommandType>
-  void registerHandler(std::function<void(ECSContext &, CommandType)> handler) {
+  void registerHandler(CommandHandler<CommandType> handler) {
     auto wrap{[handler = std::move(handler)](ECSContext &context,
                                              const std::any &command) {
       handler(context, std::move(std::any_cast<CommandType>(command)));
@@ -69,24 +69,19 @@ public:
 private:
   ECSContext &context;
   std::queue<std::any> queue;
-  std::unordered_map<std::type_index,
-                     std::function<void(ECSContext &, std::any)>>
-      handlers;
+  std::unordered_map<std::type_index, CommandHandlerAny> handlers;
   bool inFlush;
   std::set<std::type_index> reservedCommands;
 
   void patchComponent(std::string entityId, std::type_index type,
-                      std::function<void(std::any &)> setter);
-  void patchResource(std::type_index type,
-                     std::function<void(std::any &)> setter);
+                      MemberSetter setter);
+  void patchResource(std::type_index type, MemberSetter setter);
 
-  void
-  registerHandlerInternal(const std::type_index &type,
-                          std::function<void(ECSContext &, std::any)> handler);
+  void registerHandlerInternal(const std::type_index &type,
+                               CommandHandlerAny handler);
 
   template <typename CommandType>
-  void registerHandlerInternal(
-      std::function<void(ECSContext &, CommandType)> handler) {
+  void registerHandlerInternal(CommandHandler<CommandType> handler) {
     auto wrap{[handler = std::move(handler)](ECSContext &context,
                                              const std::any &command) {
       handler(context, std::move(std::any_cast<CommandType>(command)));
