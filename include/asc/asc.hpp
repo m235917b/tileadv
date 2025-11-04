@@ -8,6 +8,8 @@
 #include "gui/guicontext.hpp"
 #include "view/view.hpp"
 
+struct SystemRegEntry;
+
 constexpr int framerate{144};
 
 class ASC {
@@ -24,10 +26,9 @@ private:
   GUIRenderContextWrapper renderContextWrapper;
   GUIContext guiContext;
 
-  void initResources();
+  void initASC();
   void initPhases();
+  void initModuleSystems(const std::vector<SystemRegEntry> &systems);
   void initSystems();
-  void initEventListeners();
-  void initCommandHandlers();
   void destroy();
 };

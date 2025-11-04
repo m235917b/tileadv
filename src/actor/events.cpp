@@ -1,13 +1,10 @@
-#include "eventhandler/moveintenteventhandler.hpp"
-
-#include <any>
+#include "actor/events.hpp"
 
 #include "actor/components.hpp"
 #include "chunk/resources.hpp"
 #include "ecs/ecs.hpp"
-#include "events/moveIntentEvent.hpp"
 
-void subscribeMoveIntentEventHandler(ECSContext &ecsContext) {
+void subscribeMoveIntentEventListener(ECSContext &ecsContext) {
   ecsContext.getEventBus().subscribe<MoveIntentEvent>(
       [](ECSContext &context, const MoveIntentEvent &event) {
         const auto &pos{
@@ -41,4 +38,8 @@ void subscribeMoveIntentEventHandler(ECSContext &ecsContext) {
           break;
         }
       });
+}
+
+void initActorEvents(ECSContext &ecsContext) {
+  subscribeMoveIntentEventListener(ecsContext);
 }

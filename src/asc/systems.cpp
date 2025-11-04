@@ -2,9 +2,8 @@
 
 #include <SDL3/SDL.h>
 
+#include "asc/events.hpp"
 #include "ecs/ecscontext.hpp"
-#include "events/keydownevent.hpp"
-#include "events/keyupevent.hpp"
 
 const auto keyInputSystem{[](ECSContext &context, const float) {
   SDL_Event e;

@@ -4,15 +4,14 @@
 
 #include <any>
 
+#include "actor/actor.hpp"
+#include "asc/events.hpp"
 #include "asc/resources.hpp"
 #include "asc/systemregistry.hpp"
 #include "asc/systems.hpp"
 #include "chunk/chunk.hpp"
 #include "ecs/ecs.hpp"
 #include "ecsgui/ecsgui.hpp"
-#include "eventhandler/keydowneventhandler.hpp"
-#include "eventhandler/keyupeventhandler.hpp"
-#include "eventhandler/moveintenteventhandler.hpp"
 #include "player/player.hpp"
 #include "player/systems.hpp"
 #include "view/systems.hpp"
@@ -22,7 +21,10 @@ ASC::ASC()
     : ecsContext(), ecsApi(ecsContext), renderContext(),
       renderContextWrapper(renderContext), guiContext(renderContextWrapper) {};
 
-void ASC::initResources() { initASCResources(ecsContext, ecsApi); }
+void ASC::initASC() {
+  initASCResources(ecsContext, ecsApi);
+  initASCEvents(ecsContext);
+}
 
 void ASC::initPhases() {
   ecsContext.getScheduler().addOneShotPhase("spawn", false, true);
@@ -34,45 +36,31 @@ void ASC::initPhases() {
   ecsContext.getScheduler().addPhase("rendering", false, false);
 }
 
+void ASC::initModuleSystems(const std::vector<SystemRegEntry> &systems) {
+  for (auto &&regEntry : systems) {
+    ecsContext.getScheduler().registerSystem(
+        systemIdToPhase.at(regEntry.system_id), std::move(regEntry.system_id),
+        std::move(regEntry.system));
+  }
+}
+
 void ASC::initSystems() {
-  for (auto &&regEntry : getViewSystems()) {
-    ecsContext.getScheduler().registerSystem(
-        systemIdToPhase.at(regEntry.system_id), std::move(regEntry.system_id),
-        std::move(regEntry.system));
-  }
-
-  for (auto &&regEntry : getASCSystems()) {
-    ecsContext.getScheduler().registerSystem(
-        systemIdToPhase.at(regEntry.system_id), std::move(regEntry.system_id),
-        std::move(regEntry.system));
-  }
-
-  for (auto &&regEntry : getPlayerSystems()) {
-    ecsContext.getScheduler().registerSystem(
-        systemIdToPhase.at(regEntry.system_id), std::move(regEntry.system_id),
-        std::move(regEntry.system));
-  }
+  initModuleSystems(getASCSystems());
+  initModuleSystems(getViewSystems());
+  initModuleSystems(getPlayerSystems());
 }
-
-void ASC::initEventListeners() {
-  subscribeKeyDownEventHandler(ecsContext);
-  subscribeMoveIntentEventHandler(ecsContext);
-  subscribeKeyUpEventHandler(ecsContext);
-}
-
-void ASC::initCommandHandlers() {}
 
 void ASC::run() {
+  initPhases();
+
+  initASC();
   initView(ecsContext, renderContext);
   initECSGUI(ecsContext, guiContext);
   initChunk(ecsContext);
+  initActors(ecsContext);
   initPlayer(ecsContext, ecsApi);
 
-  initResources();
-  initPhases();
   initSystems();
-  initEventListeners();
-  initCommandHandlers();
 
   ecsContext.getScheduler().bootstrap();
 

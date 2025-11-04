@@ -1,7 +1,7 @@
 #include "player/systems.hpp"
 #include "actor/components.hpp"
+#include "actor/events.hpp"
 #include "asc/resources.hpp"
-#include "events/moveIntentEvent.hpp"
 #include "player/resources.hpp"
 
 const auto movementSystem{[](ECSContext &ecsContext, const float dt) {
