@@ -7,4 +7,5 @@
 
 struct TextureResource {
   SDL_Texture *tiles;
+  SDL_Texture *actors;
 };

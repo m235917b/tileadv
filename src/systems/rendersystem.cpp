@@ -32,6 +32,13 @@ const SDL_FRect getActorCoords(const ActorType type) {
   return {xFactor * tileSpriteSize, 0.f, tileSpriteSize, tileSpriteSize};
 }
 
+void renderTexture(float posX, float posY, const SDL_FRect &spriteCoords,
+                   SDL_Texture *texture, SDL_Renderer *renderer) {
+  const SDL_FRect dstRect{posX, posY, tileSize > 0 ? tileSize : spriteCoords.w,
+                          tileSize > 0 ? tileSize : spriteCoords.h};
+  SDL_RenderTexture(renderer, texture, &spriteCoords, &dstRect);
+}
+
 std::string registerRenderSystem(const std::string &phase,
                                  ECSContext &context) {
   const std::string id{"render"};
@@ -84,23 +91,35 @@ std::string registerRenderSystem(const std::string &phase,
              y < chunk->sizeX && y < screenHeight / tileSize + cameraY; ++y) {
           for (int x{cameraX};
                x < chunk->sizeY && x < screenWidth / tileSize + cameraX; ++x) {
-            const auto tile{chunk->worldGrid.at(y * chunk->sizeX + x)};
-
-            const SDL_FRect spriteCoords{getTileCoords(tile.type)};
-
             float posX{leftMargin + static_cast<float>(x) * tileSize -
                        cameraX * tileSize};
             float posY{topMargin + static_cast<float>(y) * tileSize -
                        cameraY * tileSize};
+            const auto tile{getTileAt(*chunk, x, y)};
 
-            const SDL_FRect dstRect{posX, posY,
-                                    tileSize > 0 ? tileSize : spriteCoords.w,
-                                    tileSize > 0 ? tileSize : spriteCoords.h};
+            const SDL_FRect spriteCoords{getTileCoords(tile.type)};
 
-            SDL_RenderTexture(renderer, textures->tiles, &spriteCoords,
-                              &dstRect);
+            renderTexture(posX, posY, spriteCoords, textures->tiles,
+                          renderContext->renderer);
           }
         }
+
+        context.getStore().view<Actor, Position>(
+            [&](const std::string &, const Actor &actor, const Position &pos) {
+              float posX{leftMargin + static_cast<float>(pos.x) * tileSize -
+                         cameraX * tileSize};
+              float posY{topMargin + static_cast<float>(pos.y) * tileSize -
+                         cameraY * tileSize};
+              const auto &spriteCoords{getActorCoords(actor.type)};
+
+              if (posX >= leftMargin &&
+                  posX + tileSize + leftMargin <= screenWidth &&
+                  posY >= topMargin &&
+                  posY + tileSize + topMargin <= screenHeight) {
+                renderTexture(posX, posY, spriteCoords, textures->actors,
+                              renderContext->renderer);
+              }
+            });
 
         SDL_RenderPresent(renderer);
       });

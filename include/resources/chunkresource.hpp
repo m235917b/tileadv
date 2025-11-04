@@ -32,3 +32,7 @@ struct Chunk {
 };
 
 void initChunkResource(ECSContext &ecsContext);
+
+Tile getTileAt(const Chunk &chunk, int x, int y);
+
+void setTile(Chunk &chunk, int x, int y, Tile tile);

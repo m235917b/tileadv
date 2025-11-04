@@ -32,7 +32,10 @@ Chunk csvToChunk(const std::string &filename) {
 
   int posX{0};
   int posY{0};
-  auto worldGrid{std::vector<Tile>(sizex * sizey, {TileType::EMPTY})};
+
+  Chunk chunk{sizex, sizey, std::vector<Tile>(sizex * sizey, {TileType::EMPTY}),
+              up,    right, down,
+              left};
 
   while (std::getline(file, line)) {
     std::stringstream ss(line);
@@ -40,12 +43,12 @@ Chunk csvToChunk(const std::string &filename) {
     while (std::getline(ss, value, ',')) {
       const auto tileVal{std::stoi(value)};
       const auto tile{Tile{static_cast<TileType>(tileVal), tileVal >= 100}};
-      worldGrid[posY * sizex + posX] = tile;
+      setTile(chunk, posX, posY, tile);
       posX++;
     }
     posY++;
     posX = 0;
   }
 
-  return Chunk{sizex, sizey, std::move(worldGrid), up, right, down, left};
+  return chunk;
 }

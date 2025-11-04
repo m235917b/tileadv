@@ -41,7 +41,6 @@ ECSEntityBuilder &ECSEntityBuilder::add(std::type_index componentType) {
 
 void ECSEntityBuilder::finish() {
   for (auto &[type, component] : components) {
-    context.getCommandBuffer().enqueue<UpsertComponent>(
-        UpsertComponent{entityId, std::move(component)});
+    context.getCommandBuffer().upsertComponent(entityId, std::move(component));
   }
 }

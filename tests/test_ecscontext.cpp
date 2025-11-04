@@ -28,8 +28,8 @@ struct SetValEvent {
 TEST_CASE("ECS upsert adds and retrieves components") {
   ECSContext ctx{};
 
-  ctx.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity1", Position{1.f, 2.f}});
+  ctx.getCommandBuffer().upsertComponent<Position>("entity1",
+                                                   Position{1.f, 2.f});
 
   ctx.getCommandBuffer().flush();
 
@@ -43,12 +43,12 @@ TEST_CASE("ECS upsert adds and retrieves components") {
 TEST_CASE("ECS view iterates over entities correctly") {
   ECSContext ctx{};
 
-  ctx.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity1", Position{1.f, 2.f}});
-  ctx.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity2", Position{5.f, 6.f}});
-  ctx.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity2", Velocity{7.f, 8.f}});
+  ctx.getCommandBuffer().upsertComponent<Position>("entity1",
+                                                   Position{1.f, 2.f});
+  ctx.getCommandBuffer().upsertComponent<Position>("entity2",
+                                                   Position{5.f, 6.f});
+  ctx.getCommandBuffer().upsertComponent<Velocity>("entity2",
+                                                   Velocity{7.f, 8.f});
 
   ctx.getCommandBuffer().flush();
 
@@ -105,12 +105,12 @@ TEST_CASE("ECS scheduler runs systems in different phases") {
 TEST_CASE("ECS scheduler runs systems with view calls") {
   ECSContext ecsContext{};
 
-  ecsContext.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity1", Position{1.f, 2.f}});
-  ecsContext.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity2", Position{5.f, 6.f}});
-  ecsContext.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity2", Velocity{7.f, 8.f}});
+  ecsContext.getCommandBuffer().upsertComponent<Position>("entity1",
+                                                          Position{1.f, 2.f});
+  ecsContext.getCommandBuffer().upsertComponent<Position>("entity2",
+                                                          Position{5.f, 6.f});
+  ecsContext.getCommandBuffer().upsertComponent<Velocity>("entity2",
+                                                          Velocity{7.f, 8.f});
 
   ecsContext.getScheduler().bootstrap();
 
@@ -159,12 +159,12 @@ TEST_CASE("ECS scheduler runs systems with view calls") {
 TEST_CASE("ECS scheduler runs systems with view calls in multiple updates") {
   ECSContext ecsContext{};
 
-  ecsContext.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity1", Position{1.f, 2.f}});
-  ecsContext.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity2", Position{5.f, 6.f}});
-  ecsContext.getCommandBuffer().enqueue<UpsertComponent>(
-      UpsertComponent{"entity2", Velocity{7.f, 8.f}});
+  ecsContext.getCommandBuffer().upsertComponent<Position>("entity1",
+                                                          Position{1.f, 2.f});
+  ecsContext.getCommandBuffer().upsertComponent<Position>("entity2",
+                                                          Position{5.f, 6.f});
+  ecsContext.getCommandBuffer().upsertComponent<Velocity>("entity2",
+                                                          Velocity{7.f, 8.f});
 
   ecsContext.getScheduler().bootstrap();
 

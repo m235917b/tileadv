@@ -6,7 +6,6 @@
 #include "ecs/ecsscheduler.hpp"
 #include "ecs/ecsstore.hpp"
 
-
 class ECSContext {
 public:
   ECSContext();
@@ -24,4 +23,6 @@ private:
   ECSScheduler scheduler;
   ECSCommandBuffer commandBuffer;
   ECSEventBus eventBus;
+
+  friend class ECSCommandBuffer;
 };

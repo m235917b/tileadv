@@ -114,17 +114,22 @@ SDL_Texture *loadTextureFromFile(const std::string &path,
 }
 
 bool loadTextures(RenderContext &renderContext, ECSContext &ecsContext) {
-  auto *texture{
+  auto *tileTexture{
       loadTextureFromFile("assets/tiles_world.png", *renderContext.renderer)};
 
-  if (!texture) {
+  if (!tileTexture) {
     return false;
   }
 
-  const auto textureRes{
-      std::make_any<TextureResource>(TextureResource{texture})};
-  const auto textureResAny{UpsertResource{textureRes}};
-  ecsContext.getCommandBuffer().enqueue<UpsertResource>(textureResAny);
+  auto *actorTexture{
+      loadTextureFromFile("assets/tiles_actor.png", *renderContext.renderer)};
+
+  if (!actorTexture) {
+    return false;
+  }
+
+  ecsContext.getCommandBuffer().upsertResource(
+      TextureResource{tileTexture, actorTexture});
 
   return true;
 }

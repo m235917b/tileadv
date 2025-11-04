@@ -4,6 +4,7 @@
 
 #include "ecs/ecscontext.hpp"
 #include "events/keydownevent.hpp"
+#include "events/keyupevent.hpp"
 
 std::string registerKeyInputSystem(const std::string &phase,
                                    ECSContext &ecsContext) {
@@ -14,10 +15,11 @@ std::string registerKeyInputSystem(const std::string &phase,
         SDL_Event e;
         SDL_zero(e);
         while (SDL_PollEvent(&e) == true) {
-          switch (e.type) {
-          case SDL_EVENT_KEY_DOWN:
+          if (e.type == SDL_EVENT_KEY_DOWN) {
             context.getEventBus().publish<KeyDownEvent>({e.key.key});
-            break;
+          }
+          if (e.type == SDL_EVENT_KEY_UP) {
+            context.getEventBus().publish<KeyUpEvent>({e.key.key});
           }
         }
       });

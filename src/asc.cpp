@@ -6,13 +6,17 @@
 
 #include "ecs/ecs.hpp"
 #include "eventhandler/keydowneventhandler.hpp"
+#include "eventhandler/keyupeventhandler.hpp"
+#include "eventhandler/moveintenteventhandler.hpp"
 #include "prefabs/playerprefab.hpp"
 #include "resources/applicationstateresource.hpp"
 #include "resources/chunkresource.hpp"
 #include "resources/guicontextresource.hpp"
+#include "resources/keymapresource.hpp"
 #include "resources/playeridresource.hpp"
 #include "resources/rendercontextresource.hpp"
 #include "systems/keyinputsystem.hpp"
+#include "systems/movementsystem.hpp"
 #include "systems/rendersystem.hpp"
 #include "systems/spawnplayersystem.hpp"
 #include "view/view.hpp"
@@ -31,6 +35,7 @@ void ECSASC::initPrefabs() { registerPlayerPrefab(ecsApi); }
 void ECSASC::initResources() {
   initRenderContextResource(ecsContext, renderContext);
   initGUIContextResource(ecsContext, guiContext);
+  initKeyMapResource(ecsContext);
 
   initApplicationStateResource(ecsContext);
   initChunkResource(ecsContext);
@@ -39,7 +44,8 @@ void ECSASC::initResources() {
 
 void ECSASC::initPhases() {
   ecsContext.getScheduler().addOneShotPhase("spawnPlayer", false, true);
-  ecsContext.getScheduler().addPhase("input", true, false);
+  ecsContext.getScheduler().addPhase("input", true, true);
+  ecsContext.getScheduler().addPhase("movement", true, false);
   ecsContext.getScheduler().addPhase("logic", true, true);
   ecsContext.getScheduler().addPhase("post_logic", true, true);
   ecsContext.getScheduler().addPhase("rendering_preparation", true, false);
@@ -50,9 +56,14 @@ void ECSASC::initSystems() {
   registerRenderSystem("rendering", ecsContext);
   registerKeyInputSystem("input", ecsContext);
   registerSpawnPlayerSystem("spawnPlayer", ecsContext, ecsApi);
+  registerMovementSystem("movement", ecsContext);
 }
 
-void ECSASC::initEventListeners() { subscribeKeyDownEventHandler(ecsContext); }
+void ECSASC::initEventListeners() {
+  subscribeKeyDownEventHandler(ecsContext);
+  subscribeMoveIntentEventHandler(ecsContext);
+  subscribeKeyUpEventHandler(ecsContext);
+}
 
 void ECSASC::initCommandHandlers() {}
 

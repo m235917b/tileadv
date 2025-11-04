@@ -97,7 +97,7 @@ void ECSScheduler::registerSystem(
     return;
   }
 
-  auto sysSlot{it->second->systems.emplace_back(
+  auto &sysSlot{it->second->systems.emplace_back(
       SystemSlot{systemId, std::move(system), true})};
 
   rebuildLookUpByEntity();

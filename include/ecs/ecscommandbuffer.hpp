@@ -3,10 +3,9 @@
 #include <any>
 #include <functional>
 #include <queue>
+#include <set>
 #include <typeindex>
 #include <unordered_map>
-
-#include "ecs/ecscommandtypes.hpp"
 
 class ECSContext;
 
@@ -20,6 +19,9 @@ public:
                   std::function<void(ECSContext &, const std::any &)> handler);
   void enqueue(std::any command);
   void flush();
+  void print(std::string text);
+  void upsertComponent(std::string entityId, std::any component);
+  void upsertResource(std::any component);
 
   template <typename CommandType>
   void registerHandler(std::function<void(ECSContext &, CommandType)> handler) {
@@ -34,6 +36,36 @@ public:
     enqueue(std::move(std::make_any<CommandType>(command)));
   }
 
+  template <typename ComponentType>
+  void upsertComponent(std::string entityId, ComponentType component) {
+    upsertComponent(std::move(entityId),
+                    std::make_any<ComponentType>(std::move(component)));
+  }
+
+  template <typename ResourceType> void upsertResource(ResourceType resource) {
+    upsertResource(std::make_any<ResourceType>(std::move(resource)));
+  }
+
+  template <typename ComponentType, typename FieldType>
+  void patchComponent(std::string entityId, ComponentType FieldType::*field,
+                      FieldType val) {
+    auto setter{[v = std::move(val), field](std::any &comp) {
+      std::any_cast<ComponentType &>(comp).*field = std::move(v);
+    }};
+
+    patchComponent(std::move(entityId), std::type_index(typeid(ComponentType)),
+                   setter);
+  }
+
+  template <typename ComponentType, typename FieldType>
+  void patchResource(ComponentType FieldType::*field, FieldType val) {
+    auto setter{[v = std::move(val), field](std::any &res) {
+      std::any_cast<ComponentType &>(res).*field = std::move(v);
+    }};
+
+    patchResource(std::type_index(typeid(ComponentType)), setter);
+  }
+
 private:
   ECSContext &context;
   std::queue<std::any> queue;
@@ -41,6 +73,12 @@ private:
                      std::function<void(ECSContext &, std::any)>>
       handlers;
   bool inFlush;
+  std::set<std::type_index> reservedCommands;
+
+  void patchComponent(std::string entityId, std::type_index type,
+                      std::function<void(std::any &)> setter);
+  void patchResource(std::type_index type,
+                     std::function<void(std::any &)> setter);
 
   void
   registerHandlerInternal(const std::type_index &type,
@@ -56,6 +94,4 @@ private:
     registerHandlerInternal(std::type_index(typeid(CommandType)),
                             std::move(wrap));
   }
-
-  friend class ECSContext;
 };

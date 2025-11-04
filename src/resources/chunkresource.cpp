@@ -4,7 +4,13 @@
 
 void initChunkResource(ECSContext &ecsContext) {
   auto chunk{csvToChunk("world/chunk1.cnk")};
-  const auto chunkRes{std::make_any<Chunk>(std::move(chunk))};
-  const auto chunkResAny{UpsertResource{std::move(chunkRes)}};
-  ecsContext.getCommandBuffer().enqueue<UpsertResource>(std::move(chunkResAny));
+  ecsContext.getCommandBuffer().upsertResource(std::move(chunk));
+}
+
+Tile getTileAt(const Chunk &chunk, int x, int y) {
+  return chunk.worldGrid[y * chunk.sizeX + x];
+}
+
+void setTile(Chunk &chunk, int x, int y, Tile tile) {
+  chunk.worldGrid[y * chunk.sizeX + x] = std::move(tile);
 }

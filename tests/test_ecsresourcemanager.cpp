@@ -8,8 +8,7 @@ struct TestResource {
 TEST_CASE("ECS upsert adds and retrieves components") {
   ECSContext ctx{};
 
-  ctx.getCommandBuffer().enqueue<UpsertResource>(
-      UpsertResource{TestResource{7}});
+  ctx.getCommandBuffer().upsertResource<TestResource>(TestResource{7});
 
   ctx.getCommandBuffer().flush();
 
