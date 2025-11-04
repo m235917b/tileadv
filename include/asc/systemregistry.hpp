@@ -16,5 +16,6 @@ struct SystemRegEntry {
 const std::unordered_map<std::string, std::string> systemIdToPhase{
     std::make_pair<std::string, std::string>("render", "rendering"),
     std::make_pair<std::string, std::string>("key_input", "input"),
+    std::make_pair<std::string, std::string>("player_movement", "movement"),
     std::make_pair<std::string, std::string>("player_spawn", "spawn"),
-    std::make_pair<std::string, std::string>("player_movement", "movement")};
+    std::make_pair<std::string, std::string>("dummy_spawn", "spawn")};

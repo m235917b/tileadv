@@ -12,6 +12,8 @@
 #include "chunk/chunk.hpp"
 #include "ecs/ecs.hpp"
 #include "ecsgui/ecsgui.hpp"
+#include "npc/npc.hpp"
+#include "npc/systems.hpp"
 #include "player/player.hpp"
 #include "player/systems.hpp"
 #include "view/systems.hpp"
@@ -48,6 +50,7 @@ void ASC::initSystems() {
   initModuleSystems(getASCSystems());
   initModuleSystems(getViewSystems());
   initModuleSystems(getPlayerSystems());
+  initModuleSystems(getNPCSystems());
 }
 
 void ASC::run() {
@@ -59,6 +62,7 @@ void ASC::run() {
   initChunk(ecsContext);
   initActors(ecsContext);
   initPlayer(ecsContext, ecsApi);
+  initNPCs(ecsApi);
 
   initSystems();
 
