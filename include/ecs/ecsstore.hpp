@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <utility>
 
+#include "ecs/ecsfunctionaliases.hpp"
+
 class ECSStore {
 public:
   ECSStore() = default;
@@ -15,19 +17,28 @@ public:
 
   void destroyEntity(const std::string &entityId);
   void upsertComponent(std::string entityId, std::any component);
+  void updateComponent(std::type_index type, const std::string &entityId,
+                       UpdateFnAny update);
   std::any *getComponent(const std::string &entityId,
                          const std::type_index &type);
   const std::any *getComponent(const std::string &entityId,
                                const std::type_index &type) const;
-  void view(const std::vector<std::type_index> &types,
-            const std::function<void(const std::string &,
-                                     const std::vector<const std::any *> &)> &f)
-      const;
+  void view(const std::vector<std::type_index> &types, const ViewFn &f) const;
 
   template <typename T>
   void upsertComponent(std::string entityId, T component) {
     upsertComponent(std::move(entityId),
                     std::move(std::make_any<T>(component)));
+  }
+
+  template <typename ComponentType>
+  void updateComponent(const std::string &entityId,
+                       UpdateFn<ComponentType> update) {
+    auto wrapper{[update = std::move(update)](const std::any &component) {
+      return std::make_any<ComponentType>(
+          update(std::any_cast<ComponentType>(component)));
+    }};
+    updateComponent(entityId, std::move(wrapper));
   }
 
   template <typename T>

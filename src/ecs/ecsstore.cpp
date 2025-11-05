@@ -15,6 +15,24 @@ void ECSStore::upsertComponent(std::string entityId, std::any component) {
   pool[std::move(entityId)] = std::move(component);
 }
 
+void ECSStore::updateComponent(std::type_index type,
+                               const std::string &entityId,
+                               UpdateFnAny update) {
+  const auto &it{componentStores.find(type)};
+
+  if (it == componentStores.end()) {
+    return;
+  }
+
+  const auto &ent{it->second.find(entityId)};
+
+  if (ent == it->second.end()) {
+    return;
+  }
+
+  ent->second = update(ent->second);
+}
+
 std::any *ECSStore::getComponent(const std::string &entityId,
                                  const std::type_index &type) {
   const auto it{componentStores.find(type)};

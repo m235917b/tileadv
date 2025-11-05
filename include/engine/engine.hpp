@@ -2,12 +2,13 @@
 
 #include <functional>
 #include <string>
+#include <any>
 
-#include "ecs/ecsapi.hpp"
+class GameAPI;
 
 class ECSContext;
 
-using EntityEffectFn = std::function<void(ECSAPI &, const std::any &)>;
+using EntityEffectFn = std::function<void(GameAPI &, const std::any &)>;
 
 struct EntityEffect {
   std::string id;

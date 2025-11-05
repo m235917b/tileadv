@@ -22,6 +22,9 @@ public:
   void print(std::string text);
   void upsertComponent(std::string entityId, std::any component);
   void upsertResource(std::any component);
+  void patchComponent(std::string entityId, std::type_index type,
+                      MemberSetter setter);
+  void patchResource(std::type_index type, MemberSetter setter);
 
   template <typename CommandType>
   void registerHandler(CommandHandler<CommandType> handler) {
@@ -72,10 +75,6 @@ private:
   std::unordered_map<std::type_index, CommandHandlerAny> handlers;
   bool inFlush;
   std::set<std::type_index> reservedCommands;
-
-  void patchComponent(std::string entityId, std::type_index type,
-                      MemberSetter setter);
-  void patchResource(std::type_index type, MemberSetter setter);
 
   void registerHandlerInternal(const std::type_index &type,
                                CommandHandlerAny handler);

@@ -101,3 +101,5 @@ void ASC::run() {
 void ASC::destroy() { destroyView(ecsContext, renderContext); }
 
 ECSContext &ASC::getECSContext() { return ecsContext; }
+
+ECSAPI &ASC::getECSAPI() { return ecsApi; }

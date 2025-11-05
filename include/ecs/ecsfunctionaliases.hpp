@@ -18,3 +18,11 @@ using CommandHandlerAny = std::function<void(ECSContext &, const std::any &)>;
 using EventListenerAny = std::function<void(ECSContext &, const std::any &)>;
 
 using MemberSetter = std::function<void(std::any &)>;
+
+using UpdateFnAny = std::function<std::any(const std::any &)>;
+
+template <typename ComponentType>
+using UpdateFn = std::function<ComponentType(const ComponentType &)>;
+
+using ViewFn = std::function<void(const std::string &,
+                                        const std::vector<const std::any *> &)>;

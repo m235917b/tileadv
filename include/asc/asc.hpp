@@ -20,6 +20,7 @@ public:
   void run();
 
   ECSContext &getECSContext();
+  ECSAPI &getECSAPI();
 
 private:
   ECSContext ecsContext;
