@@ -15,9 +15,11 @@ constexpr int framerate{144};
 class ASC {
 public:
   ASC();
-  ~ASC() = default;
+  ~ASC();
 
   void run();
+
+  ECSContext &getECSContext();
 
 private:
   ECSContext ecsContext;

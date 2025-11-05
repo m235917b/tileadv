@@ -6,10 +6,9 @@
 #include <typeindex>
 #include <vector>
 
+#include "ecs/ecscontext.hpp"
 #include "ecs/ecsentitybuilder.hpp"
 #include "ecs/ecsprefab.hpp"
-
-class ECSContext;
 
 class ECSAPI {
 public:
@@ -21,60 +20,30 @@ public:
   ECSEntityBuilder createEntity(std::string entityId);
   ECSEntityBuilder instantiateEntity(std::string entityId,
                                      std::string recipeId);
+  void print(std::string text);
 
-  void addViewSystem(
-      const std::string &phase, std::string systemId,
-      std::vector<std::type_index> types,
-      std::function<void(ECSContext &, const float, const std::string &,
-                         const std::vector<const std::any *> &)>
-          system);
-  void subscribeViewEventListener(
-      const std::type_index &type, std::vector<std::type_index> types,
-      std::function<void(ECSContext &, const std::any &, const std::string &,
-                         const std::vector<const std::any *> &)>
-          listener);
-
-  template <typename... Ts, typename Func>
-  void addViewSystem(const std::string &phase, std::string systemId,
-                     Func &&system) {
-    std::vector<std::type_index> types;
-    types.reserve(sizeof...(Ts));
-    (types.emplace_back(std::type_index(typeid(std::decay_t<Ts>))), ...);
-
-    const auto wrap{[system = std::forward<Func>(system)](
-                        ECSContext &context, const float dt,
-                        const std::string &entityId,
-                        const std::vector<const std::any *> &components) {
-      auto apply{[&]<std::size_t... Is>(std::index_sequence<Is...>) {
-        system(context, dt, entityId,
-               (std::any_cast<const Ts &>(*components[Is]))...);
-      }};
-      apply(std::make_index_sequence<sizeof...(Ts)>{});
-    }};
-
-    addViewSystem(phase, std::move(systemId), std::move(types),
-                  std::move(wrap));
+  template <typename T>
+  void upsertComponent(std::string entityId, T component) {
+    context.getCommandBuffer().upsertComponent<T>(std::move(entityId),
+                                                  std::move(component));
   }
 
-  template <typename EventType, typename... Ts, typename Func>
-  void subscribeViewListener(Func &&listener) {
-    std::vector<std::type_index> types;
-    types.reserve(sizeof...(Ts));
-    (types.emplace_back(std::type_index(typeid(std::decay_t<Ts>))), ...);
+  template <typename T>
+  const T *getComponent(const std::string &entityId) const {
+    return context.getStore().getComponent<T>(entityId);
+  }
 
-    const auto wrap{[listener = std::forward<Func>(listener)](
-                        ECSContext &context, const std::any &event,
-                        const std::string &entityId,
-                        const std::vector<const std::any *> &components) {
-      auto apply{[&]<std::size_t... Is>(std::index_sequence<Is...>) {
-        listener(context, std::any_cast<const EventType &>(event), entityId,
-                 (std::any_cast<const Ts &>(*components[Is]))...);
-      }};
-      apply(std::make_index_sequence<sizeof...(Ts)>{});
-    }};
+  template <typename ComponentType, typename FieldType>
+  void patchComponent(std::string entityId, FieldType ComponentType::*field,
+                      FieldType val) {
+    context.getCommandBuffer().patchComponent<ComponentType, FieldType>(
+        std::move(entityId), field, std::move(val));
+  }
 
-    subscribeViewEventListener(std::type_index(typeid(EventType)),
-                               std::move(types), std::move(wrap));
+  template <typename ComponentType, typename FieldType>
+  void patchResource(FieldType ComponentType::*field, FieldType val) {
+    context.getCommandBuffer().patchResource<ComponentType, FieldType>(
+        field, std::move(val));
   }
 
 private:

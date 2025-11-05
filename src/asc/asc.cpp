@@ -12,6 +12,7 @@
 #include "chunk/chunk.hpp"
 #include "ecs/ecs.hpp"
 #include "ecsgui/ecsgui.hpp"
+#include "engine/engine.hpp"
 #include "npc/npc.hpp"
 #include "npc/systems.hpp"
 #include "player/player.hpp"
@@ -21,7 +22,24 @@
 
 ASC::ASC()
     : ecsContext(), ecsApi(ecsContext), renderContext(),
-      renderContextWrapper(renderContext), guiContext(renderContextWrapper) {};
+      renderContextWrapper(renderContext), guiContext(renderContextWrapper) {
+  initPhases();
+
+  initASC();
+  initView(ecsContext, renderContext);
+  initECSGUI(ecsContext, guiContext);
+  initEngine(ecsContext);
+  initChunk(ecsContext);
+  initActors(ecsContext);
+  initPlayer(ecsContext, ecsApi);
+  initNPCs(ecsApi);
+
+  initSystems();
+
+  ecsContext.getScheduler().bootstrap();
+};
+
+ASC::~ASC() { destroy(); }
 
 void ASC::initASC() {
   initASCResources(ecsContext, ecsApi);
@@ -54,20 +72,6 @@ void ASC::initSystems() {
 }
 
 void ASC::run() {
-  initPhases();
-
-  initASC();
-  initView(ecsContext, renderContext);
-  initECSGUI(ecsContext, guiContext);
-  initChunk(ecsContext);
-  initActors(ecsContext);
-  initPlayer(ecsContext, ecsApi);
-  initNPCs(ecsApi);
-
-  initSystems();
-
-  ecsContext.getScheduler().bootstrap();
-
   ecsContext.getScheduler().updateOneShotPhase("spawn", 0.f);
 
   bool run{true};
@@ -90,10 +94,10 @@ void ASC::run() {
     if (remaining > 0.f) {
       SDL_Delay(remaining);
     }
-    std::cout << 1000.f / float(SDL_GetTicks() - previousTick) << std::endl;
+    // std::cout << 1000.f / float(SDL_GetTicks() - previousTick) << std::endl;
   }
-
-  destroy();
 }
 
 void ASC::destroy() { destroyView(ecsContext, renderContext); }
+
+ECSContext &ASC::getECSContext() { return ecsContext; }
