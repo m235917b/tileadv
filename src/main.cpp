@@ -144,6 +144,15 @@ int main() {
                    : std::nullopt;
       });
 
+  /*api.registerEventEffectTrigger<KeyDownEvent>(
+      "shoot", [&ctr, &api](const KeyDownEvent &event) {
+        ctr++;
+        api.print(std::to_string(ctr));
+        return event.keycode == SDLK_SPACE
+                   ? std::make_optional(std::make_any<void *>(nullptr))
+                   : std::nullopt;
+      });*/
+
   api.registerUpdate<Fireprojectile, SpeedControl>(
       [](GameAPI &ctxApi, float dt, const std::string &entityId,
          const Fireprojectile &fp, const SpeedControl &sc) {
