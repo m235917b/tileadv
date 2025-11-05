@@ -42,9 +42,9 @@ int main() {
   api.upsertComponent<Equipment>("player", {""});
   api.upsertComponent<Fireball>("fireball", {10});
 
-  api.getPrefab().registerRecipe<Actor, Position, Fireprojectile>(
+  api.getPrefab().registerRecipe<Actor, Position, Fireprojectile, SpeedControl>(
       "fireprojectile", {ActorType::FIREBALL}, {1, 1},
-      {0, std::vector<std::pair<int, int>>()});
+      {0, std::vector<std::pair<int, int>>()}, {100, 0});
 
   api.registerEntityEffect(
       "equip_item", [](GameAPI &ctxApi, const std::any &payload) {
@@ -82,7 +82,7 @@ int main() {
       return;
     }
 
-    ctxApi.instantiateEntity("fireprojectile1", "fireprojectile")
+    ctxApi.instantiateEntity("fireprojectile")
         .add<Position>(*pos)
         .add<Fireprojectile>({0, bresenham(pos->x, pos->y, 50, 50)})
         .finish();
@@ -134,19 +134,30 @@ int main() {
                    : std::nullopt;
       });
 
-  api.registerUpdate<Position, Fireprojectile>([](GameAPI &ctxApi,
-                                                  const std::string &entityId,
-                                                  const Position &,
-                                                  const Fireprojectile &fp) {
-    if (fp.pos >= int(fp.path.size()) - 1) {
-      return;
-    }
+  api.registerUpdate<Fireprojectile, SpeedControl>(
+      [](GameAPI &ctxApi, float dt, const std::string &entityId,
+         const Fireprojectile &fp, const SpeedControl &sc) {
+        if (fp.pos >= int(fp.path.size()) - 1) {
+          ctxApi.upsertComponent<Garbage>(entityId, {true});
+          return;
+        }
 
-    const auto &nextPos{fp.path.at(fp.pos + 1)};
+        auto timeLeft = sc.timeLeft - dt;
 
-    ctxApi.upsertComponent<Fireprojectile>(entityId, {fp.pos + 1, fp.path});
-    ctxApi.upsertComponent<Position>(entityId, {nextPos.first, nextPos.second});
-  });
+        if (timeLeft <= 0) {
+          timeLeft = 1000 / sc.speed;
+
+          const auto &nextPos{fp.path.at(fp.pos + 1)};
+
+          ctxApi.upsertComponent<Fireprojectile>(entityId,
+                                                 {fp.pos + 1, fp.path});
+          ctxApi.upsertComponent<Position>(entityId,
+                                           {nextPos.first, nextPos.second});
+        }
+
+        ctxApi.upsertComponent<SpeedControl>(entityId,
+                                             {sc.speed, int(timeLeft)});
+      });
 
   api.run();
 

@@ -28,6 +28,10 @@ struct PatchResource {
   MemberSetter setter;
 };
 
+struct DestroyEntity {
+  std::string entityId;
+};
+
 ECSCommandBuffer::ECSCommandBuffer(ECSContext &context)
     : context(context), queue(), handlers(), inFlush(false),
       reservedCommands() {
@@ -75,6 +79,11 @@ ECSCommandBuffer::ECSCommandBuffer(ECSContext &context)
         }
 
         command.setter(*comp);
+      });
+
+  registerHandlerInternal<DestroyEntity>(
+      [this](ECSContext &, DestroyEntity command) {
+        this->context.store.destroyEntity(std::move(command.entityId));
       });
 }
 
@@ -147,4 +156,8 @@ void ECSCommandBuffer::patchComponent(std::string entityId,
 void ECSCommandBuffer::patchResource(std::type_index type,
                                      MemberSetter setter) {
   enqueue(std::make_any<PatchResource>(PatchResource{type, std::move(setter)}));
+}
+
+void ECSCommandBuffer::destroyEntity(std::string entityId) {
+  enqueue(std::make_any<DestroyEntity>(DestroyEntity{std::move(entityId)}));
 }

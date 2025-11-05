@@ -5,7 +5,7 @@
 #include "engine/engine.hpp"
 #include "engine/resources.hpp"
 
-GameAPI::GameAPI() : systemFnId(0) {}
+GameAPI::GameAPI() : systemFnId(0), entityId(0) {}
 
 void GameAPI::run() {
   asc.getECSContext().getScheduler().bootstrap();
@@ -48,10 +48,11 @@ void GameAPI::registerEventEffectTrigger(std::type_index eventType,
 
 void GameAPI::registerUpdate(std::vector<std::type_index> types,
                              UpdateAny update) {
-  const auto wrapper{[update = std::move(update), this](
-                         ECSContext &, const float, const std::string &entityId,
-                         const std::vector<const std::any *> &components) {
-    update(*this, entityId, components);
+  const auto wrapper{[update = std::move(update),
+                      this](ECSContext &, const float dt,
+                            const std::string &entityId,
+                            const std::vector<const std::any *> &components) {
+    update(*this, dt, entityId, components);
   }};
 
   asc.getECSAPI().addViewSystem("logic",
@@ -65,14 +66,13 @@ void GameAPI::print(std::string text) {
 
 ECSPrefab &GameAPI::getPrefab() { return asc.getECSAPI().getPrefab(); }
 
-ECSEntityBuilder GameAPI::createEntity(std::string entityId) {
+/*ECSEntityBuilder GameAPI::createEntity(std::string entityId) {
   return asc.getECSAPI().createEntity(std::move(entityId));
-}
+}*/
 
-ECSEntityBuilder GameAPI::instantiateEntity(std::string entityId,
-                                            std::string recipeId) {
-  return asc.getECSAPI().instantiateEntity(std::move(entityId),
-                                           std::move(recipeId));
+ECSEntityBuilder GameAPI::instantiateEntity(std::string recipeId) {
+  return asc.getECSAPI().instantiateEntity(
+      "user_entity_" + std::to_string(entityId++), std::move(recipeId));
 }
 
 void GameAPI::upsertComponent(std::string entityId, std::any component) {

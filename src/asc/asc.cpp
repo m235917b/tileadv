@@ -5,6 +5,7 @@
 #include <any>
 
 #include "actor/actor.hpp"
+#include "actor/systems.hpp"
 #include "asc/events.hpp"
 #include "asc/resources.hpp"
 #include "asc/systemregistry.hpp"
@@ -69,6 +70,7 @@ void ASC::initSystems() {
   initModuleSystems(getViewSystems());
   initModuleSystems(getPlayerSystems());
   initModuleSystems(getNPCSystems());
+  initModuleSystems(getActorSystems());
 }
 
 void ASC::run() {
@@ -94,7 +96,7 @@ void ASC::run() {
     if (remaining > 0.f) {
       SDL_Delay(remaining);
     }
-    // std::cout << 1000.f / float(SDL_GetTicks() - previousTick) << std::endl;
+    std::cout << 1000.f / float(SDL_GetTicks() - previousTick) << std::endl;
   }
 }
 

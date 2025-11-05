@@ -15,3 +15,7 @@ struct SpeedControl {
   int speed;
   int timeLeft;
 };
+
+struct Garbage {
+  bool isGarbage;
+};

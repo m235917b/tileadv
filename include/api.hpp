@@ -14,6 +14,8 @@
 #include "engine/engine.hpp"
 #include "engine/resources.hpp"
 
+// TODO: Wrap GameAPI parameter in interface to hide register functions
+
 template <typename EventType>
 using EventPayloadFn =
     std::function<std::optional<std::any>(const EventType &event)>;
@@ -23,7 +25,8 @@ using EventPayloadAnyFn =
 
 using PayloadFn = std::function<std::optional<std::any>(GameAPI &)>;
 
-using UpdateAny = std::function<void(GameAPI &, const std::string &,
+// TODO: Think about making this API more restrictive!
+using UpdateAny = std::function<void(GameAPI &, float dt, const std::string &,
                                      const std::vector<const std::any *> &)>;
 
 class GameAPI {
@@ -39,9 +42,8 @@ public:
   void registerUpdate(std::vector<std::type_index> types, UpdateAny update);
   void print(std::string text);
   ECSPrefab &getPrefab();
-  ECSEntityBuilder createEntity(std::string entityId);
-  ECSEntityBuilder instantiateEntity(std::string entityId,
-                                     std::string recipeId);
+  // TODO: Return ID of created entity
+  ECSEntityBuilder instantiateEntity(std::string recipeId);
   void upsertComponent(std::string entityId, std::any component);
   const std::any *getComponent(const std::string &entityId,
                                const std::type_index &type);
@@ -67,10 +69,10 @@ public:
      ...);
 
     const auto wrap{[f = std::move(update)](
-                        GameAPI &ctxApi, const std::string &entityId,
+                        GameAPI &ctxApi, float dt, const std::string &entityId,
                         const std::vector<const std::any *> &components) {
       auto apply{[&]<std::size_t... Is>(std::index_sequence<Is...>) {
-        f(ctxApi, entityId,
+        f(ctxApi, dt, entityId,
           (std::any_cast<const ComponentType &>(*components[Is]))...);
       }};
       apply(std::make_index_sequence<sizeof...(ComponentType)>{});
@@ -91,4 +93,5 @@ public:
 private:
   ASC asc;
   int systemFnId;
+  int entityId;
 };

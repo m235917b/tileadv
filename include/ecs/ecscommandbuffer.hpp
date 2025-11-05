@@ -25,6 +25,7 @@ public:
   void patchComponent(std::string entityId, std::type_index type,
                       MemberSetter setter);
   void patchResource(std::type_index type, MemberSetter setter);
+  void destroyEntity(std::string entityId);
 
   template <typename CommandType>
   void registerHandler(CommandHandler<CommandType> handler) {
