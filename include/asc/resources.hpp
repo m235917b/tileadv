@@ -20,4 +20,11 @@ struct KeyMapResource {
   bool d;
 };
 
+struct MousePosResource {
+  float x;
+  float y;
+  int tileX;
+  int tileY;
+};
+
 void initASCResources(ECSContext &ecsContext, ECSAPI &ecsApi);

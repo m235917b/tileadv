@@ -16,8 +16,13 @@ void initKeyMapResource(ECSContext &ecsContext) {
       KeyMapResource{false, false, false, false});
 }
 
+void initMousePosResource(ECSContext &ecsContext) {
+  ecsContext.getCommandBuffer().upsertResource(MousePosResource{});
+}
+
 void initASCResources(ECSContext &ecsContext, ECSAPI &ecsApi) {
   initECSAPIResource(ecsContext, ecsApi);
   initApplicationStateResource(ecsContext);
   initKeyMapResource(ecsContext);
+  initMousePosResource(ecsContext);
 }

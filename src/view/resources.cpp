@@ -2,6 +2,7 @@
 
 #include "ecs/ecs.hpp"
 #include "gui/guicontext.hpp"
+#include "view/resources.hpp"
 #include "view/view.hpp"
 
 void initRenderContextResource(ECSContext &ecsContext,
@@ -11,7 +12,8 @@ void initRenderContextResource(ECSContext &ecsContext,
 }
 
 void initCameraResource(ECSContext &ecsContext) {
-  ecsContext.getCommandBuffer().upsertResource(CameraResource{0, 0});
+  ecsContext.getCommandBuffer().upsertResource(CameraResource{
+      0, 0, leftMargin, topMargin, tileSize, cameraMarginX, cameraMarginY});
 }
 
 void initViewResources(ECSContext &ecsContext, RenderContext &renderContext) {

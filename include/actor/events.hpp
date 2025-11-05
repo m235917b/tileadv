@@ -11,4 +11,8 @@ struct MoveIntentEvent {
   Direction dir;
 };
 
+struct WorldCollisionEvent {
+  std::string entityId;
+};
+
 void initActorEvents(ECSContext &ecsContext);

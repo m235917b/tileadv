@@ -9,6 +9,8 @@
 #include "api.hpp"
 #include "utils/math.hpp"
 
+// TODO: Implement custom TileTypes / ActorTypes with a custom texture map
+
 struct Inventory {
   std::vector<std::string> inventory;
 };
@@ -77,6 +79,7 @@ int main() {
   api.registerEntityEffect("shoot", [](GameAPI &ctxApi, const std::any &) {
     const auto &equipment{ctxApi.getComponent<Equipment>("player")};
     const auto &pos{ctxApi.getComponent<Position>("player")};
+    const auto &mousePos{ctxApi.getMouseTile()};
 
     if (equipment->weapon != "fireball") {
       return;
@@ -84,7 +87,8 @@ int main() {
 
     ctxApi.instantiateEntity("fireprojectile")
         .add<Position>(*pos)
-        .add<Fireprojectile>({0, bresenham(pos->x, pos->y, 50, 50)})
+        .add<Fireprojectile>(
+            {0, bresenham(pos->x, pos->y, mousePos.first, mousePos.second)})
         .finish();
   });
 
@@ -102,6 +106,12 @@ int main() {
         ctxApi.print("Equipped:");
         ctxApi.print(equ);
         ctxApi.print("----------");
+      });
+
+  api.registerEntityEffect(
+      "remove_fireprojectile", [](GameAPI &ctxApi, const std::any &payload) {
+        const auto &id{std::any_cast<std::string>(payload)};
+        ctxApi.upsertComponent<Garbage>(id, Garbage{true});
       });
 
   api.registerEventEffectTrigger<KeyDownEvent>(
@@ -127,9 +137,9 @@ int main() {
                    : std::nullopt;
       });
 
-  api.registerEventEffectTrigger<KeyDownEvent>(
-      "shoot", [](const KeyDownEvent &event) {
-        return event.keycode == SDLK_SPACE
+  api.registerEventEffectTrigger<MouseDownEvent>(
+      "shoot", [](const MouseDownEvent &event) {
+        return event.button == SDL_BUTTON_LEFT
                    ? std::make_optional(std::make_any<void *>(nullptr))
                    : std::nullopt;
       });
@@ -147,16 +157,39 @@ int main() {
         if (timeLeft <= 0) {
           timeLeft = 1000 / sc.speed;
 
+          const auto &currpos{fp.path.at(fp.pos)};
           const auto &nextPos{fp.path.at(fp.pos + 1)};
+
+          if (nextPos.first < currpos.first) {
+            ctxApi.publishEvent<MoveIntentEvent>(
+                MoveIntentEvent{entityId, Direction::LEFT});
+          } else if (nextPos.first > currpos.first) {
+            ctxApi.publishEvent<MoveIntentEvent>(
+                MoveIntentEvent{entityId, Direction::RIGHT});
+          }
+
+          if (nextPos.second < currpos.second) {
+            ctxApi.publishEvent<MoveIntentEvent>(
+                MoveIntentEvent{entityId, Direction::UP});
+          } else if (nextPos.second > currpos.second) {
+            ctxApi.publishEvent<MoveIntentEvent>(
+                MoveIntentEvent{entityId, Direction::DOWN});
+          }
 
           ctxApi.upsertComponent<Fireprojectile>(entityId,
                                                  {fp.pos + 1, fp.path});
-          ctxApi.upsertComponent<Position>(entityId,
-                                           {nextPos.first, nextPos.second});
         }
 
         ctxApi.upsertComponent<SpeedControl>(entityId,
                                              {sc.speed, int(timeLeft)});
+      });
+
+  api.registerEventEffectTrigger<WorldCollisionEvent>(
+      "remove_fireprojectile", [&api](const WorldCollisionEvent &event) {
+        return api.hasComponent<Fireprojectile>(event.entityId)
+                   ? std::make_optional(
+                         std::make_any<std::string>(event.entityId))
+                   : std::nullopt;
       });
 
   api.run();

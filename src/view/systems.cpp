@@ -12,12 +12,6 @@
 #include "view/resources.hpp"
 #include "view/view.hpp"
 
-const int cameraMarginX{10};
-const int cameraMarginY{10};
-const int tileSize{25};
-const int leftMargin{10};
-const int topMargin{10};
-
 const SDL_FRect getTileCoords(const TileType type) {
   const auto xFactor{static_cast<int>(type) % 100};
   const auto yFactor{static_cast<int>(static_cast<int>(type) / 100)};
@@ -116,7 +110,13 @@ const auto renderSystem{[](ECSContext &context, const float) {
 
   SDL_RenderPresent(renderer);
 
-  context.getCommandBuffer().upsertResource(CameraResource{cameraX, cameraY});
+  context.getCommandBuffer().patchResource(
+      std::type_index(typeid(CameraResource)),
+      [cameraX, cameraY](std::any &cam) {
+        auto &camera{std::any_cast<CameraResource &>(cam)};
+        camera.posX = cameraX;
+        camera.posY = cameraY;
+      });
 }};
 
 std::vector<SystemRegEntry> getViewSystems() {

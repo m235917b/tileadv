@@ -84,3 +84,31 @@ const std::any *GameAPI::getComponent(const std::string &entityId,
                                       const std::type_index &type) {
   return asc.getECSContext().getStore().getComponent(entityId, type);
 }
+
+const std::any *GameAPI::getResource(const std::type_index &type) {
+  return asc.getECSContext().getResourceManager().getResource(type);
+}
+
+std::pair<float, float> GameAPI::getMousePos() {
+  const auto &pos{std::any_cast<MousePosResource>(
+      asc.getECSContext().getResourceManager().getResource(
+          std::type_index(typeid(MousePosResource))))};
+
+  return std::make_pair(pos->x, pos->y);
+}
+
+std::pair<float, float> GameAPI::getMouseTile() {
+  const auto &pos{std::any_cast<MousePosResource>(
+      asc.getECSContext().getResourceManager().getResource(
+          std::type_index(typeid(MousePosResource))))};
+
+  return std::make_pair(pos->tileX, pos->tileY);
+}
+
+void GameAPI::publishEvent(std::any event) {
+  asc.getECSContext().getEventBus().publish(std::move(event));
+}
+
+bool GameAPI::hasComponent(std::type_index type, const std::string &id) {
+  return asc.getECSContext().getStore().hasComponent(type, id);
+}

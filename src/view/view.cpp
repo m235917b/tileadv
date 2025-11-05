@@ -3,6 +3,13 @@
 #include "ecs/ecs.hpp"
 #include "view/resources.hpp"
 
+std::pair<int, int> getTileFromPixel(int x, int y, int cameraX, int cameraY) {
+  int tileX = (x - leftMargin) / tileSize + cameraX;
+  int tileY = (y - topMargin) / tileSize + cameraY;
+
+  return {tileX, tileY};
+}
+
 SDL_Texture *loadTextureFromFile(const std::string &path,
                                  SDL_Renderer &renderer) {
   SDL_Texture *texture;

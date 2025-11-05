@@ -21,6 +21,9 @@
 #include "view/systems.hpp"
 #include "view/view.hpp"
 
+// TODO: Chunk loading on edge
+// TODO: Make internals any based?
+
 ASC::ASC()
     : ecsContext(), ecsApi(ecsContext), renderContext(),
       renderContextWrapper(renderContext), guiContext(renderContextWrapper) {

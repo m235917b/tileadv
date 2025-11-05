@@ -24,6 +24,7 @@ public:
   const std::any *getComponent(const std::string &entityId,
                                const std::type_index &type) const;
   void view(const std::vector<std::type_index> &types, const ViewFn &f) const;
+  bool hasComponent(std::type_index type, const std::string &id) const;
 
   template <typename T>
   void upsertComponent(std::string entityId, T component) {
@@ -67,6 +68,10 @@ public:
     }};
 
     view(types, wrap);
+  }
+
+  template <typename ComponentType> bool hasComponent(const std::string &id) {
+    return hasComponent(std::type_index(typeid(ComponentType)), id);
   }
 
 private:

@@ -20,6 +20,11 @@ struct RenderContextResource {
 struct CameraResource {
   int posX;
   int posY;
+  int leftMargin;
+  int topMargin;
+  int tileSize;
+  int cameraMarginX;
+  int cameraMarginY;
 };
 
 void initViewResources(ECSContext &ecsContext, RenderContext &renderContext);

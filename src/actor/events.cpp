@@ -16,24 +16,36 @@ void subscribeMoveIntentEventListener(ECSContext &ecsContext) {
           if (!getTileAt(*chunk, pos->x, pos->y - 1).solid) {
             context.getCommandBuffer().patchComponent<Position>(
                 event.entityId, &Position::y, pos->y - 1);
+          } else {
+            context.getEventBus().publish(std::make_any<WorldCollisionEvent>(
+                WorldCollisionEvent{event.entityId}));
           }
           break;
         case Direction::LEFT:
           if (!getTileAt(*chunk, pos->x - 1, pos->y).solid) {
             context.getCommandBuffer().patchComponent<Position>(
                 event.entityId, &Position::x, pos->x - 1);
+          } else {
+            context.getEventBus().publish(std::make_any<WorldCollisionEvent>(
+                WorldCollisionEvent{event.entityId}));
           }
           break;
         case Direction::DOWN:
           if (!getTileAt(*chunk, pos->x, pos->y + 1).solid) {
             context.getCommandBuffer().patchComponent<Position>(
                 event.entityId, &Position::y, pos->y + 1);
+          } else {
+            context.getEventBus().publish(std::make_any<WorldCollisionEvent>(
+                WorldCollisionEvent{event.entityId}));
           }
           break;
         case Direction::RIGHT:
           if (!getTileAt(*chunk, pos->x + 1, pos->y).solid) {
             context.getCommandBuffer().patchComponent<Position>(
                 event.entityId, &Position::x, pos->x + 1);
+          } else {
+            context.getEventBus().publish(std::make_any<WorldCollisionEvent>(
+                WorldCollisionEvent{event.entityId}));
           }
           break;
         }

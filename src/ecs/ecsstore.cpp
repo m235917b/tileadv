@@ -110,3 +110,19 @@ const std::unordered_map<std::string, std::any> *ECSStore::getSmallestContainer(
 
   return smallest;
 }
+
+bool ECSStore::hasComponent(std::type_index type, const std::string &id) const {
+  const auto &it{componentStores.find(type)};
+
+  if (it == componentStores.end()) {
+    return false;
+  }
+
+  const auto &entity{it->second.find(id)};
+
+  if (entity == it->second.end()) {
+    return false;
+  }
+
+  return true;
+}

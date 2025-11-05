@@ -12,4 +12,8 @@ struct KeyUpEvent {
   SDL_Keycode keycode;
 };
 
+struct MouseDownEvent {
+  Uint8 button;
+};
+
 void initASCEvents(ECSContext &ecsContext);

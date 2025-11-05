@@ -7,6 +7,7 @@
 #include <typeindex>
 
 #include "actor/components.hpp"
+#include "actor/events.hpp"
 #include "asc/asc.hpp"
 #include "asc/events.hpp"
 #include "asc/resources.hpp"
@@ -35,18 +36,21 @@ public:
   ~GameAPI() = default;
 
   void run();
+
   void registerEntityEffect(std::string id, EntityEffectFn effect);
   void registerEventEffectTrigger(std::type_index eventType,
                                   std::string effectId,
                                   EventPayloadAnyFn payload);
   void registerUpdate(std::vector<std::type_index> types, UpdateAny update);
-  void print(std::string text);
   ECSPrefab &getPrefab();
   // TODO: Return ID of created entity
   ECSEntityBuilder instantiateEntity(std::string recipeId);
   void upsertComponent(std::string entityId, std::any component);
   const std::any *getComponent(const std::string &entityId,
                                const std::type_index &type);
+  const std::any *getResource(const std::type_index &type);
+  void publishEvent(std::any event);
+  bool hasComponent(std::type_index type, const std::string &id);
 
   template <typename EventType>
   void registerEventEffectTrigger(std::string effectId,
@@ -89,6 +93,18 @@ public:
   template <typename T> const T *getComponent(const std::string &entityId) {
     return std::any_cast<T>(getComponent(entityId, std::type_index(typeid(T))));
   }
+
+  template <typename EventType> void publishEvent(EventType event) {
+    publishEvent(std::make_any<EventType>(event));
+  }
+
+  template <typename ComponentType> bool hasComponent(const std::string &id) {
+    return hasComponent(std::type_index(typeid(ComponentType)), id);
+  }
+
+  std::pair<float, float> getMousePos();
+  std::pair<float, float> getMouseTile();
+  void print(std::string text);
 
 private:
   ASC asc;
