@@ -19,5 +19,6 @@ const std::unordered_map<std::string, std::string> systemIdToPhase{
     std::make_pair<std::string, std::string>("player_movement", "movement"),
     std::make_pair<std::string, std::string>("player_spawn", "spawn"),
     std::make_pair<std::string, std::string>("dummy_spawn", "spawn"),
+    std::make_pair<std::string, std::string>("collision", "post_logic"),
     std::make_pair<std::string, std::string>("garbage_collector",
                                              "post_logic")};

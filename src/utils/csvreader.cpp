@@ -1,5 +1,6 @@
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <vector>
 
 #include "chunk/resources.hpp"
@@ -33,16 +34,20 @@ Chunk csvToChunk(const std::string &filename) {
   int posX{0};
   int posY{0};
 
-  Chunk chunk{sizex, sizey, std::vector<Tile>(sizex * sizey, {TileType::EMPTY}),
-              up,    right, down,
-              left, ""};
+  Chunk chunk{
+      sizex, sizey, std::vector<Tile>(sizex * sizey, {TileType::EMPTY, false}),
+      up,    right, down,
+      left,  ""};
 
   while (std::getline(file, line)) {
     std::stringstream ss(line);
     std::string value;
     while (std::getline(ss, value, ',')) {
       const auto tileVal{std::stoi(value)};
-      const auto tile{Tile{static_cast<TileType>(tileVal), tileVal >= 100}};
+      const auto tile{Tile{
+          static_cast<TileType>(tileVal),
+          tileVal >= 100,
+      }};
       setTile(chunk, posX, posY, tile);
       posX++;
     }

@@ -4,8 +4,4 @@
 
 class ECSContext;
 
-struct PopulateChunkNPC {
-  std::string chunkId;
-};
-
 void initNPCEvents(ECSContext &ecsContext);

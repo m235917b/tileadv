@@ -15,4 +15,9 @@ struct WorldCollisionEvent {
   std::string entityId;
 };
 
+struct ActorCollisionEvent {
+  std::string moved;
+  std::string other;
+};
+
 void initActorEvents(ECSContext &ecsContext);

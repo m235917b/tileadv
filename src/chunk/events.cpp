@@ -2,10 +2,10 @@
 
 #include <typeindex>
 
+#include "actor/commands.hpp"
 #include "actor/components.hpp"
 #include "chunk/resources.hpp"
 #include "ecs/ecs.hpp"
-#include "npc/events.hpp"
 #include "player/resources.hpp"
 #include "utils/csvreader.hpp"
 
@@ -30,8 +30,8 @@ void subscribeChunkBorderEventListener(ECSContext &context) {
             chunkNew.id = chunk.up;
             context.getCommandBuffer().upsertResource(std::move(chunkNew));
             context.getCommandBuffer().clearECSStore();
-            context.getEventBus().publish(
-                std::make_any<PopulateChunkNPC>(PopulateChunkNPC{chunk.up}));
+            context.getCommandBuffer().enqueue(
+                std::make_any<PopulateChunk>(PopulateChunk{chunk.up}));
             pos.y = chunk.sizeY - 1;
           }
           break;
@@ -42,8 +42,8 @@ void subscribeChunkBorderEventListener(ECSContext &context) {
             chunkNew.id = chunk.left;
             context.getCommandBuffer().upsertResource(std::move(chunkNew));
             context.getCommandBuffer().clearECSStore();
-            context.getEventBus().publish(
-                std::make_any<PopulateChunkNPC>(PopulateChunkNPC{chunk.left}));
+            context.getCommandBuffer().enqueue(
+                std::make_any<PopulateChunk>(PopulateChunk{chunk.left}));
             pos.x = chunk.sizeX - 1;
           }
           break;
@@ -54,8 +54,8 @@ void subscribeChunkBorderEventListener(ECSContext &context) {
             chunkNew.id = chunk.down;
             context.getCommandBuffer().upsertResource(std::move(chunkNew));
             context.getCommandBuffer().clearECSStore();
-            context.getEventBus().publish(
-                std::make_any<PopulateChunkNPC>(PopulateChunkNPC{chunk.down}));
+            context.getCommandBuffer().enqueue(
+                std::make_any<PopulateChunk>(PopulateChunk{chunk.down}));
             pos.y = 0;
           }
           break;
@@ -66,8 +66,8 @@ void subscribeChunkBorderEventListener(ECSContext &context) {
             chunkNew.id = chunk.right;
             context.getCommandBuffer().upsertResource(std::move(chunkNew));
             context.getCommandBuffer().clearECSStore();
-            context.getEventBus().publish(
-                std::make_any<PopulateChunkNPC>(PopulateChunkNPC{chunk.right}));
+            context.getCommandBuffer().enqueue(
+                std::make_any<PopulateChunk>(PopulateChunk{chunk.right}));
             pos.x = 0;
           }
           break;

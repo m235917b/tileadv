@@ -19,3 +19,7 @@ struct SpeedControl {
 struct Garbage {
   bool isGarbage;
 };
+
+struct Physics {
+  bool solid;
+};

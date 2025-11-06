@@ -13,6 +13,10 @@ Tile getTileAt(const Chunk &chunk, int x, int y) {
   return chunk.worldGrid[y * chunk.sizeX + x];
 }
 
+Tile &getTileAt(Chunk &chunk, int x, int y) {
+  return chunk.worldGrid[y * chunk.sizeX + x];
+}
+
 void setTile(Chunk &chunk, int x, int y, Tile tile) {
   chunk.worldGrid[y * chunk.sizeX + x] = std::move(tile);
 }

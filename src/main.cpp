@@ -114,6 +114,14 @@ int main() {
         ctxApi.upsertComponent<Garbage>(id, Garbage{true});
       });
 
+  api.registerEntityEffect(
+      "fireprojectile_hit", [](GameAPI &ctxApi, const std::any &payload) {
+        const auto &entities{
+            std::any_cast<std::pair<std::string, std::string>>(payload)};
+        ctxApi.upsertComponent<Garbage>(entities.first, Garbage{true});
+        ctxApi.upsertComponent<Garbage>(entities.second, Garbage{true});
+      });
+
   api.registerEventEffectTrigger<KeyDownEvent>(
       "equip_item", [](const KeyDownEvent &event) {
         return event.keycode == SDLK_K
@@ -198,6 +206,15 @@ int main() {
         return api.hasComponent<Fireprojectile>(event.entityId)
                    ? std::make_optional(
                          std::make_any<std::string>(event.entityId))
+                   : std::nullopt;
+      });
+
+  api.registerEventEffectTrigger<ActorCollisionEvent>(
+      "fireprojectile_hit", [&api](const ActorCollisionEvent &event) {
+        return api.hasComponent<Fireprojectile>(event.moved)
+                   ? std::make_optional(
+                         std::make_any<std::pair<std::string, std::string>>(
+                             event.moved, event.other))
                    : std::nullopt;
       });
 
