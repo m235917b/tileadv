@@ -32,6 +32,8 @@ struct DestroyEntity {
   std::string entityId;
 };
 
+struct ClearECSStore {};
+
 ECSCommandBuffer::ECSCommandBuffer(ECSContext &context)
     : context(context), queue(), handlers(), inFlush(false),
       reservedCommands() {
@@ -85,6 +87,9 @@ ECSCommandBuffer::ECSCommandBuffer(ECSContext &context)
       [this](ECSContext &, DestroyEntity command) {
         this->context.store.destroyEntity(std::move(command.entityId));
       });
+
+  registerHandlerInternal<ClearECSStore>(
+      [this](ECSContext &, ClearECSStore) { this->context.store.clear(); });
 }
 
 void ECSCommandBuffer::registerHandler(const std::type_index &type,
@@ -160,4 +165,8 @@ void ECSCommandBuffer::patchResource(std::type_index type,
 
 void ECSCommandBuffer::destroyEntity(std::string entityId) {
   enqueue(std::make_any<DestroyEntity>(DestroyEntity{std::move(entityId)}));
+}
+
+void ECSCommandBuffer::clearECSStore() {
+  enqueue(std::make_any<ClearECSStore>(ClearECSStore{}));
 }

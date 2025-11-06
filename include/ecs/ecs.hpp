@@ -3,3 +3,4 @@
 #include "ecs/ecsapi.hpp"
 #include "ecs/ecscontext.hpp"
 #include "ecs/ecsfunctionaliases.hpp"
+#include "ecs/ecsstore.hpp"

@@ -26,6 +26,7 @@ public:
                       MemberSetter setter);
   void patchResource(std::type_index type, MemberSetter setter);
   void destroyEntity(std::string entityId);
+  void clearECSStore();
 
   template <typename CommandType>
   void registerHandler(CommandHandler<CommandType> handler) {

@@ -35,7 +35,7 @@ Chunk csvToChunk(const std::string &filename) {
 
   Chunk chunk{sizex, sizey, std::vector<Tile>(sizex * sizey, {TileType::EMPTY}),
               up,    right, down,
-              left};
+              left, ""};
 
   while (std::getline(file, line)) {
     std::stringstream ss(line);

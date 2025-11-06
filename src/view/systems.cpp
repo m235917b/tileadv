@@ -101,8 +101,8 @@ const auto renderSystem{[](ECSContext &context, const float) {
                    cameraY * tileSize};
         const auto &spriteCoords{getActorCoords(actor.type)};
 
-        if (posX >= leftMargin && posX + tileSize + leftMargin <= screenWidth &&
-            posY >= topMargin && posY + tileSize + topMargin <= screenHeight) {
+        if (posX >= leftMargin && posX + leftMargin <= screenWidth &&
+            posY >= topMargin && posY + topMargin <= screenHeight) {
           renderTexture(posX, posY, spriteCoords, textures->actors,
                         renderContext->renderer);
         }

@@ -36,7 +36,7 @@ ASC::ASC()
   initChunk(ecsContext);
   initActors(ecsContext);
   initPlayer(ecsContext, ecsApi);
-  initNPCs(ecsApi);
+  initNPCs(ecsContext, ecsApi);
 
   initSystems();
 

@@ -126,3 +126,16 @@ bool ECSStore::hasComponent(std::type_index type, const std::string &id) const {
 
   return true;
 }
+
+void ECSStore::clear() {
+  std::erase_if(componentStores, [&](auto &outer) {
+    auto &components{outer.second};
+
+    std::erase_if(components, [&](const auto &inner) {
+      return !hasComponent(std::type_index(typeid(PersistComponent)),
+                           inner.first);
+    });
+
+    return components.empty();
+  });
+}

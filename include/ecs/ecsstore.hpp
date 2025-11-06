@@ -10,6 +10,8 @@
 
 #include "ecs/ecsfunctionaliases.hpp"
 
+struct PersistComponent {};
+
 class ECSStore {
 public:
   ECSStore() = default;
@@ -25,6 +27,7 @@ public:
                                const std::type_index &type) const;
   void view(const std::vector<std::type_index> &types, const ViewFn &f) const;
   bool hasComponent(std::type_index type, const std::string &id) const;
+  void clear();
 
   template <typename T>
   void upsertComponent(std::string entityId, T component) {

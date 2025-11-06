@@ -4,7 +4,8 @@
 
 void registerPlayerPrefab(ECSAPI &ecsApi) {
   ecsApi.getPrefab().registerRecipe("player", playerActorPrefab,
-                                    playerPositionPrefab, playerSpeedControl);
+                                    playerPositionPrefab, playerSpeedControl,
+                                    PersistComponent{});
 }
 
 void initPlayerPrefabs(ECSAPI &ecsApi) { registerPlayerPrefab(ecsApi); }

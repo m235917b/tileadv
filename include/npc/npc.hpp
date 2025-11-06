@@ -2,6 +2,7 @@
 
 #include "npc/prefabs.hpp"
 
+class ECSContext;
 class ECSAPI;
 
-void initNPCs(ECSAPI &ecsApi);
+void initNPCs(ECSContext &ecsContext, ECSAPI &ecsApi);

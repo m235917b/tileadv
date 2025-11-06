@@ -5,6 +5,7 @@
 
 void initChunkResource(ECSContext &ecsContext) {
   auto chunk{csvToChunk("world/chunk1.cnk")};
+  chunk.id = "chunk1";
   ecsContext.getCommandBuffer().upsertResource(std::move(chunk));
 }
 

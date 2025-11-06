@@ -29,6 +29,7 @@ struct Chunk {
   std::string right;
   std::string down;
   std::string left;
+  std::string id;
 };
 
 Tile getTileAt(const Chunk &chunk, int x, int y);
