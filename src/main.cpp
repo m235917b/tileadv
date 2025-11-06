@@ -42,11 +42,10 @@ int main() {
   api.upsertComponent<Inventory>("player",
                                  {{"fireball", "health_potion", "dagger"}});
   api.upsertComponent<Equipment>("player", {""});
-  api.upsertComponent<Fireball>("fireball", {10});
 
   api.getPrefab().registerRecipe<Actor, Position, Fireprojectile, SpeedControl>(
       "fireprojectile", {ActorType::FIREBALL}, {1, 1},
-      {0, std::vector<std::pair<int, int>>()}, {100, 0});
+      {0, std::vector<std::pair<int, int>>()}, {100, 0}, Physics{true});
 
   api.registerEntityEffect(
       "equip_item", [](GameAPI &ctxApi, const std::any &payload) {

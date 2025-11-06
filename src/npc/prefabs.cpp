@@ -5,7 +5,7 @@
 
 void registerDummyPrefab(ECSAPI &ecsApi) {
   ecsApi.getPrefab().registerRecipe("dummy", Actor{ActorType::DUMMY},
-                                    Position{10, 10});
+                                    Position{10, 10}, Physics{true});
 }
 
 void initNPCPrefabs(ECSAPI &ecsApi) { registerDummyPrefab(ecsApi); }
