@@ -27,7 +27,9 @@ inline EntityPosMap buildEntityPosMap(ECSContext &ecsContext, int chunkSizeX,
           const std::vector<const std::any *> &components) {
         const auto pos{std::any_cast<Position>(components.at(0))};
         const auto phys{std::any_cast<Physics>(components.at(1))};
-        map.entityMap[pos->y * chunkSizeX + pos->x] = &id;
+        if (phys->solid) {
+          map.entityMap[pos->y * chunkSizeX + pos->x] = &id;
+        }
         map.posMap[id] = std::make_tuple(pos->x, pos->y, phys->solid);
       });
 
@@ -66,8 +68,10 @@ inline void updateDirection(ECSContext &context, const MoveIntentEvent &event,
       }
       map.posMap[event.entityId] =
           std::make_tuple(newX, newY, std::get<2>(map.posMap[event.entityId]));
-      map.entityMap[newY * chunk.sizeX + newX] = &event.entityId;
-      map.entityMap[oldY * chunk.sizeX + oldX] = nullptr;
+      if (std::get<2>(map.posMap[event.entityId])) {
+        map.entityMap[newY * chunk.sizeX + newX] = &event.entityId;
+        map.entityMap[oldY * chunk.sizeX + oldX] = nullptr;
+      }
     } else if (!tile.solid) {
       context.getEventBus().publish(std::make_any<ActorCollisionEvent>(
           ActorCollisionEvent{event.entityId, *other}));
