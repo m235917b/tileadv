@@ -43,7 +43,7 @@ void setupGUI(GameAPI &api) {
   mainMenu->addChild(std::move(line2));
 
   api.getGUIContext().addComponent(std::move(mainMenu));
-  api.getGUIContext().setComponentVisible("main_menu", true);
+  // api.getGUIContext().setComponentVisible("main_menu", true);
 
   api.getGUIContext().addMouseButtonListener(
       "2_play", SDL_BUTTON_LEFT, [&api]() {
@@ -54,6 +54,15 @@ void setupGUI(GameAPI &api) {
   api.getGUIContext().addMouseButtonListener(
       "3_exit", SDL_BUTTON_LEFT,
       [&api]() { api.setApplicationState(ApplicationState::QUIT); });
+
+  api.getGUIContext().addKeyListener("2_play", SDLK_RETURN, [&api]() {
+    api.setApplicationState(ApplicationState::RUNNING);
+    api.getGUIContext().setComponentVisible("main_menu", false);
+  });
+
+  api.getGUIContext().addKeyListener("3_exit", SDLK_RETURN, [&api]() {
+    api.setApplicationState(ApplicationState::QUIT);
+  });
 
   api.registerEffect("toggle_main_menu", [](GameAPI &ctxApi, const std::any &) {
     const auto appState{std::any_cast<ApplicationStateResource>(

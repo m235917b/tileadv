@@ -112,9 +112,9 @@ void ASC::run() {
       }
     }
 
-    ecsContext.getScheduler().update(dt);
-
     previousAppState = appState->state;
+
+    ecsContext.getScheduler().update(dt);
 
     const auto remaining{(1000.f / float(framerate)) -
                          float(SDL_GetTicks() - previousTick)};

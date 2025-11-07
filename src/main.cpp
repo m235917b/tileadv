@@ -55,7 +55,7 @@ int main() {
                    : std::nullopt;
       });
 
-  api.setApplicationState(ApplicationState::MAIN_MENU);
+  // api.setApplicationState(ApplicationState::MAIN_MENU);
 
   api.upsertComponent<Inventory>("player",
                                  {{"fireball", "health_potion", "dagger"}});
