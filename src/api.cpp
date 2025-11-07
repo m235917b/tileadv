@@ -4,6 +4,7 @@
 
 #include "engine/engine.hpp"
 #include "engine/resources.hpp"
+#include "gui/guicontext.hpp"
 
 GameAPI::GameAPI() : systemFnId(0), entityId(0) {}
 
@@ -12,7 +13,7 @@ void GameAPI::run() {
   asc.run();
 }
 
-void GameAPI::registerEntityEffect(std::string id, EntityEffectFn effect) {
+void GameAPI::registerEffect(std::string id, EntityEffectFn effect) {
   asc.getECSContext().getCommandBuffer().patchResource(
       std::type_index(typeid(EntityEffectTableResource)),
       [id = std::move(id), effect = std::move(effect)](std::any &res) {
@@ -111,4 +112,11 @@ void GameAPI::publishEvent(std::any event) {
 
 bool GameAPI::hasComponent(std::type_index type, const std::string &id) {
   return asc.getECSContext().getStore().hasComponent(type, id);
+}
+
+GUIContext &GameAPI::getGUIContext() { return asc.getGUIContext(); }
+
+void GameAPI::setApplicationState(ApplicationState state) {
+  asc.getECSContext().getCommandBuffer().upsertResource(
+      std::make_any<ApplicationStateResource>(ApplicationStateResource{state}));
 }

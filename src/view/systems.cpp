@@ -33,11 +33,19 @@ void renderTexture(float posX, float posY, const SDL_FRect &spriteCoords,
   SDL_RenderTexture(renderer, texture, &spriteCoords, &dstRect);
 }
 
+const auto renderClearSystem{[](ECSContext &context, const float) {
+  const auto renderer{context.getResourceManager()
+                          .getResource<RenderContextResource>()
+                          ->context->renderer};
+
+  SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
+  SDL_RenderClear(renderer);
+}};
+
 const auto renderSystem{[](ECSContext &context, const float) {
   const auto *renderContext{context.getResourceManager()
                                 .getResource<RenderContextResource>()
                                 ->context};
-  const auto &renderer{renderContext->renderer};
   auto screenWidth{renderContext->screenWidth};
   auto screenHeight{renderContext->screenHeight};
   const auto &chunk{context.getResourceManager().getResource<Chunk>()};
@@ -54,9 +62,6 @@ const auto renderSystem{[](ECSContext &context, const float) {
   const int playerPosY{playerPos->y};
   int cameraX{camera->posX};
   int cameraY{camera->posY};
-
-  SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0xFF);
-  SDL_RenderClear(renderer);
 
   if (playerPosX < cameraX + cameraMarginX) {
     cameraX = std::max(0, playerPosX - cameraMarginX);
@@ -108,8 +113,6 @@ const auto renderSystem{[](ECSContext &context, const float) {
         }
       });
 
-  SDL_RenderPresent(renderer);
-
   context.getCommandBuffer().patchResource(
       std::type_index(typeid(CameraResource)),
       [cameraX, cameraY](std::any &cam) {
@@ -119,6 +122,15 @@ const auto renderSystem{[](ECSContext &context, const float) {
       });
 }};
 
+const auto renderPresentSystem{[](ECSContext &context, const float) {
+  const auto renderer{context.getResourceManager()
+                          .getResource<RenderContextResource>()
+                          ->context->renderer};
+  SDL_RenderPresent(renderer);
+}};
+
 std::vector<SystemRegEntry> getViewSystems() {
-  return {SystemRegEntry{"render", renderSystem}};
+  return {SystemRegEntry{"render_clear", renderClearSystem},
+          SystemRegEntry{"render", renderSystem},
+          SystemRegEntry{"render_present", renderPresentSystem}};
 }

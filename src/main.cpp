@@ -39,6 +39,75 @@ struct Fireprojectile {
 int main() {
   GameAPI api{};
 
+  auto mainMenu{
+      std::make_unique<GUIComponent>("main_menu", .4f, .3f, .2f, .4f)};
+  mainMenu->setVisible(false);
+  mainMenu->setLayout(GUILayout::VERTICAL);
+  mainMenu->setBorder(true);
+  mainMenu->setSpacing(.02f);
+  mainMenu->setCenterLeft(true);
+  mainMenu->setCenterTop(true);
+
+  auto headline{std::make_unique<GUIComponent>("1_headline", 0, 0, .96f, .3f)};
+  headline->setType(GUIElementType::ELEMENT);
+  headline->setText("Main Menu");
+  headline->setBorder(true);
+  headline->setScale(.7f);
+  headline->setCenterTop(true);
+  headline->setCenterLeft(true);
+  auto line1{std::make_unique<GUIComponent>("2_play", 0, 0, .96f, .3f)};
+  line1->setType(GUIElementType::ELEMENT);
+  line1->setText("Play Game");
+  line1->setBorder(true);
+  line1->setScale(.7f);
+  line1->setCenterTop(true);
+  line1->setCenterLeft(true);
+  auto line2{std::make_unique<GUIComponent>("3_exit", 0, 0, .96f, .3f)};
+  line2->setType(GUIElementType::ELEMENT);
+  line2->setText("Exit Game");
+  line2->setBorder(true);
+  line2->setScale(.7f);
+  line2->setCenterTop(true);
+  line2->setCenterLeft(true);
+
+  mainMenu->addChild(std::move(headline));
+  mainMenu->addChild(std::move(line1));
+  mainMenu->addChild(std::move(line2));
+
+  api.getGUIContext().addComponent(std::move(mainMenu));
+  api.getGUIContext().setComponentVisible("main_menu", true);
+
+  api.getGUIContext().addMouseButtonListener(
+      "2_play", SDL_BUTTON_LEFT, [&api]() {
+        api.setApplicationState(ApplicationState::RUNNING);
+        api.getGUIContext().setComponentVisible("main_menu", false);
+      });
+
+  api.getGUIContext().addMouseButtonListener(
+      "3_exit", SDL_BUTTON_LEFT,
+      [&api]() { api.setApplicationState(ApplicationState::QUIT); });
+
+  api.registerEffect("toggle_main_menu", [](GameAPI &ctxApi, const std::any &) {
+    const auto appState{std::any_cast<ApplicationStateResource>(
+        ctxApi.getResource(std::type_index(typeid(ApplicationStateResource))))};
+    if (appState->state == ApplicationState::MAIN_MENU) {
+      ctxApi.setApplicationState(ApplicationState::RUNNING);
+      ctxApi.getGUIContext().setComponentVisible("main_menu", false);
+    } else if (appState->state == ApplicationState::RUNNING) {
+      ctxApi.setApplicationState(ApplicationState::MAIN_MENU);
+      ctxApi.getGUIContext().setComponentVisible("main_menu", true);
+    }
+  });
+
+  api.registerEventEffectTrigger<KeyDownEvent>(
+      "toggle_main_menu", [](const KeyDownEvent &event) {
+        return event.keycode == SDLK_ESCAPE
+                   ? std::make_optional(std::make_any<bool>(true))
+                   : std::nullopt;
+      });
+
+  api.setApplicationState(ApplicationState::MAIN_MENU);
+
   api.upsertComponent<Inventory>("player",
                                  {{"fireball", "health_potion", "dagger"}});
   api.upsertComponent<Equipment>("player", {""});
@@ -47,7 +116,7 @@ int main() {
       "fireprojectile", {ActorType::FIREBALL}, {1, 1},
       {0, std::vector<std::pair<int, int>>()}, {100, 0}, Physics{true});
 
-  api.registerEntityEffect(
+  api.registerEffect(
       "equip_item", [](GameAPI &ctxApi, const std::any &payload) {
         auto inv{ctxApi.getComponent<Inventory>("player")->inventory};
         auto equ{ctxApi.getComponent<Equipment>("player")->weapon};
@@ -75,7 +144,7 @@ int main() {
         ctxApi.upsertComponent<Equipment>("player", {equ});
       });
 
-  api.registerEntityEffect("shoot", [](GameAPI &ctxApi, const std::any &) {
+  api.registerEffect("shoot", [](GameAPI &ctxApi, const std::any &) {
     const auto &equipment{ctxApi.getComponent<Equipment>("player")};
     const auto &pos{ctxApi.getComponent<Position>("player")};
     const auto &mousePos{ctxApi.getMouseTile()};
@@ -91,29 +160,28 @@ int main() {
         .finish();
   });
 
-  api.registerEntityEffect(
-      "print_player", [](GameAPI &ctxApi, const std::any &) {
-        auto inv{ctxApi.getComponent<Inventory>("player")->inventory};
-        auto equ{ctxApi.getComponent<Equipment>("player")->weapon};
+  api.registerEffect("print_player", [](GameAPI &ctxApi, const std::any &) {
+    auto inv{ctxApi.getComponent<Inventory>("player")->inventory};
+    auto equ{ctxApi.getComponent<Equipment>("player")->weapon};
 
-        ctxApi.print("----------");
+    ctxApi.print("----------");
 
-        for (const auto &item : inv) {
-          ctxApi.print(item);
-        }
+    for (const auto &item : inv) {
+      ctxApi.print(item);
+    }
 
-        ctxApi.print("Equipped:");
-        ctxApi.print(equ);
-        ctxApi.print("----------");
-      });
+    ctxApi.print("Equipped:");
+    ctxApi.print(equ);
+    ctxApi.print("----------");
+  });
 
-  api.registerEntityEffect(
-      "remove_fireprojectile", [](GameAPI &ctxApi, const std::any &payload) {
-        const auto &id{std::any_cast<std::string>(payload)};
-        ctxApi.upsertComponent<Garbage>(id, Garbage{true});
-      });
+  api.registerEffect("remove_fireprojectile",
+                     [](GameAPI &ctxApi, const std::any &payload) {
+                       const auto &id{std::any_cast<std::string>(payload)};
+                       ctxApi.upsertComponent<Garbage>(id, Garbage{true});
+                     });
 
-  api.registerEntityEffect(
+  api.registerEffect(
       "fireprojectile_hit", [](GameAPI &ctxApi, const std::any &payload) {
         const auto &entities{
             std::any_cast<std::pair<std::string, std::string>>(payload)};
@@ -121,38 +189,38 @@ int main() {
         ctxApi.upsertComponent<Garbage>(entities.second, Garbage{true});
       });
 
-  api.registerEventEffectTrigger<KeyDownEvent>(
-      "equip_item", [](const KeyDownEvent &event) {
+  api.registerEventEffectTrigger<GameKeyDownEvent>(
+      "equip_item", [](const GameKeyDownEvent &event) {
         return event.keycode == SDLK_K
                    ? std::make_optional(
                          std::make_any<EquipItem>(EquipItem{"fireball"}))
                    : std::nullopt;
       });
 
-  api.registerEventEffectTrigger<KeyDownEvent>(
-      "equip_item", [](const KeyDownEvent &event) {
+  api.registerEventEffectTrigger<GameKeyDownEvent>(
+      "equip_item", [](const GameKeyDownEvent &event) {
         return event.keycode == SDLK_L
                    ? std::make_optional(
                          std::make_any<EquipItem>(EquipItem{"dagger"}))
                    : std::nullopt;
       });
 
-  api.registerEventEffectTrigger<KeyDownEvent>(
-      "print_player", [](const KeyDownEvent &event) {
+  api.registerEventEffectTrigger<GameKeyDownEvent>(
+      "print_player", [](const GameKeyDownEvent &event) {
         return event.keycode == SDLK_P
                    ? std::make_optional(std::make_any<void *>(nullptr))
                    : std::nullopt;
       });
 
-  api.registerEventEffectTrigger<MouseDownEvent>(
-      "shoot", [](const MouseDownEvent &event) {
+  api.registerEventEffectTrigger<GameMouseDownEvent>(
+      "shoot", [](const GameMouseDownEvent &event) {
         return event.button == SDL_BUTTON_LEFT
                    ? std::make_optional(std::make_any<void *>(nullptr))
                    : std::nullopt;
       });
 
-  /*api.registerEventEffectTrigger<KeyDownEvent>(
-      "shoot", [&ctr, &api](const KeyDownEvent &event) {
+  /*api.registerEventEffectTrigger<GameKeyDownEvent>(
+      "shoot", [&ctr, &api](const GameKeyDownEvent &event) {
         ctr++;
         api.print(std::to_string(ctr));
         return event.keycode == SDLK_SPACE

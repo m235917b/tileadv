@@ -14,7 +14,12 @@ struct SystemRegEntry {
 };
 
 const std::unordered_map<std::string, std::string> systemIdToPhase{
+    std::make_pair<std::string, std::string>("render_clear",
+                                             "render_preparation"),
     std::make_pair<std::string, std::string>("render", "rendering"),
+    std::make_pair<std::string, std::string>("gui", "gui_rendering"),
+    std::make_pair<std::string, std::string>("render_present",
+                                             "post_rendering"),
     std::make_pair<std::string, std::string>("sdl_input", "input"),
     std::make_pair<std::string, std::string>("player_movement", "movement"),
     std::make_pair<std::string, std::string>("player_spawn", "spawn"),

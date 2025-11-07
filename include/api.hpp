@@ -14,6 +14,7 @@
 #include "ecs/ecs.hpp"
 #include "engine/engine.hpp"
 #include "engine/resources.hpp"
+#include "gui/gui.hpp"
 
 // TODO: Wrap GameAPI parameter in interface to hide register functions
 
@@ -37,7 +38,7 @@ public:
 
   void run();
 
-  void registerEntityEffect(std::string id, EntityEffectFn effect);
+  void registerEffect(std::string id, EntityEffectFn effect);
   void registerEventEffectTrigger(std::type_index eventType,
                                   std::string effectId,
                                   EventPayloadAnyFn payload);
@@ -51,6 +52,9 @@ public:
   const std::any *getResource(const std::type_index &type);
   void publishEvent(std::any event);
   bool hasComponent(std::type_index type, const std::string &id);
+  void setApplicationState(ApplicationState state);
+
+  GUIContext &getGUIContext();
 
   template <typename EventType>
   void registerEventEffectTrigger(std::string effectId,

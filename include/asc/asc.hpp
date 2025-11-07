@@ -21,6 +21,7 @@ public:
 
   ECSContext &getECSContext();
   ECSAPI &getECSAPI();
+  GUIContext &getGUIContext();
 
 private:
   ECSContext ecsContext;

@@ -4,16 +4,29 @@
 
 class ECSContext;
 
+struct GameKeyDownEvent {
+  SDL_Keycode keycode;
+};
+
 struct KeyDownEvent {
   SDL_Keycode keycode;
 };
 
-struct KeyUpEvent {
+struct GameKeyUpEvent {
   SDL_Keycode keycode;
+};
+
+struct GameMouseDownEvent {
+  Uint8 button;
 };
 
 struct MouseDownEvent {
   Uint8 button;
+};
+
+struct MouseMotionEvent {
+  float posX;
+  float posY;
 };
 
 void initASCEvents(ECSContext &ecsContext);

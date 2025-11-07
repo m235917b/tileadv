@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <any>
+#include <typeindex>
 
 #include "actor/actor.hpp"
 #include "actor/systems.hpp"
@@ -41,12 +42,14 @@ ASC::ASC()
   initSystems();
 
   ecsContext.getScheduler().bootstrap();
+
+  guiContext.init();
 };
 
 ASC::~ASC() { destroy(); }
 
 void ASC::initASC() {
-  initASCResources(ecsContext, ecsApi);
+  initASCResources(ecsContext, ecsApi, guiContext);
   initASCEvents(ecsContext);
 }
 
@@ -56,8 +59,10 @@ void ASC::initPhases() {
   ecsContext.getScheduler().addPhase("movement", true, false);
   ecsContext.getScheduler().addPhase("logic", true, true);
   ecsContext.getScheduler().addPhase("post_logic", true, true);
-  ecsContext.getScheduler().addPhase("rendering_preparation", true, false);
+  ecsContext.getScheduler().addPhase("render_preparation", false, false);
   ecsContext.getScheduler().addPhase("rendering", false, false);
+  ecsContext.getScheduler().addPhase("gui_rendering", false, false);
+  ecsContext.getScheduler().addPhase("post_rendering", false, false);
 }
 
 void ASC::initModuleSystems(const std::vector<SystemRegEntry> &systems) {
@@ -79,20 +84,37 @@ void ASC::initSystems() {
 void ASC::run() {
   ecsContext.getScheduler().updateOneShotPhase("spawn", 0.f);
 
-  bool run{true};
   auto previousTick{SDL_GetTicks()};
 
-  while (run) {
+  const auto appState{std::any_cast<ApplicationStateResource>(
+      ecsContext.getResourceManager().getResource(
+          std::type_index(typeid(ApplicationStateResource))))};
+
+  auto previousAppState{appState->state};
+
+  while (appState->state != ApplicationState::QUIT) {
     const auto dt{(SDL_GetTicks() - previousTick) / 1000.f};
     previousTick = SDL_GetTicks();
+    if (previousAppState != appState->state) {
+      switch (appState->state) {
+      case ApplicationState::MAIN_MENU:
+        ecsContext.getScheduler().disablePhase("movement");
+        ecsContext.getScheduler().disablePhase("logic");
+        ecsContext.getScheduler().disablePhase("post_logic");
+        break;
+      case ApplicationState::RUNNING:
+        ecsContext.getScheduler().enablePhase("movement");
+        ecsContext.getScheduler().enablePhase("logic");
+        ecsContext.getScheduler().enablePhase("post_logic");
+        break;
+      case ApplicationState::QUIT:
+        break;
+      }
+    }
 
     ecsContext.getScheduler().update(dt);
 
-    if (ecsContext.getResourceManager()
-            .getResource<ApplicationStateResource>()
-            ->state == ApplicationState::QUIT) {
-      run = false;
-    }
+    previousAppState = appState->state;
 
     const auto remaining{(1000.f / float(framerate)) -
                          float(SDL_GetTicks() - previousTick)};
@@ -108,3 +130,5 @@ void ASC::destroy() { destroyView(ecsContext, renderContext); }
 ECSContext &ASC::getECSContext() { return ecsContext; }
 
 ECSAPI &ASC::getECSAPI() { return ecsApi; }
+
+GUIContext &ASC::getGUIContext() { return guiContext; }

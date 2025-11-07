@@ -2,6 +2,7 @@
 
 class ECSContext;
 class ECSAPI;
+class GUIContext;
 
 enum class ApplicationState { RUNNING, MAIN_MENU, QUIT };
 
@@ -27,4 +28,9 @@ struct MousePosResource {
   int tileY;
 };
 
-void initASCResources(ECSContext &ecsContext, ECSAPI &ecsApi);
+struct GUIContextResource {
+  GUIContext *guiContext;
+};
+
+void initASCResources(ECSContext &ecsContext, ECSAPI &ecsApi,
+                      GUIContext &guiContext);
