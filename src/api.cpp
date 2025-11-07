@@ -81,6 +81,10 @@ void GameAPI::upsertComponent(std::string entityId, std::any component) {
                                                          std::move(component));
 }
 
+void GameAPI::upsertResource(std::any component) {
+  asc.getECSContext().getCommandBuffer().upsertResource(std::move(component));
+}
+
 const std::any *GameAPI::getComponent(const std::string &entityId,
                                       const std::type_index &type) {
   return asc.getECSContext().getStore().getComponent(entityId, type);

@@ -27,6 +27,8 @@ struct MouseDownEvent {
 struct MouseMotionEvent {
   float posX;
   float posY;
+  int tileX;
+  int tileY;
 };
 
 void initASCEvents(ECSContext &ecsContext);

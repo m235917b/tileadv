@@ -47,6 +47,7 @@ public:
   // TODO: Return ID of created entity
   ECSEntityBuilder instantiateEntity(std::string recipeId);
   void upsertComponent(std::string entityId, std::any component);
+  void upsertResource(std::any resource);
   const std::any *getComponent(const std::string &entityId,
                                const std::type_index &type);
   const std::any *getResource(const std::type_index &type);
@@ -92,6 +93,10 @@ public:
   template <typename T>
   void upsertComponent(std::string entityId, T component) {
     upsertComponent(std::move(entityId), std::make_any<T>(component));
+  }
+
+  template <typename T> void upsertResource(T resource) {
+    upsertResource(std::type_index(typeid(T)), std::move(resource));
   }
 
   template <typename T> const T *getComponent(const std::string &entityId) {

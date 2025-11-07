@@ -50,19 +50,17 @@ const auto sdlInputSystem{[](ECSContext &context, const float) {
       float mouseX;
       float mouseY;
       SDL_GetMouseState(&mouseX, &mouseY);
+      const auto &tiles{getTileFromPixel(mouseX, mouseY, cam->posX, cam->posY)};
       context.getCommandBuffer().patchResource(
-          std::type_index(typeid(MousePosResource)),
-          [cameraX = cam->posX, cameraY = cam->posY, mouseX,
-           mouseY](std::any &res) {
+          std::type_index(typeid(MousePosResource)), [=](std::any &res) {
             auto &pos{std::any_cast<MousePosResource &>(res)};
             pos.x = mouseX;
             pos.y = mouseY;
-            const auto &tiles{getTileFromPixel(pos.x, pos.y, cameraX, cameraY)};
             pos.tileX = tiles.first;
             pos.tileY = tiles.second;
           });
-      context.getEventBus().publish(
-          std::make_any<MouseMotionEvent>(MouseMotionEvent{mouseX, mouseY}));
+      context.getEventBus().publish(std::make_any<MouseMotionEvent>(
+          MouseMotionEvent{mouseX, mouseY, tiles.first, tiles.second}));
     }
   }
 }};

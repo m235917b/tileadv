@@ -21,7 +21,7 @@ public:
   void flush();
   void print(std::string text);
   void upsertComponent(std::string entityId, std::any component);
-  void upsertResource(std::any component);
+  void upsertResource(std::any resource);
   void patchComponent(std::string entityId, std::type_index type,
                       MemberSetter setter);
   void patchResource(std::type_index type, MemberSetter setter);

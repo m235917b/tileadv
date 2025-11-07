@@ -9,6 +9,7 @@
 #include "actor/resources.hpp"
 #include "chunk/events.hpp"
 #include "chunk/resources.hpp"
+#include "player/resources.hpp"
 
 struct EntityPosMap {
   std::vector<const std::string *> entityMap;
@@ -39,18 +40,29 @@ inline EntityPosMap buildEntityPosMap(ECSContext &ecsContext, int chunkSizeX,
 inline void updateDirection(ECSContext &context, const MoveIntentEvent &event,
                             const Chunk &chunk, EntityPosMap &map, int oldX,
                             int oldY, int newX, int newY) {
+  const auto &playerId{
+      std::any_cast<PlayerIDResource>(context.getResourceManager().getResource(
+          std::type_index(typeid(PlayerIDResource))))};
   if (newY < 0) {
-    context.getEventBus().publish(
-        std::make_any<ChunkBorderEvent>(ChunkBorderEvent{ChunkBorder::NORTH}));
+    if (event.entityId == playerId->id) {
+      context.getEventBus().publish(std::make_any<ChunkBorderEvent>(
+          ChunkBorderEvent{ChunkBorder::NORTH}));
+    }
   } else if (newX < 0) {
-    context.getEventBus().publish(
-        std::make_any<ChunkBorderEvent>(ChunkBorderEvent{ChunkBorder::WEST}));
+    if (event.entityId == playerId->id) {
+      context.getEventBus().publish(
+          std::make_any<ChunkBorderEvent>(ChunkBorderEvent{ChunkBorder::WEST}));
+    }
   } else if (newY >= chunk.sizeY) {
-    context.getEventBus().publish(
-        std::make_any<ChunkBorderEvent>(ChunkBorderEvent{ChunkBorder::SOUTH}));
+    if (event.entityId == playerId->id) {
+      context.getEventBus().publish(std::make_any<ChunkBorderEvent>(
+          ChunkBorderEvent{ChunkBorder::SOUTH}));
+    }
   } else if (newX >= chunk.sizeX) {
-    context.getEventBus().publish(
-        std::make_any<ChunkBorderEvent>(ChunkBorderEvent{ChunkBorder::EAST}));
+    if (event.entityId == playerId->id) {
+      context.getEventBus().publish(
+          std::make_any<ChunkBorderEvent>(ChunkBorderEvent{ChunkBorder::EAST}));
+    }
   } else {
     const auto &tile{getTileAt(chunk, newX, newY)};
     const auto &other{map.entityMap.at(newY * chunk.sizeX + newX)};
