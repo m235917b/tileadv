@@ -14,6 +14,7 @@
 // TODO: Expose init OneShotPhase so the user doesn't have to meta-init
 // TODO: Rework spawning system
 // TODO: Add hit test for mouse position -> entity / component
+// TODO: Remove templated calls from user code and engine code
 
 struct Inventory {
   std::vector<std::string> inventory;
